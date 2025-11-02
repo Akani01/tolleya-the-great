@@ -544,7 +544,7 @@ class SchoolForm(forms.ModelForm):
         widgets = {
             'emis': forms.TextInput(attrs={'class': 'form-control'}),
             'name': forms.TextInput(attrs={'class': 'form-control'}),  # Change to Select if you have school name options
-            'phase': forms.Select(attrs={'class': 'form-control'}),  # ✅ e.g., Foundation, Intermediate, Senior, FET
+            'phase': forms.TextInput(attrs={'class': 'form-control'}),  # ✅ e.g., Foundation, Intermediate, Senior, FET
             'sector': forms.Select(attrs={'class': 'form-control'}),  # ✅ e.g., Public / Independent
             'educators_on_db': forms.NumberInput(attrs={'class': 'form-control'}),
             'school_type': forms.Select(attrs={'class': 'form-control'}),  # ✅ e.g., Primary, Secondary, Combined
