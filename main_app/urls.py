@@ -376,6 +376,8 @@ urlpatterns = [
     path("password_reset/", views.custom_password_reset_request, name="password_reset_request"),
     path("password_reset/done/", custom_password_reset_done, name="custom_password_reset_done"),
     path("reset/<uidb64>/<token>/", views.custom_password_reset_confirm, name="password_reset_confirm"),
+    #UPLOADING AND VIEWING SCHOOLS FROM EXCEL
+    path('upload-schools/', views.upload_schools_from_excel, name='upload_schools'),
     #videos
     path('videos/', views.videos_view, name='videos'),
     path('videos/add/', views.video_add_view, name='video_add'),

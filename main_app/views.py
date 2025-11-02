@@ -1423,3 +1423,36 @@ def get_comments(request, video_id):
         })
     
     return JsonResponse(comments_data, safe=False)
+
+
+def upload_schools_from_excel(request):
+    if request.method == 'POST':
+        form = UploadExcelForm(request.POST, request.FILES)
+        if form.is_valid():
+            excel_file = request.FILES['file']
+            try:
+                df = pd.read_excel(excel_file)
+
+                # Get all valid field names from the School model
+                school_fields = [field.name for field in School._meta.get_fields()]
+
+                count = 0
+                for _, row in df.iterrows():
+                    # Build a dictionary only with valid columns that exist in the Excel
+                    data = {}
+                    for field in school_fields:
+                        if field in df.columns:
+                            data[field] = row.get(field)
+
+                    # Create a new school record using only the valid fields
+                    School.objects.create(**data)
+                    count += 1
+
+                messages.success(request, f"✅ {count} schools imported successfully!")
+                return redirect('school_list')  # Change to your actual list view
+            except Exception as e:
+                messages.error(request, f"Error importing file: {e}")
+    else:
+        form = UploadExcelForm()
+
+    return render(request, 'school/upload_excel.html', {'form': form})

@@ -154,6 +154,15 @@
                             </a>
                         </li>
 
+                        <!-- ✅ NEW Upload Excel Link -->
+                        <li class="nav-item">
+                            {% url 'upload_schools' as upload_schools %}
+                            <a href="{{ upload_schools }}" class="nav-link {% if upload_schools == request.path %} active {% endif %}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Upload Schools (Excel)</p>
+                            </a>
+                        </li>
+
                         <li class="nav-item">
                             {% url 'manage_school' as manage_school %}
                             {% url 'edit_subject' subject_id as edit_school %}

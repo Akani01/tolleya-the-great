@@ -663,3 +663,6 @@ class NewsAndEventsForm(forms.ModelForm):
             'posted_as': forms.Select(attrs={'class': 'form-control'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
+
+class UploadExcelForm(forms.Form):
+    file = forms.FileField(label="Upload Excel File")
