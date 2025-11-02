@@ -1,0 +1,37 @@
+{% extends "main_app/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'circuit_gallery' %}">Circuits</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ circuit.name }}</li>
+        </ol>
+    </nav>
+
+    <!-- Circuit Details Card -->
+    <div class="card shadow-sm rounded-4 p-4">
+        <h3 class="card-title mb-3">{{ circuit.name }}</h3>
+        <hr>
+        <p><strong>Contact:</strong> {{ circuit.contact }}</p>
+        <p><strong>Email:</strong> {{ circuit.email }}</p>
+        <p><strong>WhatsApp:</strong> {{ circuit.whatsapp_number }}</p>
+        <p><strong>Address:</strong> {{ circuit.address|default:"N/A" }}</p>
+
+        <div class="d-flex justify-content-between mt-4">
+            <a href="{% url 'circuit_gallery' %}" class="btn btn-secondary">Back to Gallery</a>
+
+            {% if is_admin %}
+            <div>
+                <a href="{% url 'edit_circuit' circuit.id %}" class="btn btn-warning">Edit</a>
+                <a href="{% url 'delete_circuit' circuit.id %}" class="btn btn-danger"
+                   onclick="return confirm('Are you sure you want to delete this circuit?');">Delete</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

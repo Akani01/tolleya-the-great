@@ -339,6 +339,7 @@ def logout_user(request):
     return redirect("/")
 
 
+#attendance
 @csrf_exempt
 def get_attendance(request):
     subject_id = request.POST.get('subject')
@@ -377,26 +378,56 @@ def circuitGallery(request):
 # List circuits
 def circuitGallery(request):
     user = request.user
-    try:
-        circuit = user.circuit_manager.circuit
-    except Circuit_Manager.DoesNotExist:
-        return redirect('no_access')  # Handle users without a circuit
 
-    context = {'circuit': circuit}
+    # Superuser sees all circuits
+    if user.is_superuser:
+        circuits = Circuit.objects.all()
+        is_admin = True
+    else:
+        # Normal user: show only their assigned circuit(s)
+        try:
+            # Assuming user has a foreign key or M2M to Circuit
+            circuits = user.circuits.all()  # or user.circuit_set.all()
+            if not circuits.exists():
+                return redirect('no_access')
+            is_admin = False
+        except AttributeError:
+            # No circuit assigned
+            return redirect('no_access')
+
+    context = {'circuits': circuits, 'is_admin': is_admin}
     return render(request, 'circuit/circuit_gallery.html', context)
-
 
 # View a single circuit
 def viewCircuit(request, pk):
-    circuit = get_object_or_404(Circuit, id=pk)
-    return render(request, 'circuits/circuit_detail.html', {'circuit': circuit})
+    circuit = get_object_or_404(Circuit, pk=pk)
+    user = request.user
 
+    # Superuser sees everything
+    if user.is_superuser:
+        can_view = True
+    else:
+        # Normal user or circuit manager: check assignment
+        try:
+            if user.circuit_manager.circuit == circuit:
+                can_view = True
+            else:
+                can_view = False
+        except Circuit_Manager.DoesNotExist:
+            can_view = False
 
+    if not can_view:
+        return redirect('no_access')
+
+    return render(request, 'circuit/circuit_detail.html', {'circuit': circuit, 'is_admin': user.is_superuser})
+
+    
 # Add a new circuit with preview
 def addCircuit(request):
     if request.method == 'POST':
         data = request.POST
 
+        # Create the Circuit
         circuit = Circuit.objects.create(
             name=data['name'],
             contact=data['contact'],
@@ -405,20 +436,30 @@ def addCircuit(request):
             address=data.get('address', ''),
         )
 
-        # Optionally update manager's circuit
-        manager = Circuit_Manager.objects.get(admin=request.user)
-        manager.circuit = circuit
-        manager.save()
+        # If user is not superuser, link the circuit to their manager account
+        if not request.user.is_superuser:
+            manager, created = Circuit_Manager.objects.get_or_create(admin=request.user)
+            manager.circuit = circuit
+            manager.save()
+        else:
+            # Optionally show a message for admin
+            messages.success(request, f"Circuit '{circuit.name}' added successfully by Admin.")
 
         return redirect('circuit_gallery')
 
     return render(request, 'circuit/add_circuit.html')
 
+#edit circuit
 def editCircuit(request, pk):
     circuit = get_object_or_404(Circuit, pk=pk)
 
-    if request.user.circuit_manager.circuit != circuit:
-        return redirect('no_access')
+    # Allow access if user is superuser or manages this circuit
+    if not request.user.is_superuser:
+        try:
+            if request.user.circuit_manager.circuit != circuit:
+                return redirect('no_access')
+        except Circuit_Manager.DoesNotExist:
+            return redirect('no_access')
 
     if request.method == 'POST':
         data = request.POST
@@ -428,20 +469,30 @@ def editCircuit(request, pk):
         circuit.whatsapp_number = data['whatsapp_number']
         circuit.address = data.get('address', '')
         circuit.save()
+
+        messages.success(request, f"Circuit '{circuit.name}' updated successfully.")
         return redirect('view_circuit', pk=pk)
 
     context = {'circuit': circuit}
     return render(request, 'circuit/edit_circuit.html', context)
 
-# Delete a circuit
+
+#delete circuit
 def deleteCircuit(request, pk):
     circuit = get_object_or_404(Circuit, pk=pk)
 
-    if request.user.circuit_manager.circuit != circuit:
-        return redirect('no_access')
+    # Allow access if user is superuser or manages this circuit
+    if not request.user.is_superuser:
+        try:
+            if request.user.circuit_manager.circuit != circuit:
+                return redirect('no_access')
+        except Circuit_Manager.DoesNotExist:
+            return redirect('no_access')
 
     circuit.delete()
+    messages.success(request, f"Circuit '{circuit.name}' deleted successfully.")
     return redirect('circuit_gallery')
+
 
 # ########################################################
 # News & Events

@@ -1,0 +1,60 @@
+{% extends "main_app/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'circuit_gallery' %}">Circuits</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'view_circuit' circuit.id %}">{{ circuit.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Edit Circuit</li>
+        </ol>
+    </nav>
+
+    <!-- Edit Form -->
+    <div class="col-md-8 mx-auto">
+        <div class="card shadow-sm rounded-4">
+            <div class="card-body">
+                <h4 class="card-title mb-3">Edit Circuit</h4>
+                <hr>
+
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="form-group mb-3">
+                        <label for="name">Circuit Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ circuit.name }}" required>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="contact">Contact</label>
+                        <input type="text" class="form-control" id="contact" name="contact" value="{{ circuit.contact }}" required>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ circuit.email }}" required>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="whatsapp_number">WhatsApp Number</label>
+                        <input type="text" class="form-control" id="whatsapp_number" name="whatsapp_number" value="{{ circuit.whatsapp_number }}" required>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="address">Address</label>
+                        <textarea class="form-control" id="address" name="address" rows="3">{{ circuit.address }}</textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'view_circuit' circuit.id %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-success">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

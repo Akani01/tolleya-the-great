@@ -543,18 +543,19 @@ class SchoolForm(forms.ModelForm):
         ]
         widgets = {
             'emis': forms.TextInput(attrs={'class': 'form-control'}),
-            'name': forms.Select(attrs={'class': 'form-control'}),  # Select for choices
-            'phase': forms.TextInput(attrs={'class': 'form-control'}),
-            'sector': forms.TextInput(attrs={'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'class': 'form-control'}),  # Change to Select if you have school name options
+            'phase': forms.Select(attrs={'class': 'form-control'}),  # ✅ e.g., Foundation, Intermediate, Senior, FET
+            'sector': forms.Select(attrs={'class': 'form-control'}),  # ✅ e.g., Public / Independent
             'educators_on_db': forms.NumberInput(attrs={'class': 'form-control'}),
-            'school_type': forms.Select(attrs={'class': 'form-control'}),  # Select for choices
-            'school_term': forms.TextInput(attrs={'class': 'form-control'}), # Select for choices
-            'filter_by': forms.Select(attrs={'class': 'form-control'}),  # Select for choices
-            'website_url': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),  # Email field
+            'school_type': forms.Select(attrs={'class': 'form-control'}),  # ✅ e.g., Primary, Secondary, Combined
+            'school_term': forms.Select(attrs={'class': 'form-control'}),  # ✅ e.g., 3 Terms / 4 Terms
+            'filter_by': forms.Select(attrs={'class': 'form-control'}),  # ✅ e.g., District / Circuit filter
+            'website_url': forms.URLInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'whatsapp_number': forms.TextInput(attrs={'class': 'form-control'}),
             'contact': forms.TextInput(attrs={'class': 'form-control'}),
             'address': forms.TextInput(attrs={'class': 'form-control'}),
+            'grade': forms.Select(attrs={'class': 'form-control'}),  # ✅ e.g., Grade R–12
             'year': forms.NumberInput(attrs={'class': 'form-control'}),
             'count': forms.NumberInput(attrs={'class': 'form-control'}),
         }

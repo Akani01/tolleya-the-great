@@ -170,6 +170,7 @@ urlpatterns = [
     path('circuit_gallery/', views.circuitGallery, name='circuit_gallery'),
     path('circuit/<int:pk>/', views.viewCircuit, name='view_circuit'),
     path('add/', views.addCircuit, name='add_circuit'),
+    path('edit/<int:pk>/', views.editCircuit, name='edit_circuit'),
     path('delete/<int:pk>/', views.deleteCircuit, name='delete_circuit'),
   
     # Student

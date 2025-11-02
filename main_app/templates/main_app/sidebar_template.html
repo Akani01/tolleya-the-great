@@ -251,14 +251,6 @@
                         </li>
 
                         <li class="nav-item">
-                            {% url 'view_circuit' 1 as view_circuit %}
-                            <a href="{{ view_circuit }}" class="nav-link {% if view_circuit == request.path %} active {% endif %}">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>View Circuit</p>
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
                             {% url 'add_circuit' as add_circuit %}
                             <a href="{{ add_circuit }}" class="nav-link {% if add_circuit == request.path %} active {% endif %}">
                                 <i class="far fa-circle nav-icon"></i>

@@ -1,0 +1,48 @@
+{% extends "main_app/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h3 class="mb-4">
+        {% if is_admin %}
+            All Circuits (Admin View)
+        {% else %}
+            My Circuit(s)
+        {% endif %}
+    </h3>
+
+    <div class="row">
+        {% for circuit in circuits %}
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm rounded-4 p-3">
+                <h5 class="card-title">{{ circuit.name }}</h5>
+                <p class="card-text">
+                    <strong>Contact:</strong> {{ circuit.contact }}<br>
+                    <strong>Email:</strong> {{ circuit.email }}<br>
+                    <strong>WhatsApp:</strong> {{ circuit.whatsapp_number }}<br>
+                    <strong>Address:</strong> {{ circuit.address|default:"N/A" }}
+                </p>
+                
+                <div class="d-flex justify-content-between mt-3">
+                    <a href="{% url 'view_circuit' circuit.id %}" class="btn btn-primary btn-sm">View</a>
+                    
+                    {% if is_admin %}
+                    <div>
+                        <a href="{% url 'edit_circuit' circuit.id %}" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="{% url 'delete_circuit' circuit.id %}" class="btn btn-danger btn-sm"
+                           onclick="return confirm('Are you sure you want to delete this circuit?');">Delete</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center mt-5">
+            <p>No circuits available.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}
