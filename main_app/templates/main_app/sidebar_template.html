@@ -114,28 +114,33 @@
                         <li class="nav-item">
                             {% url 'add_course' as add_course %}
                             <a href="{{add_course}}"
-                                class="nav-link  {% if add_course == request.path %} active {% endif %}">
+                                class="nav-link {% if add_course == request.path %} active {% endif %}">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>
-                                    Add Course
-
-                                </p>
+                                <p>Add Course</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             {% url 'manage_course' as manage_course %}
                             {% url 'edit_course' course_id as edit_course %}
                             <a href="{{manage_course}}"
-                                class="nav-link  {% if edit_course == request.path or manage_course == request.path %} active {% endif %}">
+                                class="nav-link {% if edit_course == request.path or manage_course == request.path %} active {% endif %}">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>
-                                    Manage Course
+                                <p>Manage Course</p>
+                            </a>
+                        </li>
 
-                                </p>
+                        <!-- ✅ New Upload Excel link -->
+                        <li class="nav-item">
+                            {% url 'upload_courses_excel' as upload_courses_excel %}
+                            <a href="{{upload_courses_excel}}"
+                                class="nav-link {% if upload_courses_excel == request.path %} active {% endif %}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Upload Courses (Excel)</p>
                             </a>
                         </li>
                     </ul>
                 </li>
+
                 <!-- School Dropdown -->
                 <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
@@ -1189,6 +1194,18 @@
                                             </p>
                                         </a>
                                     </li>
+                                    <!-- Add Excel Upload Link Here -->
+                                    <li class="nav-item">
+                                        {% url 'upload_jobs_excel' as upload_jobs_excel %}
+                                        <a href="{{upload_jobs_excel}}"
+                                            class="nav-link  {% if upload_jobs_excel == request.path %} active {% endif %}">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>
+                                                Upload Excel
+                                            </p>
+                                        </a>
+                                    </li>
+                                    <!-- End Excel Upload Link -->
                                     <li class="nav-item">
                                         {% url 'applicationview' as applicationview %}
                                         <a href="{{applicationview}}"

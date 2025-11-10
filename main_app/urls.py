@@ -387,4 +387,7 @@ urlpatterns = [
     path('videos/<int:video_id>/like/', views.like_video, name='like_video'),
     path('videos/<int:video_id>/comment/', views.add_comment, name='add_comment'),
     path('videos/<int:video_id>/comments/', views.get_comments, name='get_comments'),
+    
+    #Course
+    path('upload-excel/', hod_views.upload_courses_from_excel, name='upload_courses_excel'),
 ]

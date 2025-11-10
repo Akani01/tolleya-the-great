@@ -17,4 +17,6 @@ urlpatterns = [
     path('edit-application/<int:pk>/', views.edit_application, name='edit-application'),
     path('delete-job/<str:pk>', views.deleteJob, name="delete-job"),
     path('category/<str:cats>/', views.JobCategoryView, name='category'),
+    #content for jobs and its urls
+    path('upload-jobs-excel/', views.upload_jobs_from_excel, name='upload_jobs_excel'),
 ]

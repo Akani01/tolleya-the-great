@@ -245,7 +245,7 @@ class School(models.Model):
 #Course
 class Course(models.Model):
     name = models.CharField(max_length=120)
-    school = models.ForeignKey(School, on_delete=models.DO_NOTHING, null=True, blank=False)
+    school = models.ForeignKey(School, on_delete=models.DO_NOTHING, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

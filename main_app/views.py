@@ -11,6 +11,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.template.loader import get_template 
 from .EmailBackend import EmailBackend
+import pandas as pd
+import numpy as np
 from django.views.generic import ListView
 from college.models import CollegeAndUniversities
 from django.core.mail import send_mail
@@ -27,6 +29,8 @@ from main_app.models import School, Grade, Term, Subject, Educator
 from django.views import generic
 from django.views.generic import DetailView
 from django.views import View
+import pandas as pd
+import numpy as np
 from photo.models import Photo
 from job.models import Job, Category
 from bursary.forms import BursaryForm
@@ -1425,6 +1429,40 @@ def get_comments(request, video_id):
     return JsonResponse(comments_data, safe=False)
 
 
+#clean data
+def clean_int(value):
+    """
+    Convert messy Excel numbers to integer
+    """
+    if pd.isna(value) or value == "" or value is None:
+        return 0
+
+    value = str(value).strip().lower()
+
+    # remove symbols like ≈, +, commas, spaces, em-dash
+    for ch in ['≈', '~', '+', ',', ' ', '$', '€', '£', '—']:
+        value = value.replace(ch, '')
+
+    # convert "2k" -> 2000, "1.5k" -> 1500
+    if value.endswith('k'):
+        try:
+            return int(float(value[:-1]) * 1000)
+        except:
+            return 0
+    
+    # handle ranges like "100-200" by taking the first value
+    if '-' in value and not value.startswith('-'):
+        try:
+            return int(float(value.split('-')[0]))
+        except:
+            return 0
+
+    # final check: convert clean text to int
+    try:
+        return int(float(value))
+    except:
+        return 0
+
 def upload_schools_from_excel(request):
     if request.method == 'POST':
         form = UploadExcelForm(request.POST, request.FILES)
@@ -1432,26 +1470,184 @@ def upload_schools_from_excel(request):
             excel_file = request.FILES['file']
             try:
                 df = pd.read_excel(excel_file)
+                df = df.replace({np.nan: ""})
+                
+                # ✅ NORMALIZE COLUMN NAMES
+                df.columns = [col.strip().lower() for col in df.columns]
+                print("Available columns:", df.columns.tolist())
+                
+                # ✅ MAP EXCEL COLUMNS TO YOUR MODEL FIELDS
+                column_mapping = {
+                    # Required fields
+                    'emis': ['natemis', 'emis', 'school_code', 'code', 'id'],
+                    'name': ['institution_name', 'school_name', 'school', 'name'],
+                    'contact': ['telephone', 'phone', 'contact', 'contact_number', 'facsimile'],
+                    
+                    # ForeignKey fields
+                    'circuit': ['eicircuit', 'circuit', 'region', 'area'],
+                    
+                    # Basic info fields
+                    'phase': ['phase', 'school_phase', 'type_doe', 'level'],
+                    'sector': ['sector', 'school_sector', 'type'],
+                    'school_type': ['type_doe', 'sector', 'school_type', 'type'],  # Map from Sector/Type_DoE
+                    
+                    # Count fields
+                    'educators_on_db': ['educators_2016', 'teachers', 'educators', 'staff'],
+                    'count': ['learners_2016', 'students', 'learners', 'enrollment'],
+                    
+                    # Address/Contact fields
+                    'address': ['streetaddress', 'address', 'location', 'physical_address', 'postaladdress'],
+                    'email': ['email', 'contact_email'],
+                    'whatsapp_number': ['whatsapp', 'mobile', 'cellphone'],
+                    
+                    # Additional fields from your Excel
+                    'head_principal': ['addressee', 'principal', 'head_principal', 'manager'],
+                    'website_url': ['website', 'url'],
+                    
+                    # Location fields that might help
+                    'grade': ['phase', 'type_doe']  # Map phase to grade
+                }
+                
+                created_count = 0
+                updated_count = 0
+                errors = []
 
-                # Get all valid field names from the School model
-                school_fields = [field.name for field in School._meta.get_fields()]
-
-                count = 0
-                for _, row in df.iterrows():
-                    # Build a dictionary only with valid columns that exist in the Excel
+                for index, row in df.iterrows():
                     data = {}
-                    for field in school_fields:
-                        if field in df.columns:
-                            data[field] = row.get(field)
+                    print(f"📋 Processing row {index + 2}")
 
-                    # Create a new school record using only the valid fields
-                    School.objects.create(**data)
-                    count += 1
+                    # ✅ EXTRACT AND MAP EACH FIELD
+                    for model_field, possible_columns in column_mapping.items():
+                        value = None
+                        
+                        # Find the first matching column
+                        for col in possible_columns:
+                            if col in df.columns:
+                                raw_value = row[col]
+                                if raw_value not in ["", "—", None]:
+                                    value = raw_value
+                                    break
+                        
+                        # Process based on field type
+                        if model_field in ['educators_on_db', 'count', 'school_term', 'year']:
+                            data[model_field] = clean_int(value) if value is not None else 0
+                            
+                        elif model_field == 'circuit' and value:
+                            circuit_obj, _ = Circuit.objects.get_or_create(name=str(value).strip())
+                            data[model_field] = circuit_obj
+                            
+                        elif model_field == 'grade' and value:
+                            # Map Phase to Grade (e.g., "PRIMARY SCHOOL" -> "Primary")
+                            phase_value = str(value).upper()
+                            if 'PRIMARY' in phase_value:
+                                grade_name = 'Primary'
+                            elif 'SECONDARY' in phase_value or 'HIGH' in phase_value:
+                                grade_name = 'Secondary'
+                            elif 'COMBINED' in phase_value:
+                                grade_name = 'Combined'
+                            else:
+                                grade_name = 'Other'
+                            
+                            grade_obj, _ = Grade.objects.get_or_create(name=grade_name)
+                            data[model_field] = grade_obj
+                            
+                        elif model_field == 'school_type' and value:
+                            # Map Sector to school_type
+                            sector_value = str(value).upper()
+                            if 'INDEPENDENT' in sector_value:
+                                data[model_field] = 'Private'
+                            else:
+                                data[model_field] = 'Public'
+                                
+                        elif model_field == 'contact' and not value:
+                            # Ensure contact has a value (required field)
+                            data[model_field] = "Not provided"
+                            
+                        elif value is not None:
+                            data[model_field] = str(value).strip()
+                            
+                        else:
+                            # Set defaults for missing values
+                            if model_field == 'contact':
+                                data[model_field] = "Not provided"
+                            elif model_field in ['educators_on_db', 'count']:
+                                data[model_field] = 0
+                            elif model_field == 'year':
+                                data[model_field] = 2025
+                            elif model_field == 'school_type':
+                                data[model_field] = 'Public'
+                            elif model_field == 'filter_by':
+                                data[model_field] = 'Region'
+                            elif model_field == 'school_term':
+                                data[model_field] = 0
 
-                messages.success(request, f"✅ {count} schools imported successfully!")
-                return redirect('school_list')  # Change to your actual list view
+                    # ✅ SET DEFAULTS FOR REQUIRED FIELDS
+                    defaults = {
+                        'year': 2025,
+                        'count': 0,
+                        'school_term': 0,
+                        'filter_by': 'Region',
+                        'school_type': 'Public',
+                        'educators_on_db': 0,
+                        'contact': 'Not provided',
+                        'address': 'Address not provided',
+                        'phase': 'Unknown',
+                        'sector': 'Unknown'
+                    }
+                    
+                    for field, default_value in defaults.items():
+                        if field not in data or not data[field]:
+                            data[field] = default_value
+
+                    # ✅ GET EMIS FOR IDENTIFICATION
+                    emis_value = data.get('emis')
+                    school_name = data.get('name')
+                    
+                    # Validate EMIS
+                    if not emis_value or str(emis_value).strip() in ["", "—", "nan", "null"]:
+                        errors.append(f"Row {index + 2}: Invalid EMIS '{emis_value}'")
+                        continue
+
+                    # ✅ UPDATE OR CREATE SCHOOL
+                    try:
+                        # Clean the data - remove empty strings
+                        clean_data = {}
+                        for key, value in data.items():
+                            if isinstance(value, str) and value.strip() == "":
+                                clean_data[key] = None
+                            else:
+                                clean_data[key] = value
+
+                        obj, created = School.objects.update_or_create(
+                            emis=str(emis_value).strip(),
+                            defaults=clean_data
+                        )
+                        
+                        if created:
+                            created_count += 1
+                            print(f"✅ Created: {emis_value} - {school_name}")
+                        else:
+                            updated_count += 1
+                            print(f"🔄 Updated: {emis_value} - {school_name}")
+                            
+                    except Exception as e:
+                        error_msg = f"Row {index + 2}: {str(e)}"
+                        errors.append(error_msg)
+                        print(f"❌ Error: {error_msg}")
+
+                # ✅ SHOW RESULTS
+                result_msg = f"✅ {created_count} new schools created, {updated_count} existing schools updated!"
+                if errors:
+                    result_msg += f" ❌ {len(errors)} errors occurred."
+                    print("Errors:", errors)
+                
+                messages.success(request, result_msg)
+                return redirect('manage_school')
+
             except Exception as e:
                 messages.error(request, f"Error importing file: {e}")
+                print(f"File error: {e}")
+
     else:
         form = UploadExcelForm()
 

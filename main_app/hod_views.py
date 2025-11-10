@@ -10,7 +10,8 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import UpdateView
 from django.db.models import Count
-
+import pandas as pd
+import numpy as np
 from .forms import *
 from .models import *
 
@@ -1642,3 +1643,90 @@ def school_performance_view(request):
         'avg_scores': avg_scores,
     }
     return render(request, 'school_performance.html', context)
+
+
+def upload_courses_from_excel(request):
+    if request.method == 'POST':
+        form = CourseExcelUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            excel_file = request.FILES['excel_file']
+            try:
+                df = pd.read_excel(excel_file)
+                df = df.replace({np.nan: ""})
+                
+                df.columns = [col.strip().lower() for col in df.columns]
+                print("Available columns:", df.columns.tolist())
+                
+                created_count = 0
+                updated_count = 0
+                errors = []
+                skipped = []
+
+                for index, row in df.iterrows():
+                    try:
+                        # Get course name
+                        course_name = None
+                        for col in ['name', 'course_name', 'course']:
+                            if col in df.columns and row[col]:
+                                course_name = str(row[col]).strip()
+                                break
+                        
+                        if not course_name:
+                            errors.append(f"Row {index + 2}: Course name is required")
+                            continue
+
+                        # Get school EMIS
+                        school_emis = None
+                        for col in ['school_emis', 'emis', 'school_code']:
+                            if col in df.columns and row[col]:
+                                school_emis = str(row[col]).strip()
+                                break
+                        
+                        school = None
+                        if school_emis and school_emis not in ["", "—"]:
+                            school = School.objects.filter(emis=school_emis).first()
+                            if not school:
+                                errors.append(f"Row {index + 2}: School with EMIS '{school_emis}' not found")
+
+                        # Check if course already exists
+                        existing_course = Course.objects.filter(
+                            name=course_name, 
+                            school=school
+                        ).first()
+                        
+                        if existing_course:
+                            skipped.append(f"Row {index + 2}: Course '{course_name}' already exists")
+                            continue
+
+                        # Create course
+                        Course.objects.create(
+                            name=course_name,
+                            school=school
+                        )
+                        
+                        created_count += 1
+                        school_info = f" for school {school_emis}" if school_emis else ""
+                        print(f"✅ Created: {course_name}{school_info}")
+                        
+                    except Exception as e:
+                        errors.append(f"Row {index + 2}: {str(e)}")
+
+                # Show results
+                result_msg = f"✅ {created_count} courses created"
+                if skipped:
+                    result_msg += f", ⏭️ {len(skipped)} duplicates skipped"
+                if errors:
+                    result_msg += f", ⚠️ {len(errors)} errors"
+                    for error in errors[:3]:
+                        messages.warning(request, error)
+                
+                messages.success(request, result_msg)
+                return redirect('course_list')
+
+            except Exception as e:
+                messages.error(request, f"Error reading Excel file: {e}")
+    
+    else:
+        form = CourseExcelUploadForm()
+    
+    return render(request, 'courses/upload_excel.html', {'form': form})

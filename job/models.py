@@ -9,6 +9,7 @@ EMPLOYED = "EMPLOYED"
 UNEMPLOYED = "UNEMPLOYED"
 PART_TIME_JOB = "PART_TIME_JOB"
 LEARNERSHIP = "LEARNERSHIP"
+INTERNSHIP = "INTERNSHIP"
 
 SINGLE = "SINGLE"
 MARRIED = "MARRIED"
@@ -20,6 +21,7 @@ STATUS = (
     (UNEMPLOYED, "UNEMPLOYED"),
     (PART_TIME_JOB, "PART_TIME_JOB"),
     (LEARNERSHIP, "LEARNERSHIP"),
+    (INTERNSHIP, "INTERNSHIP"),
     
 )
 
@@ -72,6 +74,8 @@ class Job(models.Model):
     def __str__(self):
         return self.description
 
+
+#apply jobs
 class ApplyJob(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,  # links to your custom user model

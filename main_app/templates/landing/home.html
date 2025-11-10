@@ -150,7 +150,6 @@
 							<!-- Contact -->
 							<ul class="top-link">
 								<li><a href="{% url 'about' %}">About</a></li>
-								<li><a href="{% url 'circuitmanager' %}">C.Manager</a></li>
 								<li><a href="{% url 'contact_form' %}">Contact</a></li>
 								<li><a href="{% url 'faq' %}">FAQ</a></li>
 							</ul>
@@ -160,7 +159,7 @@
 							<!-- Top Contact -->
 							<ul class="top-contact">
 								<li><i class="fa fa-phone"></i>+27 68 477 1271</li>
-							    <li><i class="fa fa-envelope"></i> <a href="mailto:support@tolleya.vhembe.co.za">support@tolleya.vhembe.co.za</a></li>
+							    <li><i class="fa fa-envelope"></i> <a href="madenet@proton.me">madenet</a></li>
 							</ul>
 							<!-- End Top Contact -->
 						</div>
@@ -479,7 +478,7 @@
 								<div class="text">
 									<h1>Welcome to the great <span>Tolleya</span> Education Network.</h1>
 									<h1><span>The Gen Z, Software </span></h1>
-									<p>Connecting schools within our circuit to foster collaboration, share resources, and build a brighter future for every learner.</p>
+									<p>Connecting schools within our continent to foster collaboration, share resources, and build a brighter future for every learner.</p>
 									<div class="button">
 										<a href="{% url 'register_selection' %}" class="btn">Register</a>
 										<a href="{% url 'school_dashboard' %}" class="btn primary">School Dashboard</a>
@@ -3372,44 +3371,6 @@
 		</script>
 
 		<!-- Start clients -->
-
-		<div id="school-section">
-		    <div class="container bg-primary py-5">
-		        <h2 class="text-center text-white mb-4">School Dashboard</h2>
-		        <div class="row">
-		            {% for school in schools %}
-		            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-		                <div class="card text-center bg-secondary h-100">
-		                    <!-- School Logo -->
-		                    <div class="card-header">
-		                        {% if school.logo %}
-		                        <img src="{{ school.logo.url }}" alt="{{ school.name }}" class="img-fluid rounded-circle" style="max-height: 100px;">
-		                        {% else %}
-		                        <img src="{% static 'img/default-logo.png' %}" alt="Default Logo" class="img-fluid rounded-circle" style="max-height: 100px;">
-		                        {% endif %}
-		                        <h5 class="mt-3 text-white">{{ school.name }}</h5>
-		                    </div>
-		                    <!-- School Details -->
-		                    <div class="card-body">
-		                        <p class="text-white"><strong>Principal:</strong> {{ school.head_principal }}</p>
-		                        <p class="text-white"><strong>Address:</strong> {{ school.address }}</p>
-		                        <p class="text-white"><strong>Contact:</strong> {{ school.email }}</p>
-		                        <p class="text-white"><strong>Website:</strong>
-		                            <a href="https://{{ school.website_url }}" class="text-warning" target="_blank">
-		                                {{ school.website_url }}
-		                            </a>
-		                        </p>
-		                        <p class="text-white"><strong>Total Learners:</strong> {{ school.count }}</p>
-		                        <p class="text-white"><strong>Filter By:</strong> {{ school.filter_by }}</p>
-		                        <p class="text-white"><strong>Grades:</strong> {{ school.grade }}</p>
-		                    </div>
-		                </div>
-		            </div>
-		            {% endfor %}
-		        </div>
-		    </div>
-		</div>
-
 		<!-- Start Appointment -->
 		<section class="appointment">
 			<div class="container">

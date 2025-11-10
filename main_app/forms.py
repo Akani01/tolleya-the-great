@@ -162,68 +162,50 @@ class MemberForm(CustomUserForm):
         fields = CustomUserForm.Meta.fields + ['school', 'position', 'session', 'term']
 
 #cwa user
-class CWA_AdminForm(CustomUserForm):
-    def __init__(self, *args, **kwargs):
-        super(CWA_AdminForm, self).__init__(*args, **kwargs)
-        
-        # Optional: Add Bootstrap styling
-        for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
-
-    class Meta(CustomUserForm.Meta):
+class CWA_AdminEditForm(forms.ModelForm):
+    class Meta:
         model = CWA_Admin
-        fields = CustomUserForm.Meta.fields + ['school', 'collegeanduniversity', 'bursary', 'session', 'term']
+        fields = ['admin', 'school', 'collegeanduniversity', 'bursary']
+        widgets = {
+            'admin': forms.HiddenInput(),
+        }
 
-#parent form
-class ParentForm(CustomUserForm):
-    students = forms.ModelMultipleChoiceField(
-        queryset=Student.objects.all(),
-        widget=forms.SelectMultiple(attrs={'class': 'form-control'}),
-        required=True
-    )
-    school = forms.ModelChoiceField(
-        queryset=School.objects.all(),
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        required=True
-    )
-    session = forms.ModelChoiceField(
-        queryset=Session.objects.all(),
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        required=False
-    )
-    term = forms.ModelChoiceField(
-        queryset=Term.objects.all(),
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        required=False
-    )
+    # Custom fields for the CustomUser
+    first_name = forms.CharField(max_length=30, required=True)
+    last_name = forms.CharField(max_length=30, required=True)
+    address = forms.CharField(widget=forms.Textarea, required=False)
+    gender = forms.ChoiceField(choices=[('M', 'Male'), ('F', 'Female'), ('O', 'Other')], required=False)
+    position = forms.CharField(max_length=30, required=True)
+    profile_pic = forms.ImageField(required=False)
 
-    relationship = forms.ChoiceField(
-        choices=Parent.RELATIONSHIP_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        required=True
-    )
-    employment_status = forms.ChoiceField(
-        choices=Parent.EMPLOYMENT_STATUS,
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        required=False
-    )
-    occupation = forms.CharField(
-        max_length=100,
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
-        required=False
-    )
-    education_level = forms.ChoiceField(
-        choices=Parent.EDUCATION_LEVELS,
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        required=False
-    )
+    def __init__(self, *args, **kwargs):
+        super(CWA_AdminEditForm, self).__init__(*args, **kwargs)
+        if 'instance' in kwargs:
+            instance = kwargs['instance']
+            self.fields['first_name'].initial = instance.admin.first_name
+            self.fields['last_name'].initial = instance.admin.last_name
+            self.fields['address'].initial = instance.admin.address
+            self.fields['gender'].initial = instance.admin.gender
+            self.fields['profile_pic'].initial = instance.admin.profile_pic
 
-    class Meta(CustomUserForm.Meta):
-        model = Parent
-        fields = CustomUserForm.Meta.fields + [
-            'school', 'students', 'session', 'term',
-            'relationship', 'employment_status', 'occupation', 'education_level'
-        ]
+    def save(self, commit=True):
+        cwa_admin = super(CWA_AdminEditForm, self).save(commit=False)
+        admin = cwa_admin.admin
+        
+        # Update CustomUser fields
+        admin.first_name = self.cleaned_data['first_name']
+        admin.last_name = self.cleaned_data['last_name']
+        admin.address = self.cleaned_data['address']
+        admin.gender = self.cleaned_data['gender']
+        
+        if self.cleaned_data['profile_pic']:
+            admin.profile_pic = self.cleaned_data['profile_pic']
+        
+        if commit:
+            admin.save()
+            cwa_admin.save()
+        
+        return cwa_admin
         
 #principal form
 class PrincipalForm(CustomUserForm):
@@ -335,16 +317,13 @@ class CWA_AdminEditForm(forms.ModelForm):
         return principal
     
 #circuit manager
-class Circuit_ManagerForm(CustomUserForm):
+class CircuitManagerEditForm(CustomUserForm):
     def __init__(self, *args, **kwargs):
-        super(Circuit_ManagerForm, self).__init__(*args, **kwargs)
+        super(CircuitManagerEditForm, self).__init__(*args, **kwargs)
 
     class Meta(CustomUserForm.Meta):
         model = Circuit_Manager
-        fields = CustomUserForm.Meta.fields + \
-            ['circuit']
-    #attendancereport, subject, course, session, term, student, educator, parent, principal, member, studentresult, 
-
+        fields = CustomUserForm.Meta.fields
 
 #termform
 class TermForm(forms.ModelForm):
@@ -539,28 +518,40 @@ class SchoolForm(forms.ModelForm):
             'emis', 'name', 'contact', 'phase', 'sector', 'educators_on_db',
             'school_type', 'school_term', 'logo', 'head_principal', 'deputy',
             'filter_by', 'website_url', 'email', 'whatsapp_number', 'grade',
-            'address', 'year', 'count'
+            'circuit', 'address', 'year', 'count'
         ]
         widgets = {
             'emis': forms.TextInput(attrs={'class': 'form-control'}),
-            'name': forms.TextInput(attrs={'class': 'form-control'}),  # Change to Select if you have school name options
-            'phase': forms.TextInput(attrs={'class': 'form-control'}),  # ✅ e.g., Foundation, Intermediate, Senior, FET
-            'sector': forms.Select(attrs={'class': 'form-control'}),  # ✅ e.g., Public / Independent
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'contact': forms.TextInput(attrs={'class': 'form-control'}),
+            'phase': forms.TextInput(attrs={'class': 'form-control'}),
+            'sector': forms.TextInput(attrs={'class': 'form-control'}),
             'educators_on_db': forms.NumberInput(attrs={'class': 'form-control'}),
-            'school_type': forms.Select(attrs={'class': 'form-control'}),  # ✅ e.g., Primary, Secondary, Combined
-            'school_term': forms.Select(attrs={'class': 'form-control'}),  # ✅ e.g., 3 Terms / 4 Terms
-            'filter_by': forms.Select(attrs={'class': 'form-control'}),  # ✅ e.g., District / Circuit filter
+
+            # Correct: Model has choices
+            'school_type': forms.Select(attrs={'class': 'form-control'}),
+            'filter_by': forms.Select(attrs={'class': 'form-control'}),
+
+            # Correct widget for IntegerField (no choices)
+            'school_term': forms.NumberInput(attrs={'class': 'form-control'}),
+
+            'logo': forms.FileInput(attrs={'class': 'form-control'}),
+            'head_principal': forms.TextInput(attrs={'class': 'form-control'}),
+            'deputy': forms.TextInput(attrs={'class': 'form-control'}),
+
             'website_url': forms.URLInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'whatsapp_number': forms.TextInput(attrs={'class': 'form-control'}),
-            'contact': forms.TextInput(attrs={'class': 'form-control'}),
-            'address': forms.TextInput(attrs={'class': 'form-control'}),
-            'grade': forms.Select(attrs={'class': 'form-control'}),  # ✅ e.g., Grade R–12
+
+            # FIXED: TextField → Textarea
+            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+
+            'grade': forms.Select(attrs={'class': 'form-control'}),
+            'circuit': forms.Select(attrs={'class': 'form-control'}),
+
             'year': forms.NumberInput(attrs={'class': 'form-control'}),
             'count': forms.NumberInput(attrs={'class': 'form-control'}),
         }
-
-
         
 #school dashboard phase
 class SchoolEditForm(forms.ModelForm):
@@ -666,3 +657,10 @@ class NewsAndEventsForm(forms.ModelForm):
 
 class UploadExcelForm(forms.Form):
     file = forms.FileField(label="Upload Excel File")
+
+#course form
+class CourseExcelUploadForm(forms.Form):
+    excel_file = forms.FileField(
+        label='Excel File',
+        widget=forms.FileInput(attrs={'class': 'form-control'})
+    )
