@@ -1652,3 +1652,4 @@ def upload_schools_from_excel(request):
         form = UploadExcelForm()
 
     return render(request, 'school/upload_excel.html', {'form': form})
+

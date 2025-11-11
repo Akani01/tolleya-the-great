@@ -1,148 +1,169 @@
 {% extends 'main_app/base.html' %}
 {% load static %}
-{% block page_title %}{{page_title}}{% endblock page_title %}
+{% block page_title %}{{ page_title }}{% endblock page_title %}
 
 {% block custom_css %}
+<!-- ✅ Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 <style>
-    .invalid{
-      font-style: italic;
-      font-weight: bold;
-      color: red;
-    }
-    .valid{
-      font-style: italic;
-      font-weight: bold;
-      color: green;
-    }
-    .password-wrapper {
-      position: relative;
-      display: inline-block;
-    }
-    .password-wrapper button {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      cursor: pointer;
-    }
+  .invalid {
+    font-style: italic;
+    font-weight: bold;
+    color: red;
+  }
+
+  .valid {
+    font-style: italic;
+    font-weight: bold;
+    color: green;
+  }
+
+  .password-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+  }
+
+  .password-wrapper button {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  button[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 </style>
 {% endblock custom_css %}
 
 {% block content %}
 <section class="content">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card card-dark">
-                    <div class="card-header">
-                        <h3 class="card-title">{{page_title}}</h3>
-                    </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card card-dark">
+          <div class="card-header">
+            <h3 class="card-title">{{ page_title }}</h3>
+          </div>
 
-                    {% include "main_app/form_template.html" with messages=messages  form=form button_text="Add Staff"%}
-                </div>
-            </div>
+          {% include "main_app/form_template.html" with messages=messages form=form button_text="Add Staff" %}
         </div>
+      </div>
     </div>
+  </div>
 </section>
 {% endblock content %}
 
 {% block custom_js %}
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-/>
+<!-- ✅ Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
-function validateEmail(email) {
-    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
-}
-
 $(document).ready(function () {
-    const addBtn = $("button[type='submit']");
-    addBtn.hide();
+  const form = $("form");
+  const addButton = form.find("button[type='submit']");
+  addButton.prop("disabled", true);
 
-    const passwordField = $("#id_password");
-    if (passwordField.length) {
-        passwordField.wrap('<div class="password-wrapper"></div>');
-        passwordField.after(`
-            <button type="button" id="togglePassword">
-                <i class="fas fa-eye"></i>
-            </button>
-        `);
+  let emailValid = false;
 
-        $(document).on("click", "#togglePassword", function () {
-            const inputType = passwordField.attr("type");
-            const icon = $(this).find("i");
-            if (inputType === "password") {
-                passwordField.attr("type", "text");
-                icon.removeClass("fa-eye").addClass("fa-eye-slash");
-            } else {
-                passwordField.attr("type", "password");
-                icon.removeClass("fa-eye-slash").addClass("fa-eye");
-            }
-        });
-    }
+  // ✅ Make school searchable
+  $('#id_school').select2({
+    placeholder: 'Select or search for a school',
+    allowClear: true,
+    width: '100%',
+  });
 
-    function checkFormCompletion() {
-        let isValid = true;
-        const requiredFields = [
-            "#id_first_name",
-            "#id_last_name",
-            "#id_address",
-            "#id_school",
-            "#id_email",
-            "#id_gender",
-            "#id_password",
-            "#id_course",
-            "#id_profile_pic"
-        ];
+  // ✅ Password toggle
+  const passwordField = $("#id_password");
+  if (passwordField.length) {
+    passwordField.wrap('<div class="password-wrapper"></div>');
+    passwordField.after(`
+      <button type="button" id="togglePassword">
+        <i class="fas fa-eye"></i>
+      </button>
+    `);
 
-        requiredFields.forEach(function (selector) {
-            const value = $(selector).val();
-            if (!value || value.trim() === "") {
-                isValid = false;
-            }
-        });
+    $(document).on("click", "#togglePassword", function () {
+      const inputType = passwordField.attr("type");
+      const icon = $(this).find("i");
+      if (inputType === "password") {
+        passwordField.attr("type", "text");
+        icon.removeClass("fa-eye").addClass("fa-eye-slash");
+      } else {
+        passwordField.attr("type", "password");
+        icon.removeClass("fa-eye-slash").addClass("fa-eye");
+      }
+    });
+  }
 
-        const emailVal = $("#id_email").val();
-        if (!validateEmail(emailVal)) {
-            isValid = false;
-        }
+  // ✅ Email validation regex
+  function validateEmail(email) {
+    const re =
+      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+  }
 
-        if (isValid) {
-            addBtn.fadeIn();
-        } else {
-            addBtn.fadeOut();
-        }
-    }
+  // ✅ Check if form is filled
+  function checkFormFilled() {
+    let allFilled = true;
 
-    $("input, select").on("input change", checkFormCompletion);
-
-    $("#id_email").keyup(function () {
-        var email = $(this).val();
-        if (validateEmail(email)) {
-            $.ajax({
-                url: "{% url 'check_email_availability' %}",
-                type: 'POST',
-                data: {email: email},
-            }).done(function(response){
-                $(".email_error").remove();
-                if (response == "True") {
-                    $("<span class='invalid email_error'>Email Address Already Exist</span>").insertAfter("#id_email");
-                } else {
-                    $("<span class='valid email_error'>Email Address Available</span>").insertAfter("#id_email");
-                }
-                checkFormCompletion();
-            }).fail(function(){
-                $("<span class='alert alert-warning'>Server Could Not Process This</span>").insertAfter("#id_email");
-            });
-        }
+    form.find("input, select, textarea").each(function () {
+      if ($(this).prop("required") && $(this).val().trim() === "") {
+        allFilled = false;
+      }
     });
 
-    checkFormCompletion(); // initial check
+    if (allFilled && emailValid) {
+      addButton.prop("disabled", false);
+    } else {
+      addButton.prop("disabled", true);
+    }
+  }
+
+  // ✅ Email availability + live validation
+  $("#id_email").on("keyup change", function () {
+    var email = $(this).val();
+    if (validateEmail(email)) {
+      $.ajax({
+        url: "{% url 'check_email_availability' %}",
+        type: "POST",
+        data: { email: email },
+      })
+        .done(function (response) {
+          $(".email_error").remove();
+          if (response === "True") {
+            $("<span class='invalid email_error'>Email Address Already Exists</span>").insertAfter("#id_email");
+            emailValid = false;
+          } else {
+            $("<span class='valid email_error'>Email Address Available</span>").insertAfter("#id_email");
+            emailValid = true;
+          }
+          checkFormFilled();
+        })
+        .fail(function () {
+          $(".email_error").remove();
+          $("<span class='invalid email_error'>Server Error — Try Again</span>").insertAfter("#id_email");
+          emailValid = false;
+          checkFormFilled();
+        });
+    } else {
+      $(".email_error").remove();
+      $("<span class='invalid email_error'>Invalid Email Format</span>").insertAfter("#id_email");
+      emailValid = false;
+      checkFormFilled();
+    }
+  });
+
+  // ✅ Watch all fields for changes
+  form.find("input, select, textarea").on("keyup change", function () {
+    checkFormFilled();
+  });
 });
 </script>
 {% endblock custom_js %}

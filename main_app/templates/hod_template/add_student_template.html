@@ -2,6 +2,9 @@
 {% load static %}
 
 {% block custom_css %}
+<!-- ✅ Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 <style>
   .invalid {
     font-style: italic;
@@ -13,6 +16,7 @@
     font-weight: bold;
     color: green;
   }
+
   button[disabled] {
     opacity: 0.6;
     cursor: not-allowed;
@@ -33,6 +37,7 @@
             <h3 class="card-title">{{ page_title }}</h3>
           </div>
 
+          <!-- ✅ Include your existing reusable form -->
           {% include "main_app/form_template.html" with messages=messages form=form button_text="Add Student" %}
         </div>
         <!-- /.card -->
@@ -43,23 +48,32 @@
 {% endblock content %}
 
 {% block custom_js %}
-<script>
-function validateEmail(email) {
-  const re =
-    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return re.test(String(email).toLowerCase());
-}
+<!-- ✅ Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+<script>
 $(document).ready(function () {
+  // ✅ Enable Select2 search on the school dropdown
+  $('#id_school').select2({
+    placeholder: 'Select or search for a school',
+    allowClear: true,
+    width: '100%',
+  });
+
+  // --- Existing email + form validation logic ---
   const form = $("form");
   const addButton = form.find("button[type='submit']");
   addButton.prop("disabled", true);
 
   let emailValid = false;
 
+  function validateEmail(email) {
+    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+  }
+
   function checkFormFilled() {
     let allFilled = true;
-
     form.find("input, select, textarea").each(function () {
       if ($(this).prop("required") && $(this).val().trim() === "") {
         allFilled = false;
@@ -73,7 +87,6 @@ $(document).ready(function () {
     }
   }
 
-  // Validate email input dynamically
   $("#id_email").on("keyup change", function () {
     var email = $(this).val();
     if (validateEmail(email)) {
@@ -83,12 +96,11 @@ $(document).ready(function () {
         data: { email: email },
       })
         .done(function (response) {
+          $(".email_error").remove();
           if (response === "True") {
-            $(".email_error").remove();
             $("<span class='invalid email_error'>Email Address Already Exists</span>").insertAfter("#id_email");
             emailValid = false;
           } else {
-            $(".email_error").remove();
             $("<span class='valid email_error'>Email Address Available</span>").insertAfter("#id_email");
             emailValid = true;
           }
@@ -108,10 +120,7 @@ $(document).ready(function () {
     }
   });
 
-  // Monitor all inputs in the form
-  form.find("input, select, textarea").on("keyup change", function () {
-    checkFormFilled();
-  });
+  form.find("input, select, textarea").on("keyup change", checkFormFilled);
 });
 </script>
 {% endblock custom_js %}

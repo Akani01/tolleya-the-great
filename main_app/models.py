@@ -256,7 +256,7 @@ class Course(models.Model):
 
 #Custom User 2
 class Staff(models.Model):
-    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, null=True, blank=False)
+    school = models.ForeignKey(School, on_delete=models.DO_NOTHING, null=True, blank=False)
     admin = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -279,16 +279,13 @@ class Subject(models.Model):
 # EDUCATOR MODEL
 class Educator(models.Model):
     admin = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    circuit = models.ForeignKey(Circuit, on_delete=models.DO_NOTHING, null=True, blank=False)
-    school = models.ForeignKey(School, on_delete=models.DO_NOTHING, null=True, blank=False)
-    grade = models.ForeignKey('Grade', on_delete=models.DO_NOTHING, null=True)
+    school = models.ForeignKey(School, on_delete=models.DO_NOTHING, null=True)
+    grades = models.ManyToManyField('Grade')  # ✅ changed to many-to-many
     subjects = models.ManyToManyField('Subject')
-    session = models.ForeignKey('Session', on_delete=models.DO_NOTHING, null=True)
-    term = models.ForeignKey('Term', on_delete=models.DO_NOTHING, null=True)
-    course = models.ForeignKey('Course', on_delete=models.DO_NOTHING, null=True, blank=False)
 
     def __str__(self):
         return f"{self.admin.last_name}, {self.admin.first_name}"
+
     
 #Admin
 class Admin(models.Model):
@@ -300,7 +297,6 @@ class Admin(models.Model):
 class Student(models.Model):
     admin = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     course = models.ForeignKey('Course', on_delete=models.DO_NOTHING, null=True, blank=False)
-    session = models.ForeignKey('Session', on_delete=models.DO_NOTHING, null=True)
     circuit = models.ForeignKey(Circuit, on_delete=models.DO_NOTHING, null=True, blank=False)
     school = models.ForeignKey(School, on_delete=models.DO_NOTHING, null=True, blank=False)
     grade = models.ForeignKey('Grade', on_delete=models.DO_NOTHING, null=True, blank=False)
@@ -402,12 +398,9 @@ class StudentResult(models.Model):
 #MEMBER
 class Member(models.Model):
    admin = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-   school = models.ForeignKey(School, on_delete=models.DO_NOTHING, null=True, blank=False)
    position = models.CharField(max_length=20, null=True, blank=True)
    #report
-   session = models.ForeignKey(Session, on_delete=models.DO_NOTHING, null=True)
-   term = models.ForeignKey(Term, on_delete=models.DO_NOTHING, null=True)
-
+   
    def __str__(self):
         return self.admin.last_name + ", " + self.admin.first_name
 
@@ -472,21 +465,18 @@ class Parent(models.Model):
     def __str__(self):
         return f"{self.admin.last_name}, {self.admin.first_name}"
 
-#Custom User 4
+#Principal
+# Custom User 4
 class Principal(models.Model):
     admin = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    circuit = models.ForeignKey(Circuit, on_delete=models.DO_NOTHING, null=True, blank=False)
     school = models.ForeignKey(School, on_delete=models.DO_NOTHING, null=True, blank=False)
-    grade = models.ForeignKey(Grade, on_delete=models.DO_NOTHING, null=True)
-    #report
-    subject = models.ForeignKey(Subject, on_delete=models.DO_NOTHING, null=True)
-    term = models.ForeignKey(Term, on_delete=models.DO_NOTHING, null=True)
-    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, null=True, blank=False)
-    #attendancereport, subject, course, session, term, student, studentresult, educator, parent, member
+    grades = models.ManyToManyField(Grade)  # ✅ Changed to ManyToMany
+    subjects = models.ManyToManyField(Subject)  # ✅ Changed to ManyToMany
 
     def __str__(self):
         return self.admin.last_name + ", " + self.admin.first_name
 
+        
 #Circuit manager
 class Circuit_Manager(models.Model):
     admin = models.OneToOneField(CustomUser, on_delete=models.CASCADE)

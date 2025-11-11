@@ -61,92 +61,57 @@ class CustomUserForm(FormSettings):
 class StudentForm(CustomUserForm):
     class Meta(CustomUserForm.Meta):
         model = Student
-        fields = CustomUserForm.Meta.fields + ['school', 'grade', 'course', 'session', 'circuit']
+        fields = CustomUserForm.Meta.fields + ['school', 'grade', 'course']
+        # Notice: circuit removed from here
 
     def __init__(self, *args, **kwargs):
-        super(StudentForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
-        # Mark required fields
-        required_fields = ['circuit', 'school', 'grade', 'course', 'session']
+        required_fields = ['school', 'grade', 'course']
         for field in required_fields:
             if field in self.fields:
                 self.fields[field].required = True
 
-        # Optional: Add Bootstrap styling
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
-  
 
-#educator
+
+#educator form 
+# educator form 
+# educator form 
 class EducatorForm(CustomUserForm):
     class Meta(CustomUserForm.Meta):
         model = Educator
-        fields = CustomUserForm.Meta.fields + [
-            'circuit', 'school', 'grade', 'session', 'term', 'course', 'subjects'
-        ]
+        fields = CustomUserForm.Meta.fields + ['school', 'grades', 'subjects']
 
     def __init__(self, *args, **kwargs):
         super(EducatorForm, self).__init__(*args, **kwargs)
 
-        # Add missing model fields to form manually
-        self.fields['circuit'] = forms.ModelChoiceField(
-            queryset=Circuit.objects.all(),
-            required=True,
-            label="Circuit"
-        )
         self.fields['school'] = forms.ModelChoiceField(
             queryset=School.objects.all(),
             required=True,
             label="School"
         )
-        self.fields['grade'] = forms.ModelChoiceField(
+
+        self.fields['grades'] = forms.ModelMultipleChoiceField(
             queryset=Grade.objects.all(),
             required=True,
-            label="Grade"
+            widget=forms.CheckboxSelectMultiple,  # ✅ Changed to checkboxes
+            label="Grades Taught"
         )
-        self.fields['session'] = forms.ModelChoiceField(
-            queryset=Session.objects.all(),
-            required=True,
-            label="Session"
-        )
-        self.fields['term'] = forms.ModelChoiceField(
-            queryset=Term.objects.all(),
-            required=True,
-            label="Term"
-        )
-        self.fields['course'] = forms.ModelChoiceField(
-            queryset=Course.objects.all(),
-            required=True,
-            label="Course"
-        )
+
         self.fields['subjects'] = forms.ModelMultipleChoiceField(
             queryset=Subject.objects.all(),
             required=True,
-            widget=forms.SelectMultiple(attrs={'size': 5}),
-            label="Subjects"
+            widget=forms.CheckboxSelectMultiple,  # ✅ Changed to checkboxes
+            label="Subjects Taught"
         )
 
-        # Add Bootstrap classes
+        # ✅ Bootstrap styling
         for field in self.fields.values():
-            field.widget.attrs['class'] = 'form-control'
+            if not isinstance(field.widget, forms.CheckboxSelectMultiple):
+                field.widget.attrs['class'] = 'form-control'
 
-        # Crispy layout (optional)
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Row(
-                Column('circuit', css_class='form-group col-md-6'),
-                Column('school', css_class='form-group col-md-6'),
-            ),
-            Row(
-                Column('grade', css_class='form-group col-md-4'),
-                Column('session', css_class='form-group col-md-4'),
-                Column('term', css_class='form-group col-md-4'),
-            ),
-            Row(
-                Column('course', css_class='form-group col-md-6'),
-                Column('subjects', css_class='form-group col-md-6'),
-            )
-        )
 
 #member
 class MemberForm(CustomUserForm):
@@ -159,7 +124,8 @@ class MemberForm(CustomUserForm):
 
     class Meta(CustomUserForm.Meta):
         model = Member
-        fields = CustomUserForm.Meta.fields + ['school', 'position', 'session', 'term']
+        fields = CustomUserForm.Meta.fields + ['position']  # ✅ Only fields that exist
+
 
 #cwa user
 class CWA_AdminEditForm(forms.ModelForm):
@@ -209,28 +175,42 @@ class CWA_AdminEditForm(forms.ModelForm):
         
 #principal form
 class PrincipalForm(CustomUserForm):
+    class Meta(CustomUserForm.Meta):
+        model = Principal
+        fields = CustomUserForm.Meta.fields + ['school', 'grades', 'subjects']  # ✅ ManyToMany fields
+
     def __init__(self, *args, **kwargs):
         super(PrincipalForm, self).__init__(*args, **kwargs)
         
-        # Make specific fields required
-        self.fields['circuit'].required = True
-        self.fields['school'].required = True
-        self.fields['grade'].required = True
+        self.fields['school'] = forms.ModelChoiceField(
+            queryset=School.objects.all(),
+            required=True,
+            label="School"
+        )
+        
+        self.fields['grades'] = forms.ModelMultipleChoiceField(  # ✅ Multiple selection
+            queryset=Grade.objects.all(),
+            required=True,
+            widget=forms.CheckboxSelectMultiple,
+            label="Grades Taught"
+        )
+        
+        self.fields['subjects'] = forms.ModelMultipleChoiceField(  # ✅ Multiple selection
+            queryset=Subject.objects.all(),
+            required=True,
+            widget=forms.CheckboxSelectMultiple,
+            label="Subjects Taught"
+        )
 
-        # Optional: Add Bootstrap styling
-        for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
-
-    class Meta(CustomUserForm.Meta):
-        model = Principal
-        fields = CustomUserForm.Meta.fields + ['circuit', 'school', 'grade', 'subject', 'term', 'course']
-
+        for field in self.fields.values():
+            if not isinstance(field.widget, forms.CheckboxSelectMultiple):
+                field.widget.attrs['class'] = 'form-control'
 
 #principal edit form
 class PrincipalEditForm(forms.ModelForm):
     class Meta:
         model = Principal
-        fields = ['admin', 'circuit', 'school']
+        fields = ['school', 'grades', 'subjects']
         widgets = {
             'admin': forms.HiddenInput(),  # Keep the admin field hidden
         }
@@ -238,18 +218,42 @@ class PrincipalEditForm(forms.ModelForm):
     # Custom fields for the CustomUser associated with Principal
     first_name = forms.CharField(max_length=30, required=True)
     last_name = forms.CharField(max_length=30, required=True)
+    email = forms.EmailField(required=True)
     address = forms.CharField(widget=forms.Textarea, required=False)
     gender = forms.ChoiceField(choices=[('M', 'Male'), ('F', 'Female'), ('O', 'Other')], required=False)
     profile_pic = forms.ImageField(required=False)
 
     def __init__(self, *args, **kwargs):
         super(PrincipalEditForm, self).__init__(*args, **kwargs)
-        if 'instance' in kwargs:
-            self.fields['first_name'].initial = kwargs['instance'].admin.first_name
-            self.fields['last_name'].initial = kwargs['instance'].admin.last_name
-            self.fields['address'].initial = kwargs['instance'].admin.address
-            self.fields['gender'].initial = kwargs['instance'].admin.gender
-            self.fields['profile_pic'].initial = kwargs['instance'].admin.profile_pic
+        
+        # Set initial values from the associated CustomUser
+        if self.instance and self.instance.pk:
+            self.fields['first_name'].initial = self.instance.admin.first_name
+            self.fields['last_name'].initial = self.instance.admin.last_name
+            self.fields['email'].initial = self.instance.admin.email
+            self.fields['address'].initial = self.instance.admin.address
+            self.fields['gender'].initial = self.instance.admin.gender
+            self.fields['profile_pic'].initial = self.instance.admin.profile_pic
+
+        # Configure the ManyToMany fields with checkboxes
+        self.fields['grades'] = forms.ModelMultipleChoiceField(
+            queryset=Grade.objects.all(),
+            required=True,
+            widget=forms.CheckboxSelectMultiple,
+            label="Grades Taught"
+        )
+        
+        self.fields['subjects'] = forms.ModelMultipleChoiceField(
+            queryset=Subject.objects.all(),
+            required=True,
+            widget=forms.CheckboxSelectMultiple,
+            label="Subjects Taught"
+        )
+
+        # Bootstrap styling
+        for field in self.fields.values():
+            if not isinstance(field.widget, (forms.CheckboxSelectMultiple, forms.HiddenInput)):
+                field.widget.attrs['class'] = 'form-control'
 
     def save(self, commit=True):
         principal = super(PrincipalEditForm, self).save(commit=False)
@@ -258,6 +262,7 @@ class PrincipalEditForm(forms.ModelForm):
         # Update the CustomUser fields
         admin.first_name = self.cleaned_data['first_name']
         admin.last_name = self.cleaned_data['last_name']
+        admin.email = self.cleaned_data['email']
         admin.address = self.cleaned_data['address']
         admin.gender = self.cleaned_data['gender']
         
@@ -267,10 +272,24 @@ class PrincipalEditForm(forms.ModelForm):
         if commit:
             admin.save()  # Save the CustomUser instance
             principal.save()  # Save the Principal instance
+            # Save the many-to-many relationships
+            self.save_m2m()
 
         return principal
 
 #cwa_admin edit form
+class CWA_AdminForm(CustomUserForm):
+    def __init__(self, *args, **kwargs):
+        super(CWA_AdminForm, self).__init__(*args, **kwargs)
+        
+        # Optional: Add Bootstrap styling
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+
+    class Meta(CustomUserForm.Meta):
+        model = CWA_Admin
+        fields = CustomUserForm.Meta.fields + ['school', 'collegeanduniversity', 'bursary', 'session', 'term']
+
 class CWA_AdminEditForm(forms.ModelForm):
     class Meta:
         model = CWA_Admin
@@ -356,7 +375,7 @@ class StaffForm(CustomUserForm):
     class Meta(CustomUserForm.Meta):
         model = Staff
         fields = CustomUserForm.Meta.fields + \
-            ['course' ]
+            ['school' ]
 
 
 #courseform

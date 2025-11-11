@@ -1,142 +1,340 @@
 {% extends 'main_app/base.html' %}
 {% load static %}
 
-{% block page_title %}{{ page_title }}{% endblock page_title %}
-
 {% block custom_css %}
+<!-- ✅ Select2 CSS for school search -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 <style>
-    .invalid {
-        font-style: italic;
-        font-weight: bold;
-        color: red;
-    }
-    .valid {
-        font-style: italic;
-        font-weight: bold;
-        color: green;
-    }
-    .subjects-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
-    }
-    .subjects-grid .form-check {
-        margin-bottom: 5px;
-    }
-    @media (max-width: 768px) {
-        .subjects-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
+  .invalid {
+    font-style: italic;
+    font-weight: bold;
+    color: red;
+  }
+  .valid {
+    font-style: italic;
+    font-weight: bold;
+    color: green;
+  }
+
+  button[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* ✅ Fix Select2 z-index issues */
+  .select2-container {
+    z-index: 1051 !important;
+  }
+  .select2-dropdown {
+    z-index: 1052 !important;
+  }
+
+  /* ✅ Checkbox styling */
+  .checkbox-group {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 15px;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+  }
+  
+  .checkbox-item {
+    margin-bottom: 8px;
+    padding: 5px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+  
+  .checkbox-item:hover {
+    background-color: #e9ecef;
+  }
+  
+  .checkbox-item label {
+    margin-bottom: 0;
+    cursor: pointer;
+    font-weight: normal;
+  }
+  
+  .form-check-input {
+    margin-right: 8px;
+  }
 </style>
 {% endblock custom_css %}
 
+{% block page_title %}{{ page_title }}{% endblock page_title %}
+
 {% block content %}
 <section class="content">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card card-dark">
-                    <div class="card-header">
-                        <h3 class="card-title">{{ page_title }}</h3>
-                    </div>
-                    <form method="POST" enctype="multipart/form-data" id="educatorForm">
-                        {% csrf_token %}
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label for="first_name">First Name</label>
-                                <input type="text" class="form-control required-field" name="first_name" placeholder="Enter First Name" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="last_name">Last Name</label>
-                                <input type="text" class="form-control required-field" name="last_name" placeholder="Enter Last Name" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="email">Email</label>
-                                <input type="email" class="form-control required-field" name="email" placeholder="Enter Email" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="gender">Gender</label>
-                                <select class="form-control required-field" name="gender" required>
-                                    <option value="">Select Gender</option>
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="password">Password</label>
-                                <input type="password" class="form-control required-field" name="password" placeholder="Enter Password" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="address">Address</label>
-                                <textarea class="form-control required-field" name="address" rows="3" placeholder="Enter Address" required></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="school">School</label>
-                                <select class="form-control required-field" name="school" required>
-                                    <option value="">Select School</option>
-                                    {% for school in schools %}
-                                        <option value="{{ school.id }}">{{ school.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="subjects">Subjects</label>
-                                <div class="subjects-grid">
-                                    {% for subject in subjects %}
-                                        <div class="form-check">
-                                            <input 
-                                                type="checkbox" 
-                                                class="form-check-input subject-checkbox" 
-                                                id="subject_{{ subject.id }}" 
-                                                name="subjects" 
-                                                value="{{ subject.id }}">
-                                            <label class="form-check-label" for="subject_{{ subject.id }}">
-                                                {{ subject.name }}
-                                            </label>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="profile_pic">Profile Picture</label>
-                                <input type="file" class="form-control" name="profile_pic">
-                            </div>
-                        </div>
-                        <div class="card-footer text-center">
-                            <button type="submit" class="btn btn-primary" id="addEducatorBtn" disabled>Add Educator</button>
-                        </div>
-                    </form>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <!-- general form elements -->
+        <div class="card card-dark">
+          <div class="card-header">
+            <h3 class="card-title">{{ page_title }}</h3>
+          </div>
+
+          <div class="card-body">
+            <!-- ✅ Manual form rendering to use checkboxes -->
+            <form method="POST" enctype="multipart/form-data" id="mainForm">
+              {% csrf_token %}
+              
+              {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                  {{ form.non_field_errors }}
                 </div>
-            </div>
+              {% endif %}
+              
+              <!-- ✅ Render all fields except grades and subjects -->
+              {% for field in form %}
+                {% if field.name != 'grades' and field.name != 'subjects' %}
+                <div class="form-group">
+                  <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                  {% if field.name == 'school' %}
+                    <!-- ✅ Special rendering for school field with Select2 -->
+                    <select name="{{ field.name }}" id="{{ field.id_for_label }}" 
+                            class="form-control select2-school" 
+                            {% if field.field.required %}required{% endif %}>
+                      <option value=""></option>
+                      {% for value, text in field.field.choices %}
+                        {% if value %}
+                          <option value="{{ value }}" 
+                                  {% if field.value == value %}selected{% endif %}>
+                            {{ text }}
+                          </option>
+                        {% endif %}
+                      {% endfor %}
+                    </select>
+                  {% else %}
+                    {{ field }}
+                  {% endif %}
+                  {% if field.help_text %}
+                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                  {% endif %}
+                  {% if field.errors %}
+                    <div class="text-danger">
+                      {{ field.errors }}
+                    </div>
+                  {% endif %}
+                </div>
+                {% endif %}
+              {% endfor %}
+              
+              <!-- ✅ Grades as Checkboxes -->
+              <div class="form-group">
+                <label>{{ form.grades.label }}</label>
+                <div class="checkbox-group">
+                  {% for choice in form.grades.field.choices %}
+                  <div class="checkbox-item">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" name="grades" value="{{ choice.0 }}" id="grade_{{ choice.0 }}"
+                             {% if choice.0 in form.grades.value %}checked{% endif %}>
+                      <label class="form-check-label" for="grade_{{ choice.0 }}">
+                        {{ choice.1 }}
+                      </label>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+                {% if form.grades.errors %}
+                  <div class="text-danger">
+                    {{ form.grades.errors }}
+                  </div>
+                {% endif %}
+              </div>
+              
+              <!-- ✅ Subjects as Checkboxes -->
+              <div class="form-group">
+                <label>{{ form.subjects.label }}</label>
+                <div class="checkbox-group">
+                  {% for choice in form.subjects.field.choices %}
+                  <div class="checkbox-item">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" name="subjects" value="{{ choice.0 }}" id="subject_{{ choice.0 }}"
+                             {% if choice.0 in form.subjects.value %}checked{% endif %}>
+                      <label class="form-check-label" for="subject_{{ choice.0 }}">
+                        {{ choice.1 }}
+                      </label>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+                {% if form.subjects.errors %}
+                  <div class="text-danger">
+                    {{ form.subjects.errors }}
+                  </div>
+                {% endif %}
+              </div>
+              
+              <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                Add Educator
+              </button>
+            </form>
+          </div>
         </div>
+        <!-- /.card -->
+      </div>
     </div>
+  </div>
 </section>
+{% endblock content %}
+
+{% block custom_js %}
+<!-- ✅ jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- ✅ Select2 JS for school search -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById("educatorForm");
-    const requiredFields = form.querySelectorAll(".required-field");
-    const subjectCheckboxes = form.querySelectorAll(".subject-checkbox");
-    const submitBtn = document.getElementById("addEducatorBtn");
+// ✅ Wait for everything to load
+$(window).on('load', function() {
+  console.log('Page fully loaded, initializing Select2...');
+  
+  // ✅ Initialize Select2 with delay to ensure form is rendered
+  setTimeout(function() {
+    initializeSelect2();
+  }, 100);
+});
 
-    function validateForm() {
-        let allFilled = true;
+function initializeSelect2() {
+  console.log('Looking for school field...');
+  
+  const schoolField = $('.select2-school');
+  const schoolFieldById = $('#id_school');
+  
+  console.log('🔍 Looking for school field:');
+  console.log('- By class .select2-school:', schoolField.length);
+  console.log('- By ID #id_school:', schoolFieldById.length);
+  
+  // Try multiple selectors
+  const targetField = schoolField.length ? schoolField : schoolFieldById;
+  
+  if (targetField.length > 0) {
+    console.log('✅ School field found, initializing Select2');
+    
+    targetField.select2({
+      placeholder: 'Select or search for a school',
+      allowClear: true,
+      width: '100%',
+      dropdownParent: targetField.closest('.card-body') || targetField.closest('.card') || $('body')
+    });
+    
+    console.log('✅ Select2 initialized successfully!');
+    
+    // ✅ Test if Select2 is working
+    targetField.on('select2:open', function () {
+      console.log('🎯 Select2 dropdown opened - working correctly!');
+    });
+    
+  } else {
+    console.log('❌ School field not found, retrying...');
+    // Retry after a short delay
+    setTimeout(initializeSelect2, 200);
+  }
+}
 
-        requiredFields.forEach(field => {
-            if (!field.value.trim()) {
-                allFilled = false;
-            }
-        });
+// ✅ Your existing form validation code
+$(document).ready(function () {
+  console.log('Document ready, initializing form...');
+  
+  const form = $("#mainForm");
+  const submitBtn = $("#submitBtn");
+  let emailValid = false;
 
-        // At least one subject must be selected
-        const subjectSelected = Array.from(subjectCheckboxes).some(cb => cb.checked);
+  function validateEmail(email) {
+    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+  }
 
-        submitBtn.disabled = !(allFilled && subjectSelected);
+  function checkFormFilled() {
+    let allFilled = true;
+    
+    // ✅ Check regular fields
+    form.find("input[type!='checkbox'], select, textarea").each(function () {
+      if ($(this).prop("required") && $(this).val().trim() === "") {
+        allFilled = false;
+      }
+    });
+    
+    // ✅ Check if at least one grade is selected
+    const gradesSelected = form.find("input[name='grades']:checked").length > 0;
+    if (!gradesSelected) {
+      allFilled = false;
+    }
+    
+    // ✅ Check if at least one subject is selected
+    const subjectsSelected = form.find("input[name='subjects']:checked").length > 0;
+    if (!subjectsSelected) {
+      allFilled = false;
     }
 
-    requiredFields.forEach(field => field.addEventListener("input", validateForm));
-    subjectCheckboxes.forEach(cb => cb.addEventListener("change", validateForm));
+    console.log('Form validation:', {
+      allFilled: allFilled,
+      emailValid: emailValid,
+      gradesSelected: gradesSelected,
+      subjectsSelected: subjectsSelected
+    });
+
+    if (allFilled && emailValid) {
+      submitBtn.prop("disabled", false);
+    } else {
+      submitBtn.prop("disabled", true);
+    }
+  }
+
+  // ✅ Email validation
+  $("#id_email").on("keyup change", function () {
+    var email = $(this).val();
+    if (validateEmail(email)) {
+      $.ajax({
+        url: "{% url 'check_email_availability' %}",
+        type: "POST",
+        data: { email: email },
+      })
+        .done(function (response) {
+          $(".email_error").remove();
+          if (response === "True") {
+            $("<span class='invalid email_error'>Email Address Already Exists</span>").insertAfter("#id_email");
+            emailValid = false;
+          } else {
+            $("<span class='valid email_error'>Email Address Available</span>").insertAfter("#id_email");
+            emailValid = true;
+          }
+          checkFormFilled();
+        })
+        .fail(function () {
+          $(".email_error").remove();
+          $("<span class='invalid email_error'>Server Error — Try Again</span>").insertAfter("#id_email");
+          emailValid = false;
+          checkFormFilled();
+        });
+    } else {
+      $(".email_error").remove();
+      $("<span class='invalid email_error'>Invalid Email Format</span>").insertAfter("#id_email");
+      emailValid = false;
+      checkFormFilled();
+    }
+  });
+
+  // ✅ Event listeners for all form changes
+  form.find("input, select, textarea").on("keyup change", function() {
+    checkFormFilled();
+  });
+  
+  // ✅ Special handling for checkbox changes
+  form.find("input[type='checkbox']").on("change", function() {
+    checkFormFilled();
+  });
+  
+  // ✅ Special handling for Select2 changes
+  $(document).on('change', 'select', function() {
+    checkFormFilled();
+  });
+
+  // ✅ Initial form check
+  setTimeout(checkFormFilled, 300);
 });
 </script>
-{% endblock content %}
+{% endblock custom_js %}
