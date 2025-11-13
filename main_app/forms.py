@@ -62,20 +62,43 @@ class StudentForm(CustomUserForm):
     class Meta(CustomUserForm.Meta):
         model = Student
         fields = CustomUserForm.Meta.fields + ['school', 'grade', 'course']
-        # Notice: circuit removed from here
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        # Make school and grade required, but NOT course
+        self.fields['school'].required = True
+        self.fields['grade'].required = True
+        self.fields['course'].required = False  # This is key!
 
-        required_fields = ['school', 'grade', 'course']
-        for field in required_fields:
-            if field in self.fields:
-                self.fields[field].required = True
+        # Hide course field initially for young grades
+        self.toggle_course_field_based_on_grade()
 
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
 
+    def toggle_course_field_based_on_grade(self):
+        """Show/hide course field based on selected grade"""
+        if 'grade' in self.data:  # Form was submitted
+            try:
+                grade_id = int(self.data.get('grade'))
+                grade = Grade.objects.get(id=grade_id)
+                if self.is_young_grade(grade.name):
+                    # Hide course field for R-9
+                    self.fields['course'].widget.attrs['style'] = 'display: none;'
+                    self.fields['course'].label = ''
+                else:
+                    # Show course field for 10-12
+                    self.fields['course'].widget.attrs.pop('style', None)
+                    self.fields['course'].label = 'Course'
+            except (ValueError, Grade.DoesNotExist):
+                pass
 
+    def is_young_grade(self, grade_name):
+        young_grades = ['Grade R', 'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 
+                       'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9']
+        return grade_name in young_grades
+        
 #educator form 
 # educator form 
 # educator form 
@@ -683,3 +706,11 @@ class CourseExcelUploadForm(forms.Form):
         label='Excel File',
         widget=forms.FileInput(attrs={'class': 'form-control'})
     )
+
+#subject upload form
+class SubjectExcelUploadForm(forms.Form):
+    excel_file = forms.FileField(
+        label="Upload Excel File",
+        widget=forms.FileInput(attrs={'class': 'form-control'})
+    )
+

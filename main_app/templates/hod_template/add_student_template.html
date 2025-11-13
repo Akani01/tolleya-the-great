@@ -21,6 +21,11 @@
     opacity: 0.6;
     cursor: not-allowed;
   }
+
+  /* Style for hidden course FIELD (the entire row) */
+  .hidden-field {
+    display: none !important;
+  }
 </style>
 {% endblock custom_css %}
 
@@ -60,7 +65,59 @@ $(document).ready(function () {
     width: '100%',
   });
 
-  // --- Existing email + form validation logic ---
+  // ✅ Enable Select2 on grade dropdown
+  $('#id_grade').select2({
+    placeholder: 'Select grade',
+    allowClear: false,
+    width: '100%',
+  });
+
+  // ✅ Enable Select2 on course dropdown
+  $('#id_course').select2({
+    placeholder: 'Select course',
+    allowClear: true,
+    width: '100%',
+  });
+
+  // ========== INSTANT GRADE-BASED COURSE FIELD TOGGLE ==========
+  function toggleCourseField() {
+    const gradeSelect = $('#id_grade');
+    // Target the ENTIRE form field row (label + input + help text)
+    const courseFieldRow = $('#id_course').closest('.form-group, .form-row, .mb-3');
+    
+    if (!gradeSelect.val()) {
+      console.log('No grade selected');
+      return;
+    }
+
+    // Get the selected grade text
+    const selectedGrade = gradeSelect.find('option:selected').text();
+    console.log('Selected grade:', selectedGrade);
+    
+    const youngGrades = ['Grade R', 'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 
+                        'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9'];
+    
+    if (youngGrades.includes(selectedGrade)) {
+      // HIDE THE ENTIRE COURSE FIELD ROW for young grades
+      courseFieldRow.addClass('hidden-field');
+      $('#id_course').val('').trigger('change');
+      console.log(`🎯 HIDDEN entire course field for grade: ${selectedGrade}`);
+    } else {
+      // SHOW THE ENTIRE COURSE FIELD ROW for older grades
+      courseFieldRow.removeClass('hidden-field');
+      console.log(`🎯 SHOWED entire course field for grade: ${selectedGrade}`);
+    }
+    
+    checkFormFilled();
+  }
+
+  // Initial toggle
+  setTimeout(toggleCourseField, 100);
+
+  // Toggle when grade changes
+  $('#id_grade').on('change', toggleCourseField);
+
+  // --- FORM VALIDATION ---
   const form = $("form");
   const addButton = form.find("button[type='submit']");
   addButton.prop("disabled", true);
@@ -74,8 +131,18 @@ $(document).ready(function () {
 
   function checkFormFilled() {
     let allFilled = true;
+    
+    // Check only VISIBLE required fields
     form.find("input, select, textarea").each(function () {
-      if ($(this).prop("required") && $(this).val().trim() === "") {
+      const field = $(this);
+      const isRequired = field.prop("required");
+      const fieldRow = field.closest('.form-group, .form-row, .mb-3');
+      const isVisible = !fieldRow.hasClass('hidden-field');
+      
+      // Skip if field is hidden
+      if (!isVisible) return true;
+      
+      if (isRequired && !field.val()) {
         allFilled = false;
       }
     });
@@ -120,7 +187,10 @@ $(document).ready(function () {
     }
   });
 
+  // Watch all form fields for changes
   form.find("input, select, textarea").on("keyup change", checkFormFilled);
+  
+  checkFormFilled();
 });
 </script>
 {% endblock custom_js %}

@@ -1,0 +1,14 @@
+{% extends 'main_app/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h4>Upload Subjects via Excel</h4>
+    <hr>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.as_p }}
+        </div>
+        <button type="submit" class="btn btn-success">Upload</button>
+    </form>
+</div>
+{% endblock %}

@@ -1653,3 +1653,158 @@ def upload_schools_from_excel(request):
 
     return render(request, 'school/upload_excel.html', {'form': form})
 
+#uploading subjects
+def upload_subjects_from_excel(request):
+    if request.method == 'POST':
+        form = SubjectExcelUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            excel_file = request.FILES['excel_file']
+            try:
+                df = pd.read_excel(excel_file)
+                df = df.replace({np.nan: ""})
+                df.columns = [col.strip().lower() for col in df.columns]
+
+                # Get or create default course (safe method)
+                try:
+                    default_course, created = Course.objects.get_or_create(
+                        name="National Curriculum"
+                    )
+                    if created:
+                        print(f"✅ Created default course: {default_course.name}")
+                except Exception as e:
+                    messages.error(request, f"Error creating default course: {str(e)}")
+                    return redirect('upload_courses_excel')
+
+                created_count = 0
+                skipped = []
+                errors = []
+
+                for index, row in df.iterrows():
+                    try:
+                        # Subject name
+                        subject_name = None
+                        for col in ['name', 'subject_name', 'subject']:
+                            if col in df.columns and row[col]:
+                                subject_name = str(row[col]).strip()
+                                break
+
+                        if not subject_name:
+                            errors.append(f"Row {index + 2}: Subject name missing")
+                            continue
+
+                        # Grade handling
+                        grade_name = None
+                        for col in ['grade', 'grade_name']:
+                            if col in df.columns and row[col]:
+                                grade_value = row[col]
+                                if isinstance(grade_value, (int, float)):
+                                    grade_name = str(int(grade_value))
+                                else:
+                                    grade_name = str(grade_value).strip()
+                                break
+
+                        if not grade_name:
+                            errors.append(f"Row {index + 2}: Grade missing for subject '{subject_name}'")
+                            continue
+
+                        # Convert to proper grade name
+                        if grade_name.upper() == 'R':
+                            proper_grade_name = "Grade R"
+                        elif grade_name.isdigit():
+                            proper_grade_name = f"Grade {grade_name}"
+                        else:
+                            proper_grade_name = grade_name
+
+                        # Get or create grade
+                        try:
+                            grade, grade_created = Grade.objects.get_or_create(
+                                name=proper_grade_name
+                            )
+                            if grade_created:
+                                print(f"✅ Created new grade: {proper_grade_name}")
+                        except Exception as e:
+                            errors.append(f"Row {index + 2}: Error creating grade '{proper_grade_name}': {str(e)}")
+                            continue
+
+                        # Course handling
+                        course = default_course
+                        course_name = None
+                        
+                        course_columns = ['course', 'course_name']
+                        available_course_columns = [col for col in course_columns if col in df.columns]
+                        
+                        if available_course_columns:
+                            for col in available_course_columns:
+                                if row[col]:
+                                    course_name = str(row[col]).strip()
+                                    if course_name and course_name != "National Curriculum":
+                                        try:
+                                            found_course = Course.objects.filter(name__iexact=course_name).first()
+                                            if found_course:
+                                                course = found_course
+                                            else:
+                                                course, created = Course.objects.get_or_create(
+                                                    name=course_name
+                                                )
+                                                if created:
+                                                    print(f"✅ Created new course: {course_name}")
+                                        except Exception as e:
+                                            errors.append(f"Row {index + 2}: Error with course '{course_name}': {str(e)}")
+                                        break
+
+                        # Check duplicates and create subject
+                        try:
+                            existing_subject = Subject.objects.filter(
+                                name__iexact=subject_name, 
+                                grade=grade,
+                                course=course
+                            ).first()
+
+                            if existing_subject:
+                                skipped.append(f"Row {index + 2}: '{subject_name}' (Grade: {grade.name}) already exists")
+                                continue
+
+                            Subject.objects.create(
+                                name=subject_name,
+                                grade=grade,
+                                course=course
+                            )
+                            created_count += 1
+                            print(f"✅ Created: {subject_name} (Grade: {grade.name})")
+                            
+                        except Exception as e:
+                            errors.append(f"Row {index + 2}: Error creating subject: {str(e)}")
+
+                    except Exception as e:
+                        errors.append(f"Row {index + 2}: {str(e)}")
+
+                # Final feedback
+                if created_count > 0:
+                    messages.success(request, f"✅ Successfully created {created_count} subjects")
+                
+                if skipped:
+                    messages.info(request, f"⏭️ {len(skipped)} subjects skipped (already exist)")
+                    for skip_msg in skipped[:3]:
+                        messages.info(request, skip_msg)
+                    if len(skipped) > 3:
+                        messages.info(request, f"... and {len(skipped) - 3} more duplicates")
+                
+                if errors:
+                    messages.warning(request, f"⚠️ {len(errors)} errors encountered")
+                    for error in errors[:5]:
+                        messages.warning(request, error)
+                    if len(errors) > 5:
+                        messages.warning(request, f"... and {len(errors) - 5} more errors")
+                else:
+                    messages.success(request, "🎉 All subjects processed successfully!")
+
+                return redirect('manage_subject')
+
+            except Exception as e:
+                messages.error(request, f"Error reading Excel file: {str(e)}")
+                return redirect('upload_courses_excel')
+
+    else:
+        form = SubjectExcelUploadForm()
+
+    return render(request, 'subjects/upload_excel.html', {'form': form})

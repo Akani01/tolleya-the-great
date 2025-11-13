@@ -234,6 +234,14 @@
                                 <p>Add Subject</p>
                             </a>
                         </li>
+                        
+                        <li class="nav-item">
+                            {% url 'upload_subjects_from_excel' as upload_subjects_from_excel %}
+                            <a href="{{ upload_subjects_from_excel }}" class="nav-link {% if upload_subjects_from_excel == request.path %} active {% endif %}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Upload Subjects (Excel)</p>
+                            </a>
+                        </li>
 
                         <li class="nav-item">
                             {% url 'manage_subject' as manage_subject %}

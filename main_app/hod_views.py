@@ -43,14 +43,11 @@ def admin_home(request):
     course_name_list = []
     subject_count_list = []
     student_count_list_in_course = []
-    educator_count_list_in_course = []
     
     for course in course_all:
         student_count = Student.objects.filter(course_id=course.id).count()
-        educator_count = Educator.objects.filter(course_id=course.id).count()
         course_name_list.append(course.name)
         student_count_list_in_course.append(student_count)
-        educator_count_list_in_course.append(educator_count)
     
     # Total grades and subjects in each school
     school_all = School.objects.all()
@@ -254,6 +251,21 @@ def add_student(request):
             # Automatically get circuit from selected school
             circuit = school.circuit  
 
+            # ========== FIX: Grade-based course handling ==========
+            # For young grades (R-9), set course to None automatically
+            young_grades = ['Grade R', 'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 
+                           'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9']
+            
+            if grade.name in young_grades:
+                course = None  # Force course to be None for young grades
+                print(f"🎯 Auto-set course to None for young grade: {grade.name}")
+            else:
+                # For older grades (10-12), ensure they have a course
+                if not course:
+                    messages.error(request, f"Course is required for Grade {grade.name} students")
+                    return render(request, 'hod_template/add_student_template.html', context)
+            # ========== END FIX ==========
+
             # Handle image upload
             passport = request.FILES.get('profile_pic')
             fs = FileSystemStorage()
@@ -275,25 +287,34 @@ def add_student(request):
                 user.address = address
                 user.save()
 
+                # Create student with course (which might be None for young grades)
                 Student.objects.create(
                     admin=user,
-                    course=course,
+                    course=course,  # This can be None for R-9
                     circuit=circuit,
                     school=school,
                     grade=grade
                 )
 
-                messages.success(request, "Successfully Added Student")
+                # Show appropriate success message
+                if grade.name in young_grades:
+                    messages.success(request, f"Successfully Added Student to {grade.name} (National Curriculum)")
+                else:
+                    messages.success(request, f"Successfully Added Student to {grade.name} - {course.name}")
+
                 return redirect(reverse('login_page'))
 
             except Exception as e:
                 messages.error(request, f"Could Not Add Student: {e}")
         else:
             messages.error(request, "Form is not valid")
+            # Print form errors for debugging
+            print("Form errors:", student_form.errors)
 
     return render(request, 'hod_template/add_student_template.html', context)
 
 
+#principal account
 def add_principal(request):
     principal_form = PrincipalForm(request.POST or None, request.FILES or None)
     context = {'form': principal_form, 'page_title': 'Add Principal'}

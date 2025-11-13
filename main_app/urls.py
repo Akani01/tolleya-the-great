@@ -199,7 +199,8 @@ urlpatterns = [
          name='question_paper_list'),
     path('question-papers/<int:pk>/', student_views.question_paper_detail, 
          name='question_paper_detail'),
-
+    #subject
+    path('subjects/upload-excel/', views.upload_subjects_from_excel, name='upload_subjects_from_excel'),
     #principal
     path('principal/home/', principal_views.principal_home, name='principal_home'),
     path('principal/view_attendance/', principal_views.principal_view_attendance, name='principal_view_attendance'),

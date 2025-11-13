@@ -268,7 +268,7 @@ class Staff(models.Model):
 class Subject(models.Model):
     name = models.CharField(max_length=120)
     grade = models.ForeignKey(Grade, on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='subjects')  # Added related_name
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='subjects', null=True, blank=True)  # Make optional
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -296,14 +296,13 @@ class Admin(models.Model):
 # STUDENT MODEL
 class Student(models.Model):
     admin = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    course = models.ForeignKey('Course', on_delete=models.DO_NOTHING, null=True, blank=False)
-    circuit = models.ForeignKey(Circuit, on_delete=models.DO_NOTHING, null=True, blank=False)
-    school = models.ForeignKey(School, on_delete=models.DO_NOTHING, null=True, blank=False)
-    grade = models.ForeignKey('Grade', on_delete=models.DO_NOTHING, null=True, blank=False)
+    course = models.ForeignKey('Course', on_delete=models.SET_NULL, null=True, blank=True)  # FIXED: blank=True
+    circuit = models.ForeignKey(Circuit, on_delete=models.PROTECT, null=False, blank=False)
+    school = models.ForeignKey(School, on_delete=models.PROTECT, null=False, blank=False)
+    grade = models.ForeignKey('Grade', on_delete=models.PROTECT, null=False, blank=False)
 
     def __str__(self):
-        return f"{self.admin.last_name}, {self.admin.first_name}"
-    
+        return f"{self.admin.last_name}, {self.admin.first_name}"   
 
 #informal student result
 class InformalStudentResult(models.Model):
