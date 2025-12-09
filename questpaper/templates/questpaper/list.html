@@ -1,0 +1,101 @@
+{% extends 'main_app/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Question Papers ({{ total_count }})</h2>
+    
+    <!-- Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body text-center">
+                    <h4>{{ total_count }}</h4>
+                    <p>Total Papers</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body text-center">
+                    <h4>{{ processed_count }}</h4>
+                    <p>Processed</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body text-center">
+                    <h4>{{ pending_count }}</h4>
+                    <p>Processing</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'questpaper_upload' %}" class="btn btn-primary btn-lg w-100 h-100 d-flex align-items-center justify-content-center">
+                Upload New
+            </a>
+        </div>
+    </div>
+    
+    <!-- Papers List -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Grade</th>
+                            <th>Term</th>
+                            <th>Questions</th>
+                            <th>Status</th>
+                            <th>Uploaded</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for paper in papers %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'questpaper_detail' paper.pk %}">
+                                    {{ paper.title|default:"Untitled" }}
+                                </a>
+                            </td>
+                            <td>{{ paper.grade|default:"-" }}</td>
+                            <td>{{ paper.term|default:"-" }}</td>
+                            <td>{{ paper.number_of_questions }}</td>
+                            <td>
+                                {% if paper.is_processed %}
+                                    <span class="badge bg-success">Processed</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Processing</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ paper.uploaded_at|date:"M d, Y" }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'questpaper_download' paper.pk %}" 
+                                       class="btn btn-sm btn-outline-primary">Download</a>
+                                    {% if paper.uploaded_by == request.user %}
+                                    <form method="post" action="{% url 'questpaper_delete' paper.pk %}" 
+                                          class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                onclick="return confirm('Delete this paper?')">Delete</button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No question papers uploaded yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -10,8 +10,16 @@ urlpatterns = [
     path('upload/', views.upload_question_paper, name='upload'),
     path('questpaperdownload/<int:pk>/', views.download_question_paper, name='download'),
     path('view/<int:pk>/', views.view_question_paper, name='view'),
-    path('questpaperdetail/<int:pk>/', views.question_paper_detail, name='question_paper_detail'),
+    #question paper function
+    path('upload/', views.upload_question_paper, name='questpaper_upload'),
+    path('', views.question_paper_list, name='questpaper_list'),
+    path('<int:pk>/', views.question_paper_detail, name='questpaper_detail'),
+    path('<int:pk>/download/', views.download_question_paper, name='questpaper_download'),
+    path('<int:pk>/delete/', views.delete_question_paper, name='questpaper_delete'),
+    path('<int:pk>/reprocess/', views.reprocess_paper, name='questpaper_reprocess'),
+    #end lateest updates
     path('questionpaperlist/', views.filter_question_papers, name='questionpaperlist'),
+     path('questionpaperlist/', views.filter_question_papers, name='filter_question_papers'),
         # Filters with subjects, grades, terms, and schools
     # Topic URLs
     path('topics/', TopicListView.as_view(), name='topic_list'),

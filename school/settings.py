@@ -31,7 +31,19 @@ SECRET_KEY = 'SECRET_KEY'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['git.heroku.com/school-system.git', '127.0.0.1', 'www.tolleya.com', 'tolleya.com', 'thecms.co.za', 'www.thecms.co.za']
+# Allow all hosts during development
+ALLOWED_HOSTS = [
+    'production-europe-west4-drams3a.railway-registry.com',
+    'railway.app',
+    '.railway.app',
+    'tolleya.com',
+    'www.tolleya.com',
+    'thecms.co.za',
+    'www.thecms.co.za',
+    'localhost',
+    '127.0.0.1'
+
+]
 
 
 # Application definition

@@ -1,0 +1,115 @@
+<div class="card shadow-sm h-100 paper-card" 
+     data-grade="{{ paper.grade.id|default:'' }}" 
+     data-term="{{ paper.term.id|default:'' }}" 
+     data-department="{{ paper.department.id|default:'' }}" 
+     data-school="{{ paper.school.id|default:'' }}"
+     data-subject="{{ paper.subject.id|default:'' }}">
+    
+    <div class="card-header bg-light py-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="paper-id">ID: {{ paper.id }}</span>
+            {% if paper.extraction_confidence %}
+                <span class="badge {% if paper.extraction_confidence > 0.7 %}bg-success{% elif paper.extraction_confidence > 0.4 %}bg-warning{% else %}bg-danger{% endif %}"
+                      data-bs-toggle="tooltip" title="Extraction Confidence">
+                    {{ paper.extraction_confidence|floatformat:2 }}
+                </span>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="card-body d-flex flex-column">
+        <!-- Paper Title -->
+        <h6 class="paper-title mb-2">
+            {% if paper.title %}
+                {{ paper.title|truncatechars:40 }}
+            {% else %}
+                {% if paper.subject %}{{ paper.subject.name }}{% else %}Untitled Paper{% endif %}
+            {% endif %}
+        </h6>
+        
+        <!-- Paper Subject -->
+        <div class="mb-2">
+            <small class="text-muted">Subject:</small>
+            <div class="paper-subject">
+                {% if paper.subject %}
+                    {{ paper.subject.name }}
+                {% else %}
+                    <span class="text-muted">Not specified</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Paper Grade -->
+        <div class="mb-2">
+            <small class="text-muted">Grade:</small>
+            <div>
+                {% if paper.grade %}
+                    <span class="badge bg-primary">Grade {{ paper.grade.name }}</span>
+                {% else %}
+                    <span class="text-muted">Not specified</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Paper Term -->
+        <div class="mb-2">
+            <small class="text-muted">Term:</small>
+            <div>
+                {% if paper.term %}
+                    <span class="badge bg-info">{{ paper.term.name }}</span>
+                {% else %}
+                    <span class="text-muted">Not specified</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Department & Complexity -->
+        <div class="d-flex justify-content-between mb-3">
+            <div>
+                <small class="text-muted">Dept:</small>
+                <div class="small">
+                    {% if paper.department %}
+                        {{ paper.department.name|truncatechars:15 }}
+                    {% else %}
+                        <span class="text-muted">-</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="text-end">
+                <small class="text-muted">Complexity:</small>
+                <div>
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= paper.complexity_rating %}
+                            <i class="fas fa-star text-warning" style="font-size: 0.8rem;"></i>
+                        {% else %}
+                            <i class="far fa-star text-secondary" style="font-size: 0.8rem;"></i>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question Count -->
+        {% if paper.number_of_questions %}
+        <div class="mt-auto">
+            <small class="text-muted">Questions:</small>
+            <span class="badge bg-secondary">{{ paper.number_of_questions }}</span>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Card Footer with Actions -->
+    <div class="card-footer bg-white border-top-0 pt-0">
+        <div class="d-flex justify-content-between">
+            <a href="{% url 'view' paper.id %}" class="btn btn-info btn-sm" target="_blank" title="View PDF">
+                <i class="fas fa-eye"></i>
+            </a>
+            <a href="{% url 'download' paper.id %}" class="btn btn-success btn-sm" title="Download PDF">
+                <i class="fas fa-download"></i>
+            </a>
+            <a href="{% url 'question_paper_detail' paper.id %}" class="btn btn-primary btn-sm" title="View Details">
+                <i class="fas fa-info-circle"></i>
+            </a>
+        </div>
+    </div>
+</div>

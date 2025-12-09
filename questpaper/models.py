@@ -34,47 +34,7 @@ class Department(models.Model):
     def __str__(self):
         return self.name
 
-class Grade(models.Model):
-    name = models.CharField(max_length=50)
-    code = models.CharField(max_length=10, blank=True, null=True)
-    
-    class Meta:
-        ordering = ['name']
-        
-    def __str__(self):
-        return self.name
-
-class Term(models.Model):
-    name = models.CharField(max_length=50)
-    code = models.CharField(max_length=10, blank=True, null=True)
-    
-    class Meta:
-        ordering = ['name']
-        
-    def __str__(self):
-        return self.name
-
-class School(models.Model):
-    name = models.CharField(max_length=255)
-    code = models.CharField(max_length=20, blank=True, null=True)
-    
-    class Meta:
-        ordering = ['name']
-        
-    def __str__(self):
-        return self.name
-
-class Subject(models.Model):
-    name = models.CharField(max_length=255)
-    code = models.CharField(max_length=20, blank=True, null=True)
-    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
-    
-    class Meta:
-        ordering = ['name']
-        
-    def __str__(self):
-        return self.name
-
+#question paper functionality
 class ExtractionPatternManager(models.Manager):
     def get_active_patterns(self):
         """Get all active patterns ordered by priority"""
@@ -158,6 +118,7 @@ class QuestionPaperManager(models.Manager):
 
 class QuestionPaper(models.Model):
     # Core relationships
+    title = models.CharField(max_length=255, blank=True, null=True)
     grade = models.ForeignKey(Grade, on_delete=models.CASCADE, null=True, blank=True)
     term = models.ForeignKey(Term, on_delete=models.CASCADE, null=True, blank=True)
     school = models.ForeignKey(School, on_delete=models.CASCADE, null=True, blank=True)
@@ -226,16 +187,23 @@ class QuestionPaper(models.Model):
             raise ValidationError(errors)
     
     def save(self, *args, **kwargs):
-        """Override save to include validation and auto-processing"""
-        self.clean()
-        is_new = self.pk is None
+        # Auto-generate title if not provided
+        if not self.title:
+            components = []
+            if self.grade:
+                components.append(str(self.grade))
+            if self.term:
+                components.append(str(self.term))
+            if self.subject:
+                components.append(self.subject.name)
+            
+            if components:
+                self.title = f"{' '.join(components)} - Question Paper"
+            else:
+                self.title = "Question Paper"
         
         super().save(*args, **kwargs)
         
-        # Auto-process new question papers
-        if is_new and self.file:
-            self.schedule_auto_processing()
-    
     def schedule_auto_processing(self):
         """Schedule PDF processing in background thread"""
         try:

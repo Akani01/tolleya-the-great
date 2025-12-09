@@ -81,29 +81,179 @@ def educator_home(request):
 
 
 def upload_question_paper(request):
-    educator = get_object_or_404(Educator, admin=request.user)
-
     if request.method == 'POST':
-        form = QuestionPaperUploadForm(request.POST, request.FILES)
-        if form.is_valid():
-            question_paper = form.save(commit=False)
-            question_paper.educator = educator  # Assign the logged-in educator
-            question_paper.save()
-            # Save ManyToManyField for topics
-            form.save_m2m()
-            messages.success(request, "Question paper uploaded successfully.")
-            return redirect('educator_home')
+        # Check if it's a single file upload or bulk upload
+        if 'files' in request.FILES:
+            return handle_bulk_upload(request)
         else:
-            messages.error(request, "Failed to upload the question paper. Please check the form.")
+            return handle_single_upload(request)
     else:
         form = QuestionPaperUploadForm()
+        bulk_form = BulkQuestionPaperUploadForm()
 
     context = {
         'form': form,
+        'bulk_form': bulk_form,
         'page_title': 'Upload Question Paper',
     }
-    return render(request, 'educator_template/upload_question_paper.html', context)
+    return render(request, 'upload_question_paper.html', context)
 
+def handle_single_upload(request):
+    """Handle single question paper upload"""
+    form = QuestionPaperUploadForm(request.POST, request.FILES)
+    if form.is_valid():
+        question_paper = form.save(commit=False)
+        question_paper.uploaded_by = request.user
+        question_paper.save()
+        form.save_m2m()
+        
+        # Start auto-processing
+        question_paper.schedule_auto_processing()
+        
+        messages.success(request, "Question paper uploaded successfully and is being processed.")
+        return redirect('upload_question_paper')
+    else:
+        messages.error(request, "Failed to upload the question paper. Please check the form.")
+        return render(request, 'upload_question_paper.html', {'form': form, 'bulk_form': BulkQuestionPaperUploadForm()})
+
+def handle_bulk_upload(request):
+    """Handle multiple question paper upload"""
+    bulk_form = BulkQuestionPaperUploadForm(request.POST, request.FILES)
+    if bulk_form.is_valid():
+        files = request.FILES.getlist('files')
+        successful_uploads = 0
+        failed_uploads = 0
+        
+        for file in files:
+            try:
+                # Create question paper instance for each file
+                question_paper = QuestionPaper(
+                    file=file,
+                    uploaded_by=request.user,
+                    grade=bulk_form.cleaned_data.get('grade'),
+                    term=bulk_form.cleaned_data.get('term'),
+                    school=bulk_form.cleaned_data.get('school'),
+                    department=bulk_form.cleaned_data.get('department'),
+                    subject=bulk_form.cleaned_data.get('subject'),
+                    complexity_rating=bulk_form.cleaned_data.get('complexity_rating', 3)
+                )
+                question_paper.save()
+                
+                # Add topics if any
+                if bulk_form.cleaned_data.get('topics'):
+                    question_paper.topics.set(bulk_form.cleaned_data['topics'])
+                
+                # Start auto-processing
+                question_paper.schedule_auto_processing()
+                
+                successful_uploads += 1
+                
+            except Exception as e:
+                print(f"Error uploading {file.name}: {e}")
+                failed_uploads += 1
+                continue
+        
+        if successful_uploads > 0:
+            messages.success(
+                request, 
+                f"Successfully uploaded {successful_uploads} question paper(s). They are being processed in the background."
+            )
+        if failed_uploads > 0:
+            messages.warning(
+                request,
+                f"Failed to upload {failed_uploads} file(s). Please check if they are valid PDF files."
+            )
+        
+        return redirect('upload_question_paper')
+    else:
+        messages.error(request, "Failed to upload files. Please check the form.")
+        return render(request, 'upload_question_paper.html', {
+            'form': QuestionPaperUploadForm(),
+            'bulk_form': bulk_form
+        })
+
+def bulk_upload_progress(request):
+    """API endpoint to check bulk upload progress"""
+    if request.method == 'GET':
+        # You can implement progress tracking here
+        # For now, return basic stats
+        user_papers = QuestionPaper.objects.filter(uploaded_by=request.user)
+        total = user_papers.count()
+        processed = user_papers.filter(is_processed=True).count()
+        
+        return JsonResponse({
+            'total': total,
+            'processed': processed,
+            'pending': total - processed
+        })
+
+@csrf_exempt
+def delete_question_paper(request, pk):
+    """Delete a question paper"""
+    if request.method == 'POST':
+        question_paper = get_object_or_404(QuestionPaper, pk=pk, uploaded_by=request.user)
+        paper_name = question_paper.file.name
+        question_paper.delete()
+        messages.success(request, f"Question paper '{paper_name}' deleted successfully.")
+        return redirect('questionpaperlist')
+
+def reprocess_question_paper(request, pk):
+    """Reprocess a question paper"""
+    if request.method == 'POST':
+        question_paper = get_object_or_404(QuestionPaper, pk=pk, uploaded_by=request.user)
+        success = question_paper.reprocess()
+        if success:
+            messages.success(request, "Question paper is being reprocessed.")
+        else:
+            messages.error(request, "Failed to reprocess question paper.")
+        return redirect('question_paper_detail', pk=pk)
+
+def question_paper_list(request):
+    """List all question papers with filtering"""
+    question_papers = QuestionPaper.objects.all().order_by('-id')
+    departments = Department.objects.all()
+    grades = Grade.objects.all()
+    terms = Term.objects.all()
+    subjects = Subject.objects.all()
+    
+    # Filtering
+    department_filter = request.GET.get('department')
+    grade_filter = request.GET.get('grade')
+    term_filter = request.GET.get('term')
+    subject_filter = request.GET.get('subject')
+    status_filter = request.GET.get('status')
+    
+    if department_filter:
+        question_papers = question_papers.filter(department__id=department_filter)
+    if grade_filter:
+        question_papers = question_papers.filter(grade__id=grade_filter)
+    if term_filter:
+        question_papers = question_papers.filter(term__id=term_filter)
+    if subject_filter:
+        question_papers = question_papers.filter(subject__id=subject_filter)
+    if status_filter:
+        if status_filter == 'processed':
+            question_papers = question_papers.filter(is_processed=True)
+        elif status_filter == 'pending':
+            question_papers = question_papers.filter(is_processed=False)
+        elif status_filter == 'error':
+            question_papers = question_papers.filter(processing_error__isnull=False)
+    
+    context = {
+        'question_papers': question_papers,
+        'departments': departments,
+        'grades': grades,
+        'terms': terms,
+        'subjects': subjects,
+    }
+    return render(request, 'question_paper_list.html', context)
+
+def question_paper_detail(request, pk):
+    question_paper = get_object_or_404(QuestionPaper, pk=pk)
+    context = {
+        'question_paper': question_paper,
+    }
+    return render(request, 'question_paper_detail.html', context)
 
 
 def educator_view_students(request):

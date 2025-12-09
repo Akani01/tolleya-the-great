@@ -388,7 +388,10 @@ urlpatterns = [
     path('videos/<int:video_id>/like/', views.like_video, name='like_video'),
     path('videos/<int:video_id>/comment/', views.add_comment, name='add_comment'),
     path('videos/<int:video_id>/comments/', views.get_comments, name='get_comments'),
-    
+    #question paper upload
+    path('upload-question-paper/', educator_views.upload_question_paper, name='upload_question_paper'),
+    path('question-papers/', educator_views.question_paper_list, name='questionpaperlist'),
+    path('question-paper/<int:pk>/', educator_views.question_paper_detail, name='question_paper_detail'),
     #Course
     path('upload-excel/', hod_views.upload_courses_from_excel, name='upload_courses_excel'),
 ]
