@@ -285,16 +285,30 @@ USE_TZ = True
 # WhiteNoise configuration
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 AUTH_USER_MODEL = 'main_app.CustomUser'
-AUTHENTICATION_BACKENDS = ['main_app.EmailBackend.EmailBackend']
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+    'main_app.EmailBackend.EmailBackend',
+]
+
 TIME_ZONE = 'Africa/Johannesburg'
 
-STUDENT_ID_PREFIX = config("STUDENT_ID_PREFIX", default="ugr")
-EDUCATOR_ID_PREFIX = config("EDUCATOR_ID_PREFIX", default="lec")
+
+STUDENT_ID_PREFIX = os.getenv("STUDENT_ID_PREFIX", "ugr")
+EDUCATOR_ID_PREFIX = os.getenv("EDUCATOR_ID_PREFIX", "lec")
+
 
 STATIC_URL = 'static/'
 #django databse settings
 django_heroku.settings(locals())
+
+# ADD THESE 3 LINES RIGHT HERE:
+if 'default' in DATABASES and 'ENGINE' not in DATABASES['default']:
+    DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql'
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 
 #MEDIA_URL = '/mediafiles/'
 #MEDIA_ROOT = os.path.join(BASE_DIR, 'static/mediafiles')
