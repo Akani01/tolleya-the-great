@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.http import HttpResponse
+from django.views.generic import TemplateView
 from django.conf import settings
 from django.conf.urls.static import static
 import os
@@ -34,8 +35,13 @@ def ads_txt_view(request):
 urlpatterns = [
     path("", include('main_app.urls')),
     path("accounts/", include('allauth.urls')),
-    #account
-    path("ads.txt", ads_txt_view),
+
+    # ads.txt
+    path('ads.txt', TemplateView.as_view(
+        template_name='ads.txt',
+        content_type='text/plain'
+    )),
+
     path("result", include('result.urls')),
     path("quiz", include('quiz.urls')),
     path("job", include('job.urls')),
@@ -46,7 +52,6 @@ urlpatterns = [
     path("bursary", include('bursary.urls')),
     path("accounts/", include("django.contrib.auth.urls")),
     path('admin/', admin.site.urls),
-    
 ]
 
 
