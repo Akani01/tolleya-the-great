@@ -307,23 +307,27 @@ def submit_documents(request):
 
 
 def doLogin(request, **kwargs):
+    from django.contrib.auth import login
+    from django.contrib import messages
+    from django.shortcuts import redirect
+    from django.urls import reverse
+    
+    # Get credentials from POST
+    email = request.POST.get('email')
+    password = request.POST.get('password')
+    
+    # Import your EmailBackend
     from main_app.EmailBackend import EmailBackend
     
-    # Instantiate the backend
+    # Create backend instance and authenticate
     backend = EmailBackend()
+    user = backend.authenticate(request, username=email, password=password)
     
-    # Call authenticate on the instance (not the class)
-    user = backend.authenticate(
-        request,  # Pass the request
-        username=request.POST.get('email'), 
-        password=request.POST.get('password')
-    )
-
     if user is not None:
-        # Set backend attribute
-        user.backend = 'main_app.EmailBackend.EmailBackend'
-        login(request, user)
+        # Login with explicit backend
+        login(request, user, backend='main_app.EmailBackend.EmailBackend')
         
+        # Your redirect logic
         if user.user_type == '1':
             return redirect(reverse("admin_home"))
         elif user.user_type == '2':
@@ -342,9 +346,10 @@ def doLogin(request, **kwargs):
             return redirect(reverse("member_home"))
         else:
             return redirect(reverse("CWA_Admin"))
-
-    messages.error(request, "Invalid details")
-    return redirect("/")
+    else:
+        messages.error(request, "Invalid email or password")
+        return redirect("/")
+    
 
 #register selection
 def terms_conditions(request):

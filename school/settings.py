@@ -44,6 +44,8 @@ ALLOWED_HOSTS = [
 ] 
 
 
+
+# CSRF Settings
 CSRF_TRUSTED_ORIGINS = [
     "https://thecms.co.za",
     "https://www.thecms.co.za",
@@ -51,8 +53,21 @@ CSRF_TRUSTED_ORIGINS = [
     "https://www.elimcircuit.com",
     "https://*.railway.app",
     "https://*.herokuapp.com",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
 ]
 
+# CSRF Cookie Settings
+CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SAMESITE = 'Lax'
+
+# Session Settings
+SESSION_COOKIE_SECURE = False
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_AGE = 1209600
 
 # Application definition
 
