@@ -123,9 +123,22 @@ MIDDLEWARE = [
 #react cors
 
 # CORS settings for React frontend
+ALLOWED_HOSTS = [
+    "thecms.co.za",
+    "www.thecms.co.za",
+    "elimcircuit.com",
+    "www.elimcircuit.com",
+    ".railway.app",
+    ".herokuapp.com",
+    "localhost",
+    "127.0.0.1",
+]
+
+
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # Vite dev server
-    "https://elimcircuit.com",  # Production
+    "http://localhost:5173",
+    "https://elimcircuit.com",
+    "https://www.elimcircuit.com",
 ]
 
 
