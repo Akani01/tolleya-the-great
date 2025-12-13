@@ -305,16 +305,29 @@ def submit_documents(request):
     }
     return render(request, 'main_app/submit_documents.html', context)
 
+
 def doLogin(request, **kwargs):
-    #Authenticate
-    user = EmailBackend.authenticate(request, username=request.POST.get('email'), password=request.POST.get('password'))
-    if user != None:
+    from main_app.EmailBackend import EmailBackend
+    
+    # Instantiate the backend
+    backend = EmailBackend()
+    
+    # Call authenticate on the instance (not the class)
+    user = backend.authenticate(
+        request,  # Pass the request
+        username=request.POST.get('email'), 
+        password=request.POST.get('password')
+    )
+
+    if user is not None:
+        # Set backend attribute
+        user.backend = 'main_app.EmailBackend.EmailBackend'
         login(request, user)
+        
         if user.user_type == '1':
             return redirect(reverse("admin_home"))
         elif user.user_type == '2':
             return redirect(reverse("staff_home"))
-        #add user login
         elif user.user_type == '3':
             return redirect(reverse("student_home"))
         elif user.user_type == '4':
@@ -329,9 +342,9 @@ def doLogin(request, **kwargs):
             return redirect(reverse("member_home"))
         else:
             return redirect(reverse("CWA_Admin"))
-    else:
-        messages.error(request, "Invalid details")
-        return redirect("/")
+
+    messages.error(request, "Invalid details")
+    return redirect("/")
 
 #register selection
 def terms_conditions(request):
