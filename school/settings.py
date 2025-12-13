@@ -195,15 +195,6 @@ TEMPLATES = [
 CART_SESSION_ID = 'cart'
 SESSION_COOKIE_AGE = 86400
 
-AUTHENTICATION_BACKENDS = [
-    
-    # Needed to login by username in Django admin, regardless of `allauth`
-    'django.contrib.auth.backends.ModelBackend',
-
-    # `allauth` specific authentication methods, such as login by e-mail
-    'allauth.account.auth_backends.AuthenticationBackend',
-    
-]
 
 SITE_ID = 1
 
@@ -308,9 +299,10 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 AUTH_USER_MODEL = 'main_app.CustomUser'
 
 AUTHENTICATION_BACKENDS = [
+    'main_app.EmailBackend.EmailBackend',
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
-    'main_app.EmailBackend.EmailBackend',
+    
 ]
 
 TIME_ZONE = 'Africa/Johannesburg'
@@ -356,8 +348,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #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
 
 DEBUG = True
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = True
+#SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+#SECURE_SSL_REDIRECT = True
 # DRF setup
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
