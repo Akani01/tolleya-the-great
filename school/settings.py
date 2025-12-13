@@ -33,16 +33,24 @@ DEBUG = True
 
 # Allow all hosts during development
 ALLOWED_HOSTS = [
-    'production-europe-west4-drams3a.railway-registry.com',
-    'railway.app',
-    '.railway.app',
-    'tolleya.com',
-    'www.tolleya.com',
-    'thecms.co.za',
-    'www.thecms.co.za',
-    'localhost',
-    '127.0.0.1'
+    "thecms.co.za",
+    "www.thecms.co.za",
+    "elimcircuit.com",
+    "www.elimcircuit.com",
+    ".railway.app",
+    ".herokuapp.com",
+    "localhost",
+    "127.0.0.1",
+] 
 
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://thecms.co.za",
+    "https://www.thecms.co.za",
+    "https://elimcircuit.com",
+    "https://www.elimcircuit.com",
+    "https://*.railway.app",
+    "https://*.herokuapp.com",
 ]
 
 
@@ -335,8 +343,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #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
 
 DEBUG = True
-#SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-#SECURE_SSL_REDIRECT = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
 # DRF setup
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
