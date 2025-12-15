@@ -3807,3 +3807,303 @@
                     </div>
                     <!-- /.sidebar -->
 </aside>
+<style>
+/* Futuristic White Sidebar - Clean & Professional */
+.main-sidebar {
+    background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%) !important;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.05) !important;
+    border-right: 1px solid rgba(0, 123, 255, 0.08) !important;
+}
+
+.sidebar-dark-info {
+    --light-bg: #ffffff !important;
+    --light-border: #eef2f7 !important;
+}
+
+/* Brand logo area */
+.brand-link {
+    background: #ffffff !important;
+    border-bottom: 1px solid rgba(0, 123, 255, 0.08) !important;
+    padding: 1rem !important;
+}
+
+.brand-text {
+    color: #2d3748 !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.5px !important;
+    font-size: 1.1rem !important;
+}
+
+/* User panel */
+.user-panel {
+    border-bottom: 1px solid rgba(0, 123, 255, 0.08) !important;
+    padding: 1rem !important;
+    margin: 0.5rem 0 !important;
+}
+
+.user-panel .info a {
+    color: #2d3748 !important;
+    font-weight: 500 !important;
+    font-size: 0.95rem !important;
+}
+
+/* Sidebar menu - Clean version */
+.nav-sidebar > .nav-item > .nav-link {
+    color: #4a5568 !important;
+    border-left: 2px solid transparent !important;
+    margin: 2px 15px !important;
+    border-radius: 8px !important;
+    transition: all 0.25s ease !important;
+    background: transparent !important;
+    position: relative;
+}
+
+.nav-sidebar > .nav-item > .nav-link:hover {
+    background: rgba(0, 123, 255, 0.03) !important;
+    color: #2d3748 !important;
+    border-left: 2px solid rgba(0, 123, 255, 0.3) !important;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.08) !important;
+}
+
+.nav-sidebar > .nav-item > .nav-link.active {
+    background: rgba(0, 123, 255, 0.05) !important;
+    color: #007bff !important;
+    border-left: 2px solid #007bff !important;
+    box-shadow: 0 2px 10px rgba(0, 123, 255, 0.1) !important;
+}
+
+/* Treeview menus - Clean */
+.nav-treeview > .nav-item > .nav-link {
+    color: #6c757d !important;
+    padding-left: 45px !important;
+    margin: 1px 15px !important;
+    border-radius: 6px !important;
+    background: transparent !important;
+    transition: all 0.2s ease !important;
+    font-size: 0.9rem !important;
+}
+
+.nav-treeview > .nav-item > .nav-link:hover {
+    background: rgba(0, 123, 255, 0.02) !important;
+    color: #007bff !important;
+    padding-left: 50px !important;
+}
+
+.nav-treeview > .nav-item > .nav-link.active {
+    background: rgba(0, 123, 255, 0.04) !important;
+    color: #007bff !important;
+    font-weight: 500 !important;
+}
+
+/* Icons - Clean Blue */
+.nav-icon {
+    color: #5a6c7d !important;
+    transition: all 0.25s ease !important;
+}
+
+.nav-link:hover .nav-icon {
+    color: #007bff !important;
+    transform: scale(1.05) !important;
+}
+
+.nav-link.active .nav-icon {
+    color: #007bff !important;
+    filter: brightness(1.1) !important;
+}
+
+/* Treeview arrows */
+.fa-angle-left.right {
+    color: #718096 !important;
+    transition: transform 0.25s ease !important;
+    font-size: 0.85rem !important;
+}
+
+.nav-link[aria-expanded="true"] .fa-angle-left.right {
+    transform: rotate(-90deg) !important;
+    color: #007bff !important;
+}
+
+/* Badges - Subtle */
+.nav-pills .badge {
+    background: rgba(0, 123, 255, 0.1) !important;
+    color: #007bff !important;
+    border: 1px solid rgba(0, 123, 255, 0.2) !important;
+    font-size: 0.7rem !important;
+    padding: 0.2rem 0.5rem !important;
+}
+
+/* Dropdown menus */
+.dropdown-menu {
+    background: #ffffff !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05) !important;
+    border-radius: 8px !important;
+    padding: 0.5rem !important;
+}
+
+.dropdown-item {
+    color: #4a5568 !important;
+    border-radius: 6px !important;
+    padding: 0.5rem 1rem !important;
+    margin: 0.1rem 0 !important;
+    transition: all 0.2s ease !important;
+}
+
+.dropdown-item:hover,
+.dropdown-item.active {
+    background: rgba(0, 123, 255, 0.04) !important;
+    color: #007bff !important;
+}
+
+/* Text muted */
+.text-muted {
+    color: #a0aec0 !important;
+    font-size: 0.85rem !important;
+}
+
+/* Modern scrollbar */
+.sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(0, 123, 255, 0.2);
+    border-radius: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 123, 255, 0.3);
+}
+
+/* Subtle hover effects */
+.nav-sidebar > .nav-item > .nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(0, 123, 255, 0.03) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+.nav-sidebar > .nav-item > .nav-link:hover::after {
+    opacity: 1;
+}
+
+/* Active state accent */
+.nav-sidebar > .nav-item > .nav-link.active::before {
+    content: '';
+    position: absolute;
+    left: -2px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 40%;
+    background: linear-gradient(to bottom, #007bff, #66b3ff);
+    border-radius: 0 2px 2px 0;
+}
+
+/* Subtle glow on active */
+.nav-link.active {
+    position: relative;
+    z-index: 1;
+}
+
+/* Link colors */
+.link {
+    color: #007bff !important;
+    transition: all 0.2s ease !important;
+    text-decoration: none !important;
+}
+
+.link:hover {
+    color: #0056b3 !important;
+    text-decoration: underline !important;
+}
+
+/* User image styling */
+.img-circle {
+    border: 2px solid rgba(0, 123, 255, 0.1) !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05) !important;
+    transition: all 0.3s ease !important;
+}
+
+.img-circle:hover {
+    border-color: rgba(0, 123, 255, 0.3) !important;
+    transform: scale(1.05) !important;
+}
+
+/* Section spacing */
+.nav-item.has-treeview {
+    margin: 0.5rem 0 !important;
+}
+
+.nav-treeview {
+    padding: 0.5rem 0 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .main-sidebar {
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.03) !important;
+    }
+    
+    .nav-sidebar > .nav-item > .nav-link {
+        margin: 2px 10px !important;
+        font-size: 0.9rem !important;
+    }
+    
+    .nav-treeview > .nav-item > .nav-link {
+        padding-left: 40px !important;
+        font-size: 0.85rem !important;
+    }
+}
+
+/* Loading animation for brand */
+@keyframes subtlePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.95; }
+}
+
+.brand-link {
+    animation: subtlePulse 8s ease-in-out infinite;
+}
+
+/* Subtle focus styles */
+.nav-link:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1) !important;
+}
+
+/* Smooth transitions */
+.main-sidebar,
+.nav-sidebar > .nav-item,
+.nav-treeview > .nav-item {
+    transition: all 0.3s ease !important;
+}
+
+/* Sidebar bottom spacing */
+.sidebar {
+    padding-bottom: 1rem !important;
+}
+
+/* Clean modern look with just enough accent */
+.nav-pills.nav-sidebar {
+    padding: 0.5rem 0 !important;
+}
+
+/* Remove any harsh colors */
+.nav-sidebar .nav-item .nav-link .text-danger,
+.nav-sidebar .nav-item .nav-link .text-warning,
+.nav-sidebar .nav-item .nav-link .text-success {
+    opacity: 0.8 !important;
+}
+</style>
