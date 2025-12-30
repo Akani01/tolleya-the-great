@@ -645,7 +645,90 @@
 			box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 			background-color: white;
 		}
+
+		/* ===== MATRIC ALERT CARD ===== */
+		.matric-alert-card {
+		  border: 4px solid #c40000;
+		  background: linear-gradient(135deg, #fff5f5, #ffecec);
+		  animation: pulseGlow 2s infinite;
+		}
 		
+		.matric-alert-header {
+		  background-color: #c40000;
+		  color: #fff;
+		  font-weight: bold;
+		  font-size: 1.2rem;
+		  letter-spacing: 1px;
+		}
+		
+		/* Image */
+		.matric-alert-image {
+		  max-width: 280px;
+		  border-radius: 12px;
+		  border: 3px solid #c40000;
+		  cursor: pointer;
+		  transition: transform 0.3s ease;
+		}
+		
+		.matric-alert-image:hover {
+		  transform: scale(1.05);
+		}
+		
+		/* Content */
+		.matric-alert-title {
+		  color: #b00000;
+		  font-weight: 900;
+		  font-size: 2rem;
+		}
+		
+		.matric-alert-text {
+		  font-size: 1.1rem;
+		  font-weight: 500;
+		  color: #333;
+		}
+		
+		/* Button */
+		.matric-alert-btn {
+		  background-color: #c40000;
+		  color: #fff;
+		  font-weight: bold;
+		  padding: 12px 25px;
+		  border-radius: 30px;
+		  margin-top: 10px;
+		}
+		
+		.matric-alert-btn:hover {
+		  background-color: #900000;
+		  color: #fff;
+		}
+		
+		/* Pulse animation */
+		@keyframes pulseGlow {
+		  0% { box-shadow: 0 0 0 rgba(196, 0, 0, 0.4); }
+		  50% { box-shadow: 0 0 25px rgba(196, 0, 0, 0.6); }
+		  100% { box-shadow: 0 0 0 rgba(196, 0, 0, 0.4); }
+		}
+
+		/* Make whole card clickable */
+		.matric-clickable {
+		  cursor: pointer;
+		  transition: transform 0.25s ease, box-shadow 0.25s ease;
+		}
+		
+		.matric-clickable:hover {
+		  transform: scale(1.02);
+		  box-shadow: 0 0 30px rgba(196, 0, 0, 0.7);
+		}
+		
+		/* Hint text */
+		.matric-alert-hint {
+		  display: inline-block;
+		  margin-top: 8px;
+		  font-weight: bold;
+		  color: #c40000;
+		  font-size: 1rem;
+		}
+
 		</style>
 
 		<!--/ End Slider Area -->
@@ -692,6 +775,48 @@
 				x.parentNode.insertBefore(s, x);
 		</script>
 		<!--STUDENT DETAILS-->
+		<div class="row mt-5">
+		  <div class="col-12">
+		    
+		    <!-- CLICKABLE CARD -->
+		    <div class="card matric-alert-card shadow-lg matric-clickable"
+		         onclick="window.location.href='https://www.education.gov.za/MatricResults/ExamResults.aspx';">
+		
+		      <div class="card-header matric-alert-header text-center">
+		        📢 IMPORTANT NOTICE FOR GRADE 12 LEARNERS
+		      </div>
+		
+		      <div class="card-body d-flex flex-column flex-md-row align-items-center">
+		        
+		        <!-- Image -->
+		        <div class="me-md-4 mb-3 mb-md-0">
+		          <img src="{{ news_items.0.get_image }}"
+		               alt="View Matric Results"
+		               class="img-fluid matric-alert-image">
+		        </div>
+		
+		        <!-- Content -->
+		        <div class="matric-alert-content">
+		          <h2 class="matric-alert-title">
+		            🎓 VIEW MATRIC RESULTS
+		          </h2>
+		
+		          <p class="matric-alert-text">
+		            Matric results are now available online.
+		            Tap anywhere on this card to be redirected instantly
+		            to the official results website.
+		          </p>
+		
+		          <span class="matric-alert-hint">
+		            👉 Tap to View Results
+		          </span>
+		        </div>
+		
+		      </div>
+		    </div>
+		  </div>
+		</div>
+
 		<section class="Features section shortcuts-section">
 			<div class="container">
 				<div class="row">
