@@ -7,7 +7,16 @@
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5924073395226525"
-        crossorigin="anonymous"></script>
+		     crossorigin="anonymous"></script>
+		<ins class="adsbygoogle"
+		     style="display:block"
+		     data-ad-format="fluid"
+		     data-ad-layout-key="-dw+5u-i-23+5q"
+		     data-ad-client="ca-pub-5924073395226525"
+		     data-ad-slot="3295008403"></ins>
+		<script>
+		     (adsbygoogle = window.adsbygoogle || []).push({});
+		</script>
 		<meta name="keywords" content="Site keywords here">
 		<meta name="description" content="">
 		<meta name='copyright' content=''>
@@ -3196,195 +3205,519 @@
 		</div>
 		</section>
 		<style>
-			.jobs-section .image-thumbnail {
-				height: 200px;
-				object-fit: cover;
-				cursor: pointer;
-			}
+    /* Enhanced styles for better appearance */
+    .jobs-section .image-thumbnail {
+        height: 250px; /* Increased from 200px */
+        width: 100%;
+        object-fit: cover;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
 
-			.jobs-section .list-group-item a {
-				text-decoration: none;
-				color: black;
-			}
+    .jobs-section .image-thumbnail:hover {
+        transform: scale(1.02);
+    }
 
-			/* Custom styles for the card and container -->
-			.jobs-section .job-card {
-				border: none;
-				box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-				transition: transform 0.3s, border-color 0.3s;
-				border-color: transparent;
-				height: 100%;
-				display: flex;
-				flex-direction: column;
-				justify-content: space-between;
-			}
+    .jobs-section .list-group-item a {
+        text-decoration: none;
+        color: black;
+    }
 
-			.jobs-section .job-card:hover {
-				transform: scale(1.05);
-				border-color: #d2dde2;
-			}
+    /* Enhanced card styling */
+    .jobs-section .job-card {
+        border: none;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.12);
+        transition: all 0.3s ease;
+        border-color: transparent;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #ffffff;
+    }
 
-			.jobs-section .job-container {
-				background-color: #43586d;
-				padding: 20px;
-				border-radius: 10px;
-				margin-bottom: 20px;
-				height: 100%;
-			}
+    .jobs-section .job-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.15);
+        border-color: #d2dde2;
+    }
 
-			.jobs-section .job-heading {
-				font-size: 24px;
-				font-weight: bold;
-				margin-bottom: 20px;
-			}
-		</style>
+    .jobs-section .job-container {
+        background-color: #43586d;
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        height: 100%;
+    }
 
-		
-		<section>
-         <!-- ===================== COMMUNITY EMPLOYMENT ================= -->
-		<body>
-		<div class="container jobs-section">
-			<div class="row">
-			<div class="col-md-3">
-				<div class="card">
-				<div class="card-header">Categories</div>
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item">
-					<a href="{% url 'jobgallery' %}">All</a>
-					</li>
-					<li class="list-group-item">
-					<a href="https://tolleya.com" target="_blank" class="btn btn-dark btn-block btn-sm m-1 text-white">View All Jobs</a>
-					</li>
-					{% if user.is_authenticated %}
-					<a href="{% url 'add' %}" class="btn btn-dark btn-block btn-sm m-1">Add Job</a>
-					{% endif %}
-					<a href="{% url 'logout' %}" class="btn btn-dark btn-block btn-sm m-1">Advertisement</a>
-				</ul>
-				</div>
-			</div>
+    .jobs-section .job-heading {
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 25px;
+        color: white;
+        text-align: center;
+    }
 
-			{% for job in jobs %}
-			<div class="col-md-4">
-				<div class="custom-container">
-				<div class="card custom-card job-click-card" data-url="{{ job.website_url|default:'' }}">
-					<div class="card-image-wrapper">
-					<img class="image-thumbnail" src="{{ job.image.url }}" alt="Job Image">
-					</div>
-					<div class="card-body">
-					<h5 class="card-title">{{ job.description|truncatechars:60 }}</h5>
+    .jobs-section .card-image-wrapper {
+        position: relative;
+        overflow: hidden;
+    }
 
-					<p class="card-text readmore-text" style="display:none;">
-						{{ job.description }}
-					</p>
-					<button class="btn btn-link p-0 readmore-btn" style="font-size: 14px;">Read More</button>
+    /* Improved read more button */
+    .readmore-btn {
+        color: #ffffff !important;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 8px 16px !important;
+        border-radius: 6px;
+        font-size: 14px !important;
+        font-weight: 500;
+        text-decoration: none !important;
+        display: inline-block;
+        transition: all 0.3s ease;
+        margin: 10px 0;
+        text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
 
-					<p class="card-text mt-2 mb-2"><strong>Category:</strong> {{ job.category.name }}</p>
+    .readmore-btn:hover {
+        background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        text-decoration: none !important;
+        color: #ffffff !important;
+    }
 
-					<!-- Social Media Icons -->
-					<div class="social-icons d-flex justify-content-start align-items-center flex-wrap mt-2">
-						{% if job.website_url %}
-						<a href="{{ job.website_url }}" target="_blank" class="icon-link">
-						<i class="fas fa-globe"></i>
-						</a>
-						{% endif %}
-						{% if job.whatsapp_number %}
-						<a href="{{ job.whatsapp_number }}" target="_blank" class="icon-link whatsapp">
-						<i class="fab fa-whatsapp"></i>
-						</a>
-						{% endif %}
-						{% if job.facebook_url %}
-						<a href="{{ job.facebook_url }}" target="_blank" class="icon-link facebook">
-						<i class="fab fa-facebook"></i>
-						</a>
-						{% endif %}
-						{% if job.zoom_url %}
-						<a href="{{ job.zoom_url }}" target="_blank" class="icon-link zoom">
-						<i class="fas fa-video"></i>
-						</a>
-						{% endif %}
-						{% if job.microsoftTeam_url %}
-						<a href="{{ job.microsoftTeam_url }}" target="_blank" class="icon-link teams">
-						<i class="fab fa-microsoft"></i>
-						</a>
-						{% endif %}
-						{% if job.twitter_url %}
-						<a href="{{ job.twitter_url }}" target="_blank" class="icon-link twitter">
-						<i class="fab fa-twitter"></i>
-						</a>
-						{% endif %}
-					</div>
+    .readmore-text {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 10px;
+        border-left: 4px solid #667eea;
+    }
 
-					<a href="https://tolleya.com" target="_blank" class="btn btn-primary mt-3">Apply</a>
-					</div>
-				</div>
-				</div>
-			</div>
-			{% empty %}
-			<div class="col-md-12">
-				<h3>No Job Opportunities</h3>
-			</div>
-			{% endfor %}
-			</div>
-		</div>
+    /* Improved social icons */
+    .social-icons {
+        padding: 15px 0;
+        border-top: 1px solid #eee;
+        margin-top: 15px;
+    }
 
-		<!-- JS for card click -->
-		<script>
-			document.querySelectorAll('.job-click-card').forEach(card => {
-			card.addEventListener('click', (e) => {
-				if (e.target.tagName.toLowerCase() !== 'a' && e.target.tagName.toLowerCase() !== 'button' && !e.target.closest('.readmore-btn')) {
-				const url = card.getAttribute('data-url');
-				if (url && url !== 'https://') {
-					window.open(url, '_blank');
-				}
-				}
-			});
-			});
+    .social-icons .icon-link {
+        width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #f8f9fa;
+        color: #555;
+        font-size: 18px;
+        margin-right: 8px;
+        transition: all 0.3s ease;
+    }
 
-			// Read more toggle
-			document.querySelectorAll('.readmore-btn').forEach(btn => {
-			btn.addEventListener('click', (e) => {
-				e.preventDefault();
-				const text = btn.previousElementSibling;
-				const isHidden = text.style.display === 'none';
-				text.style.display = isHidden ? 'block' : 'none';
-				btn.textContent = isHidden ? 'Read Less' : 'Read More';
-			});
-			});
-		</script>
+    .social-icons .icon-link:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
 
-		<!-- Style (keeps your original layout intact) -->
-		<style>
-			.job-click-card {
-			cursor: pointer;
-			transition: transform 0.2s ease, box-shadow 0.2s ease;
-			}
-			.job-click-card:hover {
-			transform: translateY(-3px);
-			box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-			}
-			.social-icons .icon-link {
-			color: #444;
-			font-size: 20px;
-			margin-right: 12px;
-			transition: color 0.3s ease;
-			}
-			.icon-link:hover { color: #007bff; }
-			.icon-link.whatsapp:hover { color: #25D366; }
-			.icon-link.facebook:hover { color: #1877F2; }
-			.icon-link.zoom:hover { color: #0e71eb; }
-			.icon-link.teams:hover { color: #464eb8; }
-			.icon-link.twitter:hover { color: #1DA1F2; }
-			.readmore-btn {
-			color: #007bff;
-			text-decoration: none;
-			}
-			.readmore-btn:hover {
-			text-decoration: underline;
-			}
-		</style>
-		</body>
+    /* Apply button styling */
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 10px 25px;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
 
-		</section>
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    /* Categories sidebar */
+    .card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: bold;
+        font-size: 18px;
+    }
+
+    .list-group-item {
+        padding: 12px 20px;
+        border: none;
+        border-bottom: 1px solid #eee;
+    }
+
+    .list-group-item a {
+        color: #333;
+        transition: all 0.3s ease;
+    }
+
+    .list-group-item a:hover {
+        color: #667eea;
+        padding-left: 5px;
+    }
+
+    /* Grid layout improvements */
+    .custom-container {
+        padding: 10px;
+    }
+
+    .custom-card {
+        height: 100%;
+    }
+
+    .card-body {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .jobs-section .image-thumbnail {
+            height: 200px;
+        }
+        
+        .jobs-section .job-container {
+            padding: 15px;
+        }
+        
+        .col-md-4 {
+            margin-bottom: 20px;
+        }
+    }
+</style>
+
+<!-- Splash function for better viewing -->
+<script>
+    function splashView(cardElement) {
+        // Store original styles
+        const originalStyles = {
+            position: cardElement.style.position,
+            zIndex: cardElement.style.zIndex,
+            transform: cardElement.style.transform,
+            boxShadow: cardElement.style.boxShadow,
+            width: cardElement.style.width,
+            height: cardElement.style.height,
+            left: cardElement.style.left,
+            top: cardElement.style.top
+        };
+
+        // Create overlay
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 9998;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        `;
+
+        // Create splash container
+        const splashContainer = document.createElement('div');
+        splashContainer.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            max-width: 90%;
+            max-height: 90%;
+            z-index: 9999;
+            transition: all 0.3s ease;
+            opacity: 0;
+        `;
+
+        // Clone the card and enhance it
+        const clonedCard = cardElement.cloneNode(true);
+        clonedCard.style.cssText = `
+            width: 600px;
+            max-width: 90vw;
+            background: white;
+            border-radius: 16px;
+            overflow: auto;
+            max-height: 85vh;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        `;
+
+        // Make image larger in splash view
+        const image = clonedCard.querySelector('.image-thumbnail');
+        if (image) {
+            image.style.height = '300px';
+            image.style.width = '100%';
+            image.style.objectFit = 'contain';
+            image.style.backgroundColor = '#f8f9fa';
+        }
+
+        // Show full text in splash view
+        const readmoreText = clonedCard.querySelector('.readmore-text');
+        if (readmoreText) {
+            readmoreText.style.display = 'block';
+        }
+        
+        const readmoreBtn = clonedCard.querySelector('.readmore-btn');
+        if (readmoreBtn) {
+            readmoreBtn.textContent = 'Read Less';
+        }
+
+        // Close function
+        function closeSplash() {
+            splashContainer.style.opacity = '0';
+            splashContainer.style.transform = 'translate(-50%, -50%) scale(0.9)';
+            overlay.style.opacity = '0';
+            
+            setTimeout(() => {
+                document.body.removeChild(overlay);
+                document.body.removeChild(splashContainer);
+                document.body.style.overflow = 'auto';
+            }, 300);
+        }
+
+        // Add close button
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = '&times;';
+        closeBtn.style.cssText = `
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        `;
+        
+        closeBtn.addEventListener('mouseover', () => {
+            closeBtn.style.background = '#764ba2';
+            closeBtn.style.transform = 'rotate(90deg)';
+        });
+        
+        closeBtn.addEventListener('mouseout', () => {
+            closeBtn.style.background = '#667eea';
+            closeBtn.style.transform = 'rotate(0deg)';
+        });
+
+        closeBtn.addEventListener('click', closeSplash);
+
+        // Append elements
+        clonedCard.appendChild(closeBtn);
+        splashContainer.appendChild(clonedCard);
+        document.body.appendChild(overlay);
+        document.body.appendChild(splashContainer);
+        document.body.style.overflow = 'hidden';
+
+        // Trigger animations
+        setTimeout(() => {
+            overlay.style.opacity = '1';
+            splashContainer.style.opacity = '1';
+            splashContainer.style.transform = 'translate(-50%, -50%) scale(1)';
+        }, 10);
+
+        // Close on overlay click
+        overlay.addEventListener('click', closeSplash);
+    }
+</script>
+
+<section>
+    <!-- ===================== COMMUNITY EMPLOYMENT ================= -->
+    <div class="container jobs-section">
+        <div class="row">
+            <!-- Categories Sidebar -->
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-header">Categories</div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <a href="{% url 'jobgallery' %}">All</a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="https://tolleya.com" target="_blank" class="btn btn-dark btn-block btn-sm m-1 text-white">View All Jobs</a>
+                        </li>
+                        {% if user.is_authenticated %}
+                        <li class="list-group-item">
+                            <a href="{% url 'add' %}" class="btn btn-dark btn-block btn-sm m-1">Add Job</a>
+                        </li>
+                        {% endif %}
+                        <li class="list-group-item">
+                            <a href="{% url 'logout' %}" class="btn btn-dark btn-block btn-sm m-1">Advertisement</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Job Cards -->
+            <div class="col-md-9">
+                <div class="job-container">
+                    <h2 class="job-heading">Community Employment</h2>
+                    <div class="row">
+                        {% for job in jobs %}
+                        <div class="col-md-4 mb-4">
+                            <div class="custom-container">
+                                <div class="card custom-card job-click-card" onclick="splashView(this)" data-url="{{ job.website_url|default:'' }}">
+                                    <div class="card-image-wrapper">
+                                        <img class="image-thumbnail" src="{{ job.image.url }}" alt="Job Image" onerror="this.src='https://via.placeholder.com/400x250/667eea/ffffff?text=Job+Image'">
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ job.description|truncatechars:80 }}</h5>
+
+                                        <p class="card-text readmore-text" style="display:none;">
+                                            {{ job.description }}
+                                        </p>
+                                        <button class="btn btn-link readmore-btn" onclick="event.stopPropagation();">
+                                            Read More
+                                        </button>
+
+                                        <p class="card-text mt-2 mb-2"><strong>Category:</strong> {{ job.category.name }}</p>
+
+                                        <!-- Social Media Icons -->
+                                        <div class="social-icons">
+                                            {% if job.website_url %}
+                                            <a href="{{ job.website_url }}" target="_blank" class="icon-link" onclick="event.stopPropagation();">
+                                                <i class="fas fa-globe"></i>
+                                            </a>
+                                            {% endif %}
+                                            {% if job.whatsapp_number %}
+                                            <a href="{{ job.whatsapp_number }}" target="_blank" class="icon-link whatsapp" onclick="event.stopPropagation();">
+                                                <i class="fab fa-whatsapp"></i>
+                                            </a>
+                                            {% endif %}
+                                            {% if job.facebook_url %}
+                                            <a href="{{ job.facebook_url }}" target="_blank" class="icon-link facebook" onclick="event.stopPropagation();">
+                                                <i class="fab fa-facebook"></i>
+                                            </a>
+                                            {% endif %}
+                                            {% if job.zoom_url %}
+                                            <a href="{{ job.zoom_url }}" target="_blank" class="icon-link zoom" onclick="event.stopPropagation();">
+                                                <i class="fas fa-video"></i>
+                                            </a>
+                                            {% endif %}
+                                            {% if job.microsoftTeam_url %}
+                                            <a href="{{ job.microsoftTeam_url }}" target="_blank" class="icon-link teams" onclick="event.stopPropagation();">
+                                                <i class="fab fa-microsoft"></i>
+                                            </a>
+                                            {% endif %}
+                                            {% if job.twitter_url %}
+                                            <a href="{{ job.twitter_url }}" target="_blank" class="icon-link twitter" onclick="event.stopPropagation();">
+                                                <i class="fab fa-twitter"></i>
+                                            </a>
+                                            {% endif %}
+                                        </div>
+
+                                        <a href="https://tolleya.com" target="_blank" class="btn btn-primary mt-3" onclick="event.stopPropagation();">Apply Now</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-md-12">
+                            <div class="alert alert-info text-center">
+                                <h3>No Job Opportunities Available</h3>
+                                <p>Check back later for new opportunities!</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced JavaScript -->
+    <script>
+        // Read more toggle functionality
+        document.querySelectorAll('.readmore-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const card = btn.closest('.job-click-card');
+                const text = btn.previousElementSibling;
+                const isHidden = text.style.display === 'none' || text.style.display === '';
+                
+                text.style.display = isHidden ? 'block' : 'none';
+                btn.textContent = isHidden ? 'Read Less' : 'Read More';
+                
+                // Add animation
+                if (isHidden) {
+                    text.style.opacity = '0';
+                    text.style.transform = 'translateY(-10px)';
+                    setTimeout(() => {
+                        text.style.transition = 'all 0.3s ease';
+                        text.style.opacity = '1';
+                        text.style.transform = 'translateY(0)';
+                    }, 10);
+                }
+            });
+        });
+
+        // Card click for splash view is now handled by onclick attribute
+        // But we keep the original URL functionality as fallback
+        document.querySelectorAll('.job-click-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                // If clicked on interactive elements, don't trigger splash
+                if (e.target.tagName === 'A' || 
+                    e.target.tagName === 'BUTTON' || 
+                    e.target.closest('a') || 
+                    e.target.closest('button')) {
+                    return;
+                }
+                
+                // Splash view is triggered by onclick attribute
+            });
+        });
+
+        // Add hover effects for social icons
+        document.querySelectorAll('.icon-link').forEach(link => {
+            link.addEventListener('mouseenter', function() {
+                if (this.classList.contains('whatsapp')) {
+                    this.style.background = '#25D366';
+                    this.style.color = 'white';
+                } else if (this.classList.contains('facebook')) {
+                    this.style.background = '#1877F2';
+                    this.style.color = 'white';
+                } else if (this.classList.contains('zoom')) {
+                    this.style.background = '#0e71eb';
+                    this.style.color = 'white';
+                } else if (this.classList.contains('teams')) {
+                    this.style.background = '#464eb8';
+                    this.style.color = 'white';
+                } else if (this.classList.contains('twitter')) {
+                    this.style.background = '#1DA1F2';
+                    this.style.color = 'white';
+                } else {
+                    this.style.background = '#667eea';
+                    this.style.color = 'white';
+                }
+            });
+            
+            link.addEventListener('mouseleave', function() {
+                this.style.background = '#f8f9fa';
+                this.style.color = '#555';
+            });
+        });
+    </script>
+</section>
 
 		<!-- ===================== COLLEGES SECTION ===================== -->
 		<section class="pricing-table section">
