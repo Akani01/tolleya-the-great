@@ -44,9 +44,10 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Title</th>
+                            <th>Name / Title</th>
                             <th>Grade</th>
                             <th>Term</th>
+                            <th>Subject</th>
                             <th>Questions</th>
                             <th>Status</th>
                             <th>Uploaded</th>
@@ -57,31 +58,80 @@
                         {% for paper in papers %}
                         <tr>
                             <td>
-                                <a href="{% url 'questpaper_detail' paper.pk %}">
-                                    {{ paper.title|default:"Untitled" }}
+                                <a href="{% url 'questpaper_detail' paper.pk %}" class="text-decoration-none">
+                                    {% if paper.name %}
+                                        <strong>{{ paper.name }}</strong>
+                                        {% if paper.title and paper.title != paper.name %}
+                                            <br><small class="text-muted">{{ paper.title }}</small>
+                                        {% endif %}
+                                    {% else %}
+                                        {{ paper.title|default:"Untitled Paper" }}
+                                    {% endif %}
                                 </a>
+                                {% if paper.file %}
+                                    <br>
+                                    <small class="text-muted">
+                                        <i class="fas fa-file-pdf text-danger me-1"></i>
+                                        {{ paper.file.name|cut:"question_papers/"|truncatechars:30 }}
+                                    </small>
+                                {% endif %}
                             </td>
-                            <td>{{ paper.grade|default:"-" }}</td>
-                            <td>{{ paper.term|default:"-" }}</td>
-                            <td>{{ paper.number_of_questions }}</td>
+                            <td>{{ paper.grade.name|default:"-" }}</td>
+                            <td>{{ paper.term.name|default:"-" }}</td>
+                            <td>{{ paper.subject.name|default:"-" }}</td>
+                            <td>
+                                {% if paper.number_of_questions > 0 %}
+                                    {{ paper.number_of_questions }}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
                             <td>
                                 {% if paper.is_processed %}
                                     <span class="badge bg-success">Processed</span>
                                 {% else %}
                                     <span class="badge bg-warning">Processing</span>
                                 {% endif %}
+                                {% if paper.extraction_confidence > 0 %}
+                                    <br>
+                                    <small class="text-muted">
+                                        {{ paper.extraction_confidence|floatformat:2 }}% confidence
+                                    </small>
+                                {% endif %}
                             </td>
-                            <td>{{ paper.uploaded_at|date:"M d, Y" }}</td>
                             <td>
-                                <div class="btn-group">
+                                {% if paper.uploaded_by %}
+                                    {{ paper.uploaded_by.username }}<br>
+                                {% endif %}
+                                <small class="text-muted">{{ paper.upload_time|date:"M d, Y" }}</small>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'view_question_paper' paper.pk %}" 
+                                       target="_blank"
+                                       class="btn btn-outline-primary" 
+                                       title="View PDF">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                     <a href="{% url 'questpaper_download' paper.pk %}" 
-                                       class="btn btn-sm btn-outline-primary">Download</a>
-                                    {% if paper.uploaded_by == request.user %}
+                                       class="btn btn-outline-secondary"
+                                       title="Download">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                    {% if request.user.is_superuser or paper.uploaded_by == request.user %}
+                                    <a href="{% url 'questpaper_update' paper.pk %}" 
+                                       class="btn btn-outline-warning"
+                                       title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
                                     <form method="post" action="{% url 'questpaper_delete' paper.pk %}" 
                                           class="d-inline">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                                onclick="return confirm('Delete this paper?')">Delete</button>
+                                        <button type="submit" class="btn btn-outline-danger" 
+                                                onclick="return confirm('Delete this question paper?')"
+                                                title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </form>
                                     {% endif %}
                                 </div>
@@ -89,12 +139,53 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="7" class="text-center">No question papers uploaded yet.</td>
+                            <td colspan="8" class="text-center py-4">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    No question papers uploaded yet.
+                                    <a href="{% url 'questpaper_upload' %}" class="alert-link ms-1">
+                                        Upload your first question paper
+                                    </a>
+                                </div>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
+            
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1">&laquo; First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
         </div>
     </div>
 </div>

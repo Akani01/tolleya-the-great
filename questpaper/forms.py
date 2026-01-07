@@ -3,8 +3,6 @@ from django import forms
 from .models import *
 from main_app.models import *
 
-
-
 # Custom widget for multiple file uploads
 class MultipleFileInput(forms.ClearableFileInput):
     allow_multiple_selected = True
@@ -29,6 +27,7 @@ class QuestionPaperUploadForm(forms.ModelForm):
         model = QuestionPaper
         fields = [
             'file',
+            'name',  # Added name field
             'title',
             'grade', 
             'term',
@@ -43,9 +42,13 @@ class QuestionPaperUploadForm(forms.ModelForm):
                 'class': 'form-control',
                 'accept': '.pdf'
             }),
+            'name': forms.TextInput(attrs={  # Added name widget
+                'class': 'form-control',
+                'placeholder': 'e.g., Mathematics Final Exam 2024 (optional - will use filename if empty)'
+            }),
             'title': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Enter a title for this paper'
+                'placeholder': 'Auto-generated title (optional)'
             }),
             'grade': forms.Select(attrs={'class': 'form-control'}),
             'term': forms.Select(attrs={'class': 'form-control'}),
@@ -55,6 +58,16 @@ class QuestionPaperUploadForm(forms.ModelForm):
             'complexity_rating': forms.Select(attrs={'class': 'form-control'}),
             'topics': forms.SelectMultiple(attrs={'class': 'form-control'}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make name optional with helpful help text
+        self.fields['name'].required = False
+        self.fields['name'].help_text = "Optional. If left empty, will use the filename"
+        
+        # Make title optional since it will be auto-generated
+        self.fields['title'].required = False
+        self.fields['title'].help_text = "Optional. Auto-generated if empty"
 
 
 class BulkUploadForm(forms.Form):
@@ -63,7 +76,7 @@ class BulkUploadForm(forms.Form):
             'class': 'form-control',
             'accept': '.pdf'
         }),
-        help_text="Select multiple PDF files"
+        help_text="Select multiple PDF files. File names will be used as question paper names."
     )
     grade = forms.ModelChoiceField(
         queryset=Grade.objects.all(),
@@ -77,6 +90,17 @@ class BulkUploadForm(forms.Form):
     )
     school = forms.ModelChoiceField(
         queryset=School.objects.all(),
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    # Optional: Add department and subject for bulk upload if needed
+    department = forms.ModelChoiceField(
+        queryset=Department.objects.all(),
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    subject = forms.ModelChoiceField(
+        queryset=Subject.objects.all(),
         required=False,
         widget=forms.Select(attrs={'class': 'form-control'})
     )

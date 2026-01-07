@@ -19,8 +19,10 @@
         <title>Tolleya</title>
 	
 	<!-- Favicon for browsers -->
-	<link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/logo.png' %}">
-	<link rel="shortcut icon" href="{% static 'images/logo.png' %}">
+	<link rel="icon" href="{% static 'images/favicon/favicon.ico' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon/favicon-16x16.png' %}">
+
 
 	<!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
@@ -1324,9 +1326,13 @@
 							{% if paper.grade.id == grade.id %}
 								<!-- Adjust the columns for different screen sizes -->
 								<div class="col-6 col-md-3 paper-card" data-grade="{{ paper.grade.id }}" data-term="{{ paper.term.id }}" data-department="{{ paper.department.id }}" data-school="{{ paper.school.id }}">
-								<div class="card shadow-sm p-3 mb-4">
+								    <h6 class="fw-bold text-dark mb-1">
+                                        {{ paper.name|default:paper.title }}
+                                    </h6>
+
+                                    <div class="card shadow-sm p-3 mb-4">
 									<div class="card-body">
-									<h5 class="card-title">{{ paper.term }}</h5>
+									<h5 class="card-title">{{ paper.subject.name }} : {{ paper.term }}</h5>
 									<p class="card-text">Department: {{ paper.department.name }} | Complexity: {{ paper.complexity_rating }}</p>
 									<div class="d-flex justify-content-between">
 										<a href="{% url 'view' paper.id %}" class="btn btn-info btn-sm" target="_blank">View</a>

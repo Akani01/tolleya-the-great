@@ -117,8 +117,9 @@ class QuestionPaperManager(models.Manager):
         return self.filter(uploaded_by=user)
 
 class QuestionPaper(models.Model):
-    # Core relationships
-    title = models.CharField(max_length=255, blank=True, null=True)
+    # Core relationships and name
+    title = models.CharField(max_length=255, blank=True, null=True, help_text="Name of the question paper (auto-filled from filename if empty)")
+    name = models.CharField(max_length=200, blank=True, help_text="Display name of the question paper")
     grade = models.ForeignKey(Grade, on_delete=models.CASCADE, null=True, blank=True)
     term = models.ForeignKey(Term, on_delete=models.CASCADE, null=True, blank=True)
     school = models.ForeignKey(School, on_delete=models.CASCADE, null=True, blank=True)
@@ -160,16 +161,21 @@ class QuestionPaper(models.Model):
         verbose_name_plural = 'Question Papers'
     
     def __str__(self):
-        components = []
-        if self.grade:
-            components.append(str(self.grade))
-        if self.term:
-            components.append(str(self.term))
-        if self.subject:
-            components.append(self.subject.name)
-        if components:
-            return " - ".join(components)
-        return f"Question Paper - {self.file.name}"
+        # Use name if available, otherwise use filename-based title
+        return self.get_display_name()
+    
+    def get_display_name(self):
+        """Get the best display name for the question paper"""
+        if self.name:
+            return self.name
+        elif self.title:
+            return self.title
+        else:
+            # Generate from filename
+            if self.file:
+                filename = os.path.splitext(os.path.basename(self.file.name))[0]
+                return filename.replace('_', ' ').replace('-', ' ').title()
+            return f"Question Paper - {self.id}"
     
     def clean(self):
         """Django model validation"""
@@ -201,6 +207,13 @@ class QuestionPaper(models.Model):
                 self.title = f"{' '.join(components)} - Question Paper"
             else:
                 self.title = "Question Paper"
+        
+        # Auto-generate name from filename if not provided
+        if not self.name and self.file:
+            filename = os.path.splitext(os.path.basename(self.file.name))[0]
+            # Clean up filename: remove extensions, replace underscores/hyphens with spaces
+            clean_name = filename.replace('_', ' ').replace('-', ' ').title()
+            self.name = clean_name
         
         super().save(*args, **kwargs)
         
@@ -554,7 +567,7 @@ def handle_new_question_paper(sender, instance, created, **kwargs):
         import time
         time.sleep(1)
         instance.schedule_auto_processing()
-
+        
 #Prospectors
 class Prospectors(models.Model):
     institution = models.CharField(max_length=100)
