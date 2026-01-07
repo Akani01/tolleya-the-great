@@ -1826,3 +1826,4 @@ def upload_subjects_from_excel(request):
         form = SubjectExcelUploadForm()
 
     return render(request, 'subjects/upload_excel.html', {'form': form})
+    

@@ -59,15 +59,13 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:5173",
 ]
 
-# CSRF Cookie Settings
-CSRF_COOKIE_SECURE = False
-CSRF_COOKIE_HTTPONLY = False
-CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_HTTPONLY = False  # must be readable by JS
+CSRF_COOKIE_SECURE = True
 
-# Session Settings
-SESSION_COOKIE_SECURE = False
-SESSION_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_AGE = 1209600
+CSRF_COOKIE_SAMESITE = "Lax"
+
+
+SESSION_COOKIE_SECURE = True
 
 # Application definition
 
