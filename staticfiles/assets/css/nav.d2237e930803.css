@@ -1,0 +1,340 @@
+
+.navbar-container {
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border-bottom: 1px solid #ddd;
+    padding: 10px 20px;
+    font-family: Arial, sans-serif;
+}
+
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.left-section,
+.right-section {
+    display: flex;
+    align-items: center;
+}
+
+.icon-button {
+    background: none;
+    border: none;
+    margin: 0 5px;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+}
+
+.icon-button:hover {
+    background-color: #f0f0f0;
+    border-radius: 50%;
+}
+
+.site-url {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #333;
+    margin-left: 10px;
+}
+
+.site-url svg {
+    margin-right: 5px;
+}
+
+.search-bar {
+    display: none;
+    margin-top: 10px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.search-bar.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-input-wrapper {
+    display: flex;
+    width: 100%;
+}
+
+.search-input {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px 0 0 5px;
+    outline: none;
+}
+
+.search-submit {
+    padding: 8px 10px;
+    background-color: #007bff;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 0 5px 5px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+}
+
+.search-submit:hover {
+    background-color: #0056b3;
+}
+
+.logo-section {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.logo-section img {
+    max-height: 50px;
+}
+
+.main-nav {
+    margin-top: 10px;
+    text-align: center;
+    background-color: #f9f9f9;
+    padding: 10px 0;
+}
+
+.nav-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.nav-links li {
+    display: inline;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: #0056b3;
+}
+
+.menu {
+    position: relative; /* Relative positioning for the dropdown */
+}
+
+.right-section {
+    display: flex;
+    align-items: center;
+}
+
+.icon-button {
+    background: none;
+    border: none;
+    margin: 0 5px;
+    cursor: pointer;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100px; /* Adjust as needed */
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    list-style: none;
+    padding: 10px;
+    width: 200px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-menu li {
+    margin: 5px 0;
+}
+
+.dropdown-menu li a {
+    text-decoration: none;
+    color: #333;
+    display: block;
+}
+
+.search-form {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.search-form input {
+    width: 200px;
+    padding: 5px;
+    margin-right: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.search-submit-btn {
+    padding: 5px 10px;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.search-submit-btn:hover {
+    background-color: #0056b3;
+}
+
+
+.dropdown-menu-left {
+    left: -125; /* Align to the left */
+    right: auto; /* Reset any right alignment */
+}
+
+/* Shortcuts section
+/* Scoped to .shortcuts-section */
+.shortcuts-section .shortcuts-title h2 {
+    font-size: 2.5rem;
+    color: #007bff;
+    font-weight: bold;
+}
+
+.shortcuts-section .shortcuts-title img {
+    margin: 10px 0;
+    max-width: 50px;
+}
+
+.shortcuts-section .shortcuts-title p {
+    font-size: 1rem;
+    color: #666;
+}
+
+.shortcuts-section .shortcuts-feature {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.shortcuts-section .shortcuts-feature:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.shortcuts-section .shortcuts-feature .single-icon {
+    font-size: 3rem;
+    color: #007bff;
+    margin-bottom: 10px;
+}
+
+.shortcuts-section .shortcuts-feature h3 {
+    font-size: 1.2rem;
+    color: #333;
+    font-weight: bold;
+    margin: 0;
+}
+
+/* Custom card
+ /* Custom Background */
+ .custom-container {
+    background-color: #007bff; /* Blue background */
+}
+
+/* Grid Layout */
+.custom-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+}
+
+/* Individual Card Wrapper */
+.custom-card-wrapper {
+    flex: 1 1 calc(25% - 1rem); /* Adjusts card width */
+    max-width: calc(25% - 1rem);
+}
+
+/* Responsive Layout Adjustments */
+@media (max-width: 768px) {
+    .custom-card-wrapper {
+        flex: 1 1 calc(50% - 1rem);
+        max-width: calc(50% - 1rem);
+    }
+}
+
+@media (max-width: 576px) {
+    .custom-card-wrapper {
+        flex: 1 1 100%;
+        max-width: 100%;
+    }
+}
+
+/* Card Styling */
+.custom-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Logo Image */
+.custom-card-header img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    margin: 0 auto;
+}
+
+/* Card Text Color */
+.custom-card-body p {
+    margin-bottom: 0.5rem;
+    color: #fff; /* White text */
+}
+
+/* Title Text Color */
+.custom-card-header h5 {
+    color: #fff; /* White text */
+}
+
+.toggle-line {
+    cursor: pointer;
+    user-select: none;
+}
+
+.toggle-line:hover hr {
+    border-color: #007bff; /* Highlight the line on hover */
+}
+
+.arrow-indicator {
+    font-size: 1.5em;
+    transition: transform 0.3s ease;
+}
+
+/* Rotate arrow when expanded */
+[aria-expanded="true"] .arrow-indicator {
+    transform: rotate(180deg); /* Rotate arrow upwards */
+}
