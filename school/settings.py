@@ -86,6 +86,8 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'django.contrib.sites',
+    #SEO optimized
+    'django.contrib.sitemaps',
     #advance integrations
     'rest_framework_simplejwt',
     'channels',

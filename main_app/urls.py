@@ -18,9 +18,41 @@ from main_app.EditResultView import EditResultView
 from django.contrib.auth import views as auth_views
 from . import hod_views, staff_views, parent_views, member_views, educator_views, circuit_manager_views, student_views, principal_views, cwa_admin_views, views
 from .views import *
+from django.contrib.sitemaps.views import sitemap
+from .sitemaps import *
+
+
+sitemaps = {
+    # Dynamic content
+    'jobs': JobSitemap,
+    'bursaries': BursarySitemap,
+    'colleges': CollegeSitemap,
+    'news': NewsSitemap,
+    'videos': VideoSitemap,
+    'questionpapers': QuestionPaperSitemap,
+    'schools': SchoolSitemap,
+    'photos': PhotoSitemap,
+    'prospectors': ProspectorSitemap,
+    'sos': SOSSitemap,
+    
+    # Static pages
+    'static': StaticViewSitemap,
+    'highpriority': HighPriorityStaticSitemap,
+    'sections': SectionSitemap,
+    
+    # User content
+    'profiles': UserProfileSitemap,
+    
+    # Feeds
+    'feeds': RSSFeedSitemap,
+}
+
 
 urlpatterns = [
     path('', views.index_view, name='index'),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, 
+         name='django.contrib.sitemaps.views.sitemap'),
+    
     path("login", views.login_page, name='login_page'),
     path("news/", hod_views.post_add, name="news"),
     path("item/<int:pk>/edit/", hod_views.edit_post, name="edit_post"),
