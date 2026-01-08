@@ -44,7 +44,15 @@ from django.core.mail import EmailMessage
 from django.db.models import Q
 from questpaper.models import *
 from django.contrib.auth import get_user_model
+from django.http import FileResponse
+from django.conf import settings
+import os
 
+
+def favicon(request):
+    # Adjust the path if your static folder is somewhere else
+    path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logo.png')
+    return FileResponse(open(path, 'rb'), content_type='image/png')
 
 def index_view(request):
     # Fetch data from the theblog app models

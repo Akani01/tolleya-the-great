@@ -52,7 +52,8 @@ urlpatterns = [
     path('', views.index_view, name='index'),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, 
          name='django.contrib.sitemaps.views.sitemap'),
-    
+    #icons
+    path('favicon.ico', views.favicon, name='favicon'),
     path("login", views.login_page, name='login_page'),
     path("news/", hod_views.post_add, name="news"),
     path("item/<int:pk>/edit/", hod_views.edit_post, name="edit_post"),
