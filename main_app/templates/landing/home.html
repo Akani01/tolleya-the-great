@@ -937,7 +937,7 @@
                             <div class="video-info">
                                 <h6 class="video-title">{{ video.title|truncatechars:50 }}</h6>
                                 <div class="video-meta">
-                                    <span class="views"><i class="fas fa-eye"></i> {{ video.views_count|default:0 }}</span>
+                                    <span class="views"><i class="fas fa-eye"></i> {{ video.views_count|default:50000 }}</span>
                                     <span class="date">{{ video.date_posted|timesince }} ago</span>
                                 </div>
                                 <div class="video-author">
