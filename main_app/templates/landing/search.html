@@ -33,7 +33,7 @@
                                 </div>
                                 <!-- Bursary Details -->
                                 <div class="card-body text-center">
-                                    <a href="https://{{ item.website_url }}" target="_blank">
+                                    <a href="{{ item.website_url }}" target="_blank">
                                         <img src="{{ item.get_picture }}" alt="{{ item.title }}" class="img-thumbnail mb-3" style="max-width: 120px; max-height: 120px;">
                                     </a>
                                     <p class="card-text text-muted">{{ item.summary|truncatewords:15 }}</p>
