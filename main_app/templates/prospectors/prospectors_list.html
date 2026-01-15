@@ -1,63 +1,93 @@
 {% extends 'main_app/base.html' %}
 
 {% block content %}
-    <h2>Prospectors List</h2>
+<h2 class="text-xl sm:text-2xl font-bold text-center my-4 sm:my-6">
+  Prospectors List
+</h2>
 
-    <!-- Tailwind CDN (if you don’t already have it in your project) -->
+<!-- Tailwind CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
 
 <!-- Search Form -->
-<form method="get" action="{% url 'prospectors_search' %}" class="flex items-center max-w-md mx-auto my-6">
+<form method="get" action="{% url 'prospectors_search' %}" 
+      class="flex flex-col sm:flex-row items-stretch sm:items-center max-w-md mx-auto my-4 sm:my-6 gap-2">
   <input 
     type="text" 
     name="q" 
     placeholder="Search for a prospector" 
     value="{{ request.GET.q }}" 
-    class="flex-1 rounded-l-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    class="flex-1 rounded-lg sm:rounded-l-lg sm:rounded-r-none border border-gray-300 p-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
   >
   <button 
     type="submit" 
-    class="bg-blue-600 text-white px-4 py-2 rounded-r-lg hover:bg-blue-700 transition"
+    class="bg-blue-600 text-white px-4 py-3 rounded-lg sm:rounded-l-none sm:rounded-r-lg hover:bg-blue-700 transition text-sm sm:text-base"
   >
     Search
   </button>
 </form>
 
 <!-- Prospectors Grid -->
-<div class="grid gap-6 px-4 sm:grid-cols-2 lg:grid-cols-3">
+<div class="grid gap-4 sm:gap-6 px-3 sm:px-4
+            grid-cols-1
+            sm:grid-cols-2
+            lg:grid-cols-3">
   {% for prospector in prospectors %}
-    <div class="bg-white rounded-2xl shadow-md p-4 flex flex-col items-center text-center">
+    
+    <div
+      {% if prospector.copy %}
+        onclick="window.open('{{ prospector.copy.url }}', '_blank')"
+        class="bg-white rounded-xl sm:rounded-2xl shadow-md p-4 sm:p-5 flex flex-col items-center text-center cursor-pointer hover:shadow-xl hover:scale-[1.02] transition-all duration-200"
+      {% else %}
+        class="bg-white rounded-xl sm:rounded-2xl shadow-md p-4 sm:p-5 flex flex-col items-center text-center"
+      {% endif %}
+    >
+
       <!-- Logo -->
       {% if prospector.logo %}
-        <img src="{{ prospector.logo.url }}" alt="Logo" class="h-20 object-contain mb-3">
+        <img src="{{ prospector.logo.url }}" 
+             alt="Logo"
+             class="h-16 sm:h-20 object-contain mb-3 sm:mb-4">
       {% else %}
-        <div class="h-20 w-20 flex items-center justify-center bg-gray-100 text-gray-500 rounded-full mb-3">
+        <div class="h-16 w-16 sm:h-20 sm:w-20 flex items-center justify-center bg-gray-100 text-gray-500 rounded-full mb-3 sm:mb-4 text-xs sm:text-sm">
           No Logo
         </div>
       {% endif %}
 
       <!-- Institution Info -->
-      <h2 class="text-lg font-semibold text-gray-800">{{ prospector.institution }}</h2>
-      <p class="text-sm text-gray-600 mb-3">{{ prospector.address }}</p>
+      <h2 class="text-base sm:text-lg font-semibold text-gray-800 leading-tight">
+        {{ prospector.institution }}
+      </h2>
 
-      <!-- Copy -->
+      <p class="text-xs sm:text-sm text-gray-600 mt-1 mb-2 sm:mb-3">
+        {{ prospector.address }}
+      </p>
+
+      <!-- Click Hint -->
       {% if prospector.copy %}
-        <a href="{{ prospector.copy.url }}" target="_blank" 
-           class="text-blue-600 hover:underline text-sm font-medium mb-2">
-          📄 View Copy
-        </a>
+        <p class="text-xs sm:text-sm text-blue-600 mb-3">
+          📄 Tap card to view prospectus
+        </p>
       {% else %}
-        <p class="text-xs text-gray-400 mb-2">No file uploaded</p>
+        <p class="text-xs text-gray-400 mb-3">
+          No file uploaded
+        </p>
       {% endif %}
 
       <!-- Actions -->
-      <a href="{% url 'prospector_edit' prospector.id %}" 
-         class="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-sm hover:bg-gray-200 transition">
+      <a 
+        href="{% url 'prospector_edit' prospector.id %}"
+        onclick="event.stopPropagation();"
+        class="mt-auto bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-xs sm:text-sm hover:bg-gray-200 transition w-full sm:w-auto text-center"
+      >
         ✏️ Edit
       </a>
+
     </div>
+
   {% empty %}
-    <p class="col-span-full text-center text-gray-500">No prospectors available.</p>
+    <p class="col-span-full text-center text-gray-500">
+      No prospectors available.
+    </p>
   {% endfor %}
 </div>
 
