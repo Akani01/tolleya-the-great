@@ -616,7 +616,7 @@
 							</div>
 							<div class="col-lg-2 col-12">
 								<div class="get-quote">
-									<a href="#appointment-section" class="btn">Book Appointment</a>
+									<a href="#appointment-section" class="btn">Appointment</a>
 								</div>
 							</div>
 						</div>
@@ -759,15 +759,727 @@
         <!-- Shortcuts Section -->
         <section class="Features section shortcuts-section">
             <div class="container">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="section-title text-center shortcuts-title">
-                            <h2>Shortcuts</h2>
-                            <img src="{% static 'images/section-img.png' %}" alt="#">
-                            <p class="mt-3">Visit all the links directly from Shortcuts</p>
+                <!-- ===================== CONTENT CATEGORIZATION FILTER ===================== -->
+                <section class="content-categorization-section py-5">
+                    <div class="container">
+                        <div class="row mb-4">
+                            <div class="col-lg-12 text-center">
+                                <h2 class="section-title mb-3">Browse Content by Category</h2>
+                                <p class="text-muted">Filter and discover content based on your interests</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Category Filter Buttons -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="category-filter-container">
+                                    <div class="filter-buttons">
+                                        <button class="filter-btn active" data-filter="all">All Content</button>
+                                        <button class="filter-btn" data-filter="bursaries">Bursaries</button>
+                                        <button class="filter-btn" data-filter="jobs">Jobs</button>
+                                        <button class="filter-btn" data-filter="colleges">Universities</button>
+                                        <button class="filter-btn" data-filter="education">Education</button>
+                                        <button class="filter-btn" data-filter="sciences">Sciences</button>
+                                        <button class="filter-btn" data-filter="assessment">Assessment</button>
+                                        <button class="filter-btn" data-filter="teaching">Teaching</button>
+                                        <button class="filter-btn" data-filter="prospectors">Prospectors</button>
+                                        <button class="filter-btn" data-filter="news">News</button>
+                                    </div>
+                                    
+                                    <!-- Search within categories -->
+                                    <div class="category-search mt-3">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="categorySearch" placeholder="Search within selected category...">
+                                            <button class="btn btn-primary" type="button" id="categorySearchBtn">
+                                                <i class="fas fa-search"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary" type="button" id="historyToggleBtn" title="Show search history">
+                                                <i class="fas fa-history"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Search History Dropdown - Hidden by default -->
+                                        <div class="search-history-dropdown mt-2" id="searchHistoryDropdown" style="display: none;">
+                                            <div class="search-history-header">
+                                                <small><i class="fas fa-history me-1"></i> Recent Searches</small>
+                                                <button class="btn btn-link btn-sm p-0" id="clearAllHistory" style="font-size: 11px;">
+                                                    Clear All
+                                                </button>
+                                            </div>
+                                            <div class="search-history-items" id="searchHistoryItems">
+                                                <!-- History items will appear here -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Category Content Display - Initially empty, shows only when searched -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div id="categoryContent">
+                                    <!-- Content will be dynamically loaded here ONLY when searched -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Stats Counter -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="category-stats">
+                                    <div class="row text-center">
+                                        <div class="col-6 col-md-3 mb-3">
+                                            <div class="stat-box">
+                                                <h4 class="stat-count" data-target="{{ bursaries_count }}">0</h4>
+                                                <p class="stat-label">Bursaries</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3 mb-3">
+                                            <div class="stat-box">
+                                                <h4 class="stat-count" data-target="{{ jobs_count }}">0</h4>
+                                                <p class="stat-label">Jobs</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3 mb-3">
+                                            <div class="stat-box">
+                                                <h4 class="stat-count" data-target="{{ colleges_count }}">0</h4>
+                                                <p class="stat-label">Colleges</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3 mb-3">
+                                            <div class="stat-box">
+                                                <h4 class="stat-count" data-target="{{ question_papers_count }}">0</h4>
+                                                <p class="stat-label">Papers</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </section>
+
+                <style>
+                    /* Category Filter Section Styles - EXACTLY AS YOURS */
+                    .content-categorization-section {
+                        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                        border-radius: 15px;
+                        margin: 40px auto;
+                        padding: 40px 20px;
+                        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+                    }
+                    
+                    .section-title {
+                        color: #2c3e50;
+                        font-weight: 700;
+                        font-size: 2.2rem;
+                        position: relative;
+                        display: inline-block;
+                        padding-bottom: 15px;
+                    }
+                    
+                    .section-title::after {
+                        content: '';
+                        position: absolute;
+                        bottom: 0;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        width: 100px;
+                        height: 4px;
+                        background: linear-gradient(to right, #667eea, #764ba2);
+                        border-radius: 2px;
+                    }
+                    
+                    /* Filter Buttons */
+                    .category-filter-container {
+                        background: white;
+                        padding: 25px;
+                        border-radius: 12px;
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+                    }
+                    
+                    .filter-buttons {
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 10px;
+                        justify-content: center;
+                    }
+                    
+                    .filter-btn {
+                        padding: 10px 20px;
+                        background: #f8f9fa;
+                        border: 2px solid #e9ecef;
+                        border-radius: 30px;
+                        color: #495057;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        font-size: 14px;
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                    }
+                    
+                    .filter-btn:hover {
+                        background: #667eea;
+                        border-color: #667eea;
+                        color: white;
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+                    }
+                    
+                    .filter-btn.active {
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        border-color: #667eea;
+                        color: white;
+                        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                    }
+                    
+                    .filter-btn i {
+                        font-size: 16px;
+                    }
+                    
+                    /* Category Search */
+                    .category-search {
+                        max-width: 500px;
+                        margin: 0 auto;
+                    }
+                    
+                    .category-search .input-group {
+                        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+                        border-radius: 30px;
+                        overflow: hidden;
+                    }
+                    
+                    .category-search input {
+                        border: none;
+                        padding: 12px 20px;
+                        font-size: 16px;
+                    }
+                    
+                    .category-search .btn {
+                        padding: 12px 20px;
+                        border: none;
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                    }
+                    
+                    .category-search .btn-outline-secondary {
+                        background: #f8f9fa;
+                        border-left: 1px solid #dee2e6;
+                        color: #6c757d;
+                    }
+                    
+                    .category-search .btn-outline-secondary:hover {
+                        background: #e9ecef;
+                        color: #495057;
+                    }
+                    
+                    /* Search History Styles */
+                    .search-history-dropdown {
+                        background: white;
+                        border-radius: 10px;
+                        border: 1px solid #e9ecef;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                        overflow: hidden;
+                    }
+                    
+                    .search-history-header {
+                        padding: 10px 15px;
+                        background: #f8f9fa;
+                        border-bottom: 1px solid #e9ecef;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        color: #495057;
+                        font-weight: 500;
+                    }
+                    
+                    .search-history-items {
+                        max-height: 200px;
+                        overflow-y: auto;
+                    }
+                    
+                    .search-history-item {
+                        padding: 8px 15px;
+                        border-bottom: 1px solid #f8f9fa;
+                        cursor: pointer;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        transition: background-color 0.2s ease;
+                    }
+                    
+                    .search-history-item:hover {
+                        background-color: #f8f9ff;
+                    }
+                    
+                    .search-history-term {
+                        font-size: 14px;
+                        color: #495057;
+                    }
+                    
+                    .search-history-category {
+                        font-size: 11px;
+                        color: #6c757d;
+                        background: #e9ecef;
+                        padding: 2px 8px;
+                        border-radius: 10px;
+                    }
+                    
+                    .search-history-empty {
+                        padding: 20px;
+                        text-align: center;
+                        color: #6c757d;
+                        font-size: 14px;
+                    }
+                    
+                    /* Stats Counter */
+                    .category-stats {
+                        background: white;
+                        padding: 30px;
+                        border-radius: 12px;
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+                    }
+                    
+                    .stat-box {
+                        padding: 20px;
+                        border-radius: 10px;
+                        background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+                        transition: all 0.3s ease;
+                    }
+                    
+                    .stat-box:hover {
+                        transform: translateY(-5px);
+                        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
+                    }
+                    
+                    .stat-count {
+                        font-size: 2.5rem;
+                        font-weight: 700;
+                        color: #667eea;
+                        margin-bottom: 5px;
+                    }
+                    
+                    .stat-label {
+                        color: #6c757d;
+                        font-weight: 600;
+                        font-size: 14px;
+                        text-transform: uppercase;
+                        letter-spacing: 1px;
+                    }
+                    
+                    /* Content Grid */
+                    .category-content-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                        gap: 25px;
+                        margin-top: 30px;
+                    }
+                    
+                    .category-item {
+                        background: white;
+                        border-radius: 12px;
+                        overflow: hidden;
+                        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                        transition: all 0.3s ease;
+                        border: 1px solid #e9ecef;
+                    }
+                    
+                    .category-item:hover {
+                        transform: translateY(-5px);
+                        box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+                    }
+                    
+                    /* Responsive Design */
+                    @media (max-width: 768px) {
+                        .filter-buttons {
+                            gap: 8px;
+                        }
+                        
+                        .filter-btn {
+                            padding: 8px 15px;
+                            font-size: 13px;
+                        }
+                        
+                        .section-title {
+                            font-size: 1.8rem;
+                        }
+                        
+                        .stat-count {
+                            font-size: 2rem;
+                        }
+                        
+                        .category-content-grid {
+                            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                            gap: 20px;
+                        }
+                        
+                        .category-search .input-group {
+                            flex-wrap: nowrap;
+                        }
+                        
+                        .category-search .btn {
+                            padding: 12px 15px;
+                        }
+                    }
+                    
+                    @media (max-width: 576px) {
+                        .filter-buttons {
+                            gap: 6px;
+                        }
+                        
+                        .filter-btn {
+                            padding: 6px 12px;
+                            font-size: 12px;
+                        }
+                        
+                        .section-title {
+                            font-size: 1.5rem;
+                        }
+                        
+                        .category-content-grid {
+                            grid-template-columns: 1fr;
+                        }
+                    }
+                </style>
+
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Initialize search history manager
+                    const searchHistory = {
+                        key: 'tolleya_category_search_history',
+                        maxItems: 8,
+                        
+                        getHistory() {
+                            try {
+                                const history = localStorage.getItem(this.key);
+                                return history ? JSON.parse(history) : [];
+                            } catch {
+                                return [];
+                            }
+                        },
+                        
+                        saveHistory(history) {
+                            try {
+                                localStorage.setItem(this.key, JSON.stringify(history));
+                            } catch (e) {
+                                console.error('Error saving search history:', e);
+                            }
+                        },
+                        
+                        addSearch(term, category) {
+                            const history = this.getHistory();
+                            
+                            // Remove duplicate entries
+                            const filteredHistory = history.filter(item => 
+                                !(item.term.toLowerCase() === term.toLowerCase() && item.category === category)
+                            );
+                            
+                            // Add new search at the beginning
+                            filteredHistory.unshift({
+                                term: term,
+                                category: category,
+                                timestamp: Date.now(),
+                                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                            });
+                            
+                            // Keep only max items
+                            const trimmedHistory = filteredHistory.slice(0, this.maxItems);
+                            this.saveHistory(trimmedHistory);
+                            
+                            return trimmedHistory;
+                        },
+                        
+                        clearHistory() {
+                            this.saveHistory([]);
+                        },
+                        
+                        displayHistory() {
+                            const history = this.getHistory();
+                            const container = document.getElementById('searchHistoryItems');
+                            const dropdown = document.getElementById('searchHistoryDropdown');
+                            
+                            if (!container) return;
+                            
+                            if (history.length === 0) {
+                                container.innerHTML = '<div class="search-history-empty">No recent searches</div>';
+                                dropdown.style.display = 'none';
+                                return;
+                            }
+                            
+                            container.innerHTML = history.map(item => `
+                                <div class="search-history-item" 
+                                    data-term="${this.escapeHtml(item.term)}" 
+                                    data-category="${item.category}">
+                                    <div class="search-history-term">${this.escapeHtml(item.term)}</div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="search-history-category">${this.getCategoryLabel(item.category)}</span>
+                                        <small class="text-muted" style="font-size: 10px;">${item.time}</small>
+                                    </div>
+                                </div>
+                            `).join('');
+                            
+                            // Add click handlers to history items
+                            container.querySelectorAll('.search-history-item').forEach(item => {
+                                item.addEventListener('click', () => {
+                                    const term = item.dataset.term;
+                                    const category = item.dataset.category;
+                                    
+                                    // Set search input
+                                    document.getElementById('categorySearch').value = term;
+                                    
+                                    // Set active category
+                                    setActiveCategory(category);
+                                    
+                                    // Perform search
+                                    performCategorySearch(term, category);
+                                    
+                                    // Hide dropdown
+                                    dropdown.style.display = 'none';
+                                });
+                            });
+                        },
+                        
+                        getCategoryLabel(category) {
+                            const labels = {
+                                'all': 'All',
+                                'bursaries': 'Bursary',
+                                'jobs': 'Job',
+                                'colleges': 'Uni',
+                                'education': 'Edu',
+                                'sciences': 'Sci',
+                                'assessment': 'Assess',
+                                'teaching': 'Teach',
+                                'prospectors': 'Pros',
+                                'news': 'News'
+                            };
+                            return labels[category] || category.slice(0, 4);
+                        },
+                        
+                        escapeHtml(text) {
+                            const div = document.createElement('div');
+                            div.textContent = text;
+                            return div.innerHTML;
+                        }
+                    };
+                    
+                    // Initialize stats counter animation
+                    initializeStatsCounter();
+                    
+                    // Display initial search history
+                    searchHistory.displayHistory();
+                    
+                    // Set up event listeners
+                    setupEventListeners();
+                    
+                    function setupEventListeners() {
+                        const searchInput = document.getElementById('categorySearch');
+                        const searchBtn = document.getElementById('categorySearchBtn');
+                        const historyToggleBtn = document.getElementById('historyToggleBtn');
+                        const clearAllHistoryBtn = document.getElementById('clearAllHistory');
+                        const filterButtons = document.querySelectorAll('.filter-btn');
+                        
+                        // Search button click
+                        searchBtn.addEventListener('click', () => {
+                            const searchTerm = searchInput.value.trim();
+                            const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
+                            
+                            if (searchTerm) {
+                                // Save to history
+                                searchHistory.addSearch(searchTerm, activeFilter);
+                                searchHistory.displayHistory();
+                                
+                                // Perform search - ONLY THIS DISPLAYS CONTENT
+                                performCategorySearch(searchTerm, activeFilter);
+                            } else {
+                                // If empty search, clear the content display
+                                document.getElementById('categoryContent').innerHTML = '';
+                            }
+                        });
+                        
+                        // Enter key in search input
+                        searchInput.addEventListener('keypress', (e) => {
+                            if (e.key === 'Enter') {
+                                searchBtn.click();
+                            }
+                        });
+                        
+                        // Search input focus - show history if available
+                        searchInput.addEventListener('focus', () => {
+                            const history = searchHistory.getHistory();
+                            if (history.length > 0) {
+                                document.getElementById('searchHistoryDropdown').style.display = 'block';
+                            }
+                        });
+                        
+                        // Toggle history dropdown
+                        historyToggleBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            const dropdown = document.getElementById('searchHistoryDropdown');
+                            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+                            searchHistory.displayHistory();
+                        });
+                        
+                        // Clear all history
+                        clearAllHistoryBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            if (confirm('Clear all search history?')) {
+                                searchHistory.clearHistory();
+                                searchHistory.displayHistory();
+                            }
+                        });
+                        
+                        // Close history dropdown when clicking outside
+                        document.addEventListener('click', (e) => {
+                            const dropdown = document.getElementById('searchHistoryDropdown');
+                            const historyBtn = document.getElementById('historyToggleBtn');
+                            const searchInput = document.getElementById('categorySearch');
+                            
+                            if (dropdown && !dropdown.contains(e.target) && 
+                                !historyBtn.contains(e.target) && 
+                                !searchInput.contains(e.target)) {
+                                dropdown.style.display = 'none';
+                            }
+                        });
+                        
+                        // Filter button click handler
+                        filterButtons.forEach(button => {
+                            button.addEventListener('click', function() {
+                                // Remove active class from all buttons
+                                filterButtons.forEach(btn => btn.classList.remove('active'));
+                                // Add active class to clicked button
+                                this.classList.add('active');
+                                
+                                const filter = this.getAttribute('data-filter');
+                                const searchTerm = searchInput.value.trim();
+                                
+                                if (searchTerm) {
+                                    // If there's a search term, perform search (which displays content)
+                                    searchHistory.addSearch(searchTerm, filter);
+                                    searchHistory.displayHistory();
+                                    performCategorySearch(searchTerm, filter);
+                                } else {
+                                    // If no search term, just update active filter but DON'T display content
+                                    document.getElementById('categoryContent').innerHTML = '';
+                                }
+                            });
+                        });
+                        
+                        // Add icons to filter buttons
+                        const filterIcons = {
+                            'all': 'fas fa-layer-group',
+                            'bursaries': 'fas fa-money-check-alt',
+                            'jobs': 'fas fa-briefcase',
+                            'colleges': 'fas fa-university',
+                            'education': 'fas fa-graduation-cap',
+                            'sciences': 'fas fa-flask',
+                            'assessment': 'fas fa-file-alt',
+                            'teaching': 'fas fa-chalkboard-teacher',
+                            'prospectors': 'fas fa-book',
+                            'news': 'fas fa-newspaper'
+                        };
+                        
+                        document.querySelectorAll('.filter-btn').forEach(button => {
+                            const filter = button.getAttribute('data-filter');
+                            if (filterIcons[filter]) {
+                                const icon = document.createElement('i');
+                                icon.className = filterIcons[filter];
+                                button.prepend(icon);
+                            }
+                        });
+                    }
+                    
+                    function setActiveCategory(category) {
+                        const filterButtons = document.querySelectorAll('.filter-btn');
+                        filterButtons.forEach(btn => {
+                            btn.classList.remove('active');
+                            if (btn.getAttribute('data-filter') === category) {
+                                btn.classList.add('active');
+                            }
+                        });
+                    }
+                    
+                    function performCategorySearch(searchTerm, category) {
+                        // Use the navbar search method - this submits to your Django backend
+                        const navbarForm = document.querySelector('.search-dropdown form');
+                        if (navbarForm) {
+                            // Set the search value in navbar form
+                            const navbarSearch = navbarForm.querySelector('input[name="q"]');
+                            if (navbarSearch) {
+                                navbarSearch.value = searchTerm;
+                                
+                                // Add category parameter
+                                const categoryInput = document.createElement('input');
+                                categoryInput.type = 'hidden';
+                                categoryInput.name = 'category';
+                                categoryInput.value = category;
+                                navbarForm.appendChild(categoryInput);
+                                
+                                // Submit the form - this will trigger your Django search view
+                                navbarForm.submit();
+                                return;
+                            }
+                        }
+                        
+                        // Fallback: show a message that search was performed
+                        showSearchResultsMessage(searchTerm, category);
+                    }
+                    
+                    function showSearchResultsMessage(searchTerm, category) {
+                        const categoryContent = document.getElementById('categoryContent');
+                        const categoryLabel = searchHistory.getCategoryLabel(category).toUpperCase();
+                        
+                        categoryContent.innerHTML = `
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-search me-2"></i>
+                                    Searching for "<strong>${searchTerm}</strong>" in <strong>${categoryLabel}</strong> category...
+                                    <br>
+                                    <small>Using the same search method as the navbar. Results will appear here.</small>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    function initializeStatsCounter() {
+                        const counters = document.querySelectorAll('.stat-count');
+                        
+                        counters.forEach(counter => {
+                            const target = parseInt(counter.getAttribute('data-target'));
+                            const count = target > 1000 ? target : target * 10;
+                            const increment = count / 100;
+                            let current = 0;
+                            
+                            const updateCounter = () => {
+                                if (current < count) {
+                                    current += increment;
+                                    counter.textContent = Math.ceil(current).toLocaleString();
+                                    setTimeout(updateCounter, 20);
+                                } else {
+                                    counter.textContent = target.toLocaleString();
+                                }
+                            };
+                            
+                            // Start counter when in viewport
+                            const observer = new IntersectionObserver((entries) => {
+                                entries.forEach(entry => {
+                                    if (entry.isIntersecting) {
+                                        updateCounter();
+                                        observer.unobserve(entry.target);
+                                    }
+                                });
+                            }, { threshold: 0.5 });
+                            
+                            observer.observe(counter);
+                        });
+                    }
+                    
+                    // Initialize with empty content display
+                    document.getElementById('categoryContent').innerHTML = '';
+                });
+                </script>
                 <div class="row d-flex justify-content-center">
                     <!-- Start Single Feature -->
                     <div class="col-6 col-sm-4 col-md-3 text-center mb-4">
