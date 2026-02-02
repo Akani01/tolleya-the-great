@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Test AI on Application</h2>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5>{{ application.student }} - {{ application.university_name }}</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Application Details:</h6>
+                    <p><strong>Student:</strong> {{ application.student }}</p>
+                    <p><strong>University:</strong> {{ application.university_name }}</p>
+                    <p><strong>Course:</strong> {{ application.course_faculty }}</p>
+                    <p><strong>Email:</strong> {{ application.email|default:"Not provided" }}</p>
+                    <p><strong>Phone:</strong> {{ application.phone|default:"Not provided" }}</p>
+                </div>
+                
+                <div class="col-md-6">
+                    <h6>AI Service:</h6>
+                    <p><strong>Service:</strong> {{ ai_service.name }}</p>
+                    <p><strong>Provider:</strong> {{ ai_service.provider }}</p>
+                    <p><strong>Model:</strong> {{ ai_service.model_name }}</p>
+                    
+                    <form method="POST" class="mt-3">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">
+                            Run AI Analysis
+                        </button>
+                    </form>
+                    
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            This will analyze the application data and provide suggestions.
+                            The results will be saved to the application notes.
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            {% if application.notes %}
+            <div class="mt-4">
+                <h6>Current Notes:</h6>
+                <div class="p-3 bg-light rounded">
+                    {{ application.notes|linebreaks }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="mt-3">
+        <a href="{% url 'viewApplication' application.id %}" class="btn btn-outline-secondary">
+            Back to Application
+        </a>
+        <a href="{% url 'test_ai' %}" class="btn btn-outline-info">
+            Test Other AI Services
+        </a>
+    </div>
+</div>
+{% endblock %}

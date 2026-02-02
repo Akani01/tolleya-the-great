@@ -1,0 +1,3702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobPortal - Find Your Dream Job</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        /* ===== GLOBAL STYLES ===== */
+        :root {
+            --primary-color: #0073b1;
+            --secondary-color: #ff589e;
+            --dark-color: #191919;
+            --light-color: #f8f9fa;
+            --gray-color: #8e8e8e;
+            --border-color: #efefef;
+            --shadow: 0 2px 16px rgba(0,0,0,0.1);
+            --radius: 12px;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            padding-top: 70px;
+            padding-bottom: 70px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        /* ===== HEADER & NAVIGATION ===== */
+        .header-area {
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .main-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+        }
+        
+        .logo img {
+            max-height: 40px;
+        }
+        
+        .nav-icons {
+            display: flex;
+            list-style: none;
+            gap: 15px;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .nav-icons a {
+            font-size: 20px;
+            color: #555;
+            transition: 0.2s;
+            text-decoration: none;
+        }
+        
+        .nav-icons a:hover {
+            color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        /* ===== USER PROFILE DROPDOWN ===== */
+        .profile-dropdown {
+            position: relative;
+        }
+        
+        .profile-avatar-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, #ff136f 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        .profile-menu {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            width: 220px;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            padding: 10px 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.25s ease;
+            z-index: 1000;
+        }
+        
+        .profile-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0px);
+        }
+        
+        .profile-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            color: #444;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        
+        .profile-menu a:hover {
+            background: #f5f7fa;
+            color: var(--secondary-color);
+        }
+        
+        .profile-divider {
+            height: 1px;
+            background: #eee;
+            margin: 8px 0;
+        }
+        
+        /* ===== USER BADGES ===== */
+        .user-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .user-badge.business {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, #ff136f 100%);
+        }
+        
+        /* ===== DESKTOP ICON BAR ===== */
+        .desktop-icon-bar {
+            position: fixed;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            border-radius: 0 var(--radius) var(--radius) 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 15px 8px;
+            z-index: 998;
+            flex-direction: column;
+            gap: 15px;
+            display: none;
+        }
+        
+        @media (min-width: 992px) {
+            .desktop-icon-bar {
+                display: flex;
+            }
+        }
+        
+        .desktop-icon-bar a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            color: #555;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .desktop-icon-bar a:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .desktop-icon-bar a i {
+            font-size: 20px;
+        }
+        
+        .desktop-icon-bar a .tooltip {
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #333;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            margin-left: 10px;
+        }
+        
+        .desktop-icon-bar a:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* ===== MAIN LAYOUT ===== */
+        .main-container {
+            display: flex;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .left-sidebar {
+            flex: 0 0 280px;
+        }
+        
+        .main-content {
+            flex: 1;
+            max-width: 600px;
+        }
+        
+        .right-sidebar {
+            flex: 0 0 280px;
+        }
+        
+        /* ===== SIDEBAR CARDS ===== */
+        .sidebar-card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--dark-color);
+        }
+        
+        /* ===== TABS NAVIGATION ===== */
+        .tabs-nav {
+            display: flex;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .tab-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* ===== CREATE POST CARD ===== */
+        .create-post-card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .post-input-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .post-input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+        
+        .post-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            background: #f0f2f5;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .post-input:hover {
+            background: #e4e6e9;
+        }
+        
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+        
+        .post-action-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px;
+            border: none;
+            background: none;
+            color: #65676b;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .post-action-btn:hover {
+            background: #f0f2f5;
+        }
+        
+        /* ===== POST MODAL ===== */
+        .post-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        
+        .post-modal.show {
+            display: flex;
+        }
+        
+        .post-modal-content {
+            background: white;
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .post-modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .post-modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .post-textarea {
+            width: 100%;
+            min-height: 150px;
+            border: none;
+            resize: none;
+            font-size: 16px;
+            font-family: inherit;
+            outline: none;
+        }
+        
+        .post-textarea::placeholder {
+            color: #999;
+        }
+        
+        .media-preview {
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .media-preview img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+        }
+        
+        .post-modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        
+        /* ===== POST FEED ===== */
+        .post-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .post-card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        
+        .post-header {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .post-user-info {
+            flex: 1;
+        }
+        
+        .post-username {
+            font-weight: 600;
+            color: var(--dark-color);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 2px;
+        }
+        
+        .post-time {
+            font-size: 12px;
+            color: var(--gray-color);
+        }
+        
+        .post-content {
+            padding: 0 15px 15px;
+        }
+        
+        .post-text {
+            margin-bottom: 15px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        
+        .post-image {
+            width: 100%;
+            max-height: 500px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .post-stats {
+            padding: 0 15px 10px;
+            display: flex;
+            gap: 15px;
+            color: #65676b;
+            font-size: 14px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .post-actions-bar {
+            padding: 10px 15px;
+            display: flex;
+            gap: 5px;
+        }
+        
+        .post-action {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px;
+            border: none;
+            background: none;
+            color: #65676b;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.2s ease;
+        }
+        
+        .post-action:hover {
+            background: #f0f2f5;
+        }
+        
+        .post-action.liked {
+            color: #ed4956;
+        }
+        
+        .comments-section {
+            padding: 15px;
+            border-top: 1px solid #eee;
+            display: none;
+        }
+        
+        .comments-section.show {
+            display: block;
+        }
+        
+        .comment-input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .comment-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .comment-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 0 20px;
+            cursor: pointer;
+        }
+        
+        /* ===== JOB CARDS ===== */
+        .job-card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .job-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+        }
+        
+        .job-card-header {
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            position: relative;
+        }
+        
+        .job-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+        
+        .company-name {
+            font-size: 1rem;
+            color: #666;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        /* COMPANY LOGO STYLES - ADDED */
+        .company-logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .company-logo-small {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 1px solid #f0f0f0;
+            background: white;
+            padding: 4px;
+        }
+        
+        .company-logo-placeholder {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8c8c8c;
+            border: 1px dashed #ddd;
+        }
+        
+        .company-info {
+            flex: 1;
+        }
+        
+        .job-card-content {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .job-card-main {
+            flex: 1;
+        }
+        
+        .job-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 12px 0;
+        }
+        
+        .job-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.875rem;
+            color: #666;
+        }
+        
+        .job-meta-item i {
+            color: #8c8c8c;
+            width: 16px;
+        }
+        
+        .job-card-body {
+            padding: 20px;
+        }
+        
+        .job-description {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .job-card-footer {
+            padding: 15px 20px;
+            background: #fafafa;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .card-footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        
+        /* ===== JOB STATUS BADGES ===== */
+        .job-status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-published {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .status-urgent {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+        
+        .status-featured {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        
+        /* ===== JOB ACTIONS ===== */
+        .job-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn-view, .btn-apply, .btn-applied {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-view {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-view:hover {
+            background: #005a8c;
+            transform: translateY(-1px);
+        }
+        
+        .btn-apply {
+            background: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+        
+        .btn-apply:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .btn-applied {
+            background: #28a745;
+            color: white;
+        }
+        
+        /* ===== ADD POST ICON ===== */
+        .add-post-icon-container {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 10;
+        }
+        
+        .add-post-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,115,177,0.3);
+        }
+        
+        .add-post-icon:hover {
+            background: #005a8c;
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 4px 12px rgba(0,115,177,0.4);
+        }
+        
+        /* ===== MESSAGE ICON ===== */
+        .message-icon-container {
+            position: absolute;
+            top: 20px;
+            right: 70px;
+        }
+        
+        .message-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .message-icon:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .message-icon.has-messages {
+            background: var(--primary-color);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 115, 177, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 115, 177, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 115, 177, 0); }
+        }
+        
+        /* ===== SHARE BUTTON - FIXED FOR RESPONSIVENESS ===== */
+        .share-button-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .share-button {
+            background: #f8f9fa;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #555;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .share-button:hover {
+            background: #e9ecef;
+            color: #333;
+        }
+        
+        .share-dropdown {
+            position: absolute;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            padding: 10px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            min-width: 180px;
+            /* Position above on desktop, below on mobile */
+            bottom: 100%;
+            left: 0;
+            margin-bottom: 5px;
+        }
+        
+        .share-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .share-dropdown a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            color: #444;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+        
+        .share-dropdown a:hover {
+            background: #f5f7fa;
+            color: var(--primary-color);
+        }
+        
+        .share-dropdown a i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* ===== JOB CARD GRID ===== */
+        .job-card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+        
+        /* ===== BUSINESS STATS ===== */
+        .stats-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+        }
+        
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        /* ===== MOBILE BOTTOM NAV ===== */
+        .mobile-bottom-nav {
+            display: none;
+        }
+        
+        /* ===== UTILITY CLASSES ===== */
+        .hidden {
+            display: none !important;
+        }
+        
+        /* ===== TOAST NOTIFICATION ===== */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        
+        .toast {
+            min-width: 300px;
+            margin-bottom: 10px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* ===== THREE DOT MENU - FIXED FOR MOBILE ===== */
+        .three-dot-menu {
+            position: relative;
+        }
+        
+        .three-dot-menu .three-dot-btn {
+            background: none;
+            border: none;
+            color: #555;
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .three-dot-menu .three-dot-btn:hover {
+            background-color: #f0f0f0;
+            color: var(--secondary-color);
+        }
+        
+        .three-dot-menu i {
+            font-size: 22px;
+        }
+        
+        .three-dot-menu .menu-content {
+            position: absolute;
+            right: 0;
+            top: 45px;
+            background: #fff;
+            width: 250px; /* Increased width */
+            padding: 10px 0;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            border: 1px solid #eee;
+        }
+        
+        .three-dot-menu .menu-content.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        /* Three dot menu items - fixed for mobile */
+        .three-dot-menu .menu-content a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            color: #444;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-size: 15px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        
+        .three-dot-menu .menu-content a:last-child {
+            border-bottom: none;
+        }
+        
+        .three-dot-menu .menu-content a:hover {
+            background: #f8f9fa;
+            color: var(--secondary-color);
+            padding-left: 25px;
+        }
+        
+        .three-dot-menu .menu-content a i {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+        
+        /* ===== FEED TOGGLE BUTTON ===== */
+        .feed-toggle-btn {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 999;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        /* ===== LOADING SPINNER (for buttons only) ===== */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+        }
+        
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 2px solid #ffffff;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+        
+        /* ===== MODAL SCROLL FIXES ===== */
+        .modal-body {
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 20px !important;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .modal-dialog {
+            max-height: 90vh;
+            margin: 10px auto;
+        }
+        
+        .modal-content {
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header, .modal-footer {
+            flex-shrink: 0;
+        }
+        
+        /* ===== FORM STYLES ===== */
+        .password-input-group {
+            position: relative;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #777;
+            cursor: pointer;
+            z-index: 10;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: 0.25rem;
+        }
+        
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+        
+        .dropdown-item {
+            padding: 10px 15px;
+        }
+        
+        .dropdown-item:hover {
+            background: rgba(255, 88, 158, 0.1);
+            color: var(--secondary-color);
+        }
+        
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 1200px) {
+            .main-container {
+                padding: 20px 15px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .left-sidebar, .right-sidebar {
+                display: none;
+            }
+            
+            .desktop-icon-bar {
+                display: none !important;
+            }
+            
+            .mobile-bottom-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 65px;
+                background: white;
+                border-top: 1px solid #ddd;
+                justify-content: space-around;
+                align-items: center;
+                z-index: 9999;
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+            
+            .mobile-bottom-nav a {
+                text-align: center;
+                color: #333;
+                font-size: 14px;
+                text-decoration: none;
+                flex: 1;
+                padding: 10px 5px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .mobile-bottom-nav i {
+                font-size: 20px;
+                display: block;
+                margin-bottom: 3px;
+            }
+            
+            .mobile-bottom-nav a.active {
+                color: var(--secondary-color);
+            }
+            
+            body {
+                padding-bottom: 80px;
+            }
+            
+            /* Share dropdown positioning for mobile */
+            .share-dropdown {
+                bottom: auto;
+                top: 100%;
+                left: 0;
+                margin-top: 5px;
+                margin-bottom: 0;
+            }
+            
+            /* Modal fixes for mobile */
+            .modal-dialog {
+                margin: 10px;
+                max-width: calc(100% - 20px);
+            }
+            
+            .modal-body {
+                max-height: 70vh;
+            }
+            
+            /* Business signup modal fixes */
+            #businessSignupModal .modal-body {
+                max-height: 75vh;
+            }
+            
+            #businessSignupModal .row {
+                flex-direction: column;
+                margin: 0;
+            }
+            
+            #businessSignupModal .col-md-6 {
+                width: 100%;
+                padding: 0;
+            }
+            
+            /* Three dot menu mobile fixes */
+            .three-dot-menu .menu-content {
+                width: 280px; /* Even wider on mobile */
+                right: -10px;
+            }
+            
+            .three-dot-menu .menu-content a {
+                padding: 16px 20px; /* Larger touch targets */
+                font-size: 16px;
+            }
+            
+            .three-dot-menu .menu-content a i {
+                font-size: 20px;
+                width: 28px;
+            }
+            
+            /* Profile menu mobile fixes */
+            .profile-menu {
+                width: 280px;
+                right: -10px;
+            }
+            
+            .profile-menu a {
+                padding: 16px 20px;
+                font-size: 16px;
+            }
+            
+            .profile-menu a i {
+                font-size: 20px;
+                width: 28px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 0;
+            }
+            
+            .job-card-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .card-footer-content {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            
+            .company-logo-small {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .company-logo-placeholder {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .job-title {
+                font-size: 1.1rem;
+            }
+            
+            .job-meta {
+                gap: 10px;
+            }
+            
+            .job-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .job-actions button {
+                width: 100%;
+            }
+            
+            .share-dropdown {
+                left: auto;
+                right: 0;
+            }
+            
+            .tabs-nav {
+                flex-direction: column;
+            }
+            
+            .tab-btn {
+                padding: 12px;
+            }
+            
+            .post-actions-bar {
+                flex-wrap: wrap;
+            }
+            
+            .post-action {
+                flex: 0 0 calc(50% - 5px);
+            }
+            
+            .feed-toggle-btn {
+                top: 70px;
+                right: 10px;
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+            
+            /* Share button mobile fixes */
+            .share-button {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+            
+            /* Three dot menu icon size for mobile */
+            .three-dot-menu i {
+                font-size: 24px;
+                padding: 10px;
+            }
+            
+            .nav-icons {
+                gap: 10px;
+            }
+            
+            .user-badge {
+                font-size: 0.75em;
+                padding: 4px 10px;
+            }
+            
+            .profile-avatar-small {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .nav-icons {
+                gap: 8px;
+            }
+            
+            .user-badge {
+                font-size: 0.7em;
+                padding: 3px 8px;
+                display: none; /* Hide on very small screens */
+            }
+            
+            .profile-avatar-small {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+            }
+            
+            .post-modal-content {
+                width: 95%;
+                margin: 10px;
+            }
+            
+            .job-meta {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .modal-dialog {
+                margin: 5px;
+                max-width: calc(100% - 10px);
+            }
+            
+            .btn, .btn-view, .btn-apply, .btn-applied {
+                font-size: 14px !important;
+                padding: 10px 12px !important;
+                width: 100%;
+            }
+            
+            /* Share dropdown mobile fixes */
+            .share-dropdown {
+                min-width: 160px;
+            }
+            
+            .share-dropdown a {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+            
+            /* Three dot menu full width on very small screens */
+            .three-dot-menu .menu-content {
+                width: 95vw;
+                max-width: 300px;
+                right: -20px;
+            }
+            
+            .three-dot-menu .menu-content a {
+                padding: 18px 20px;
+            }
+            
+            /* Mobile bottom nav adjustments */
+            .mobile-bottom-nav a span {
+                font-size: 12px;
+            }
+            
+            .mobile-bottom-nav i {
+                font-size: 18px;
+            }
+        }
+        
+        /* iOS Safari fixes */
+        @supports (-webkit-touch-callout: none) {
+            .modal-body {
+                max-height: 80vh;
+            }
+            
+            .mobile-bottom-nav {
+                padding-bottom: calc(env(safe-area-inset-bottom) + 5px);
+            }
+            
+            /* Better touch targets for iOS */
+            .three-dot-menu .menu-content a,
+            .profile-menu a {
+                min-height: 44px; /* Apple's recommended minimum touch target */
+            }
+            
+            .share-dropdown a {
+                min-height: 44px;
+            }
+        }
+        
+        /* Prevent body scrolling when dropdowns are open */
+        body.dropdown-open {
+            overflow: hidden;
+        }
+
+
+        /* ===== TABLET (IPAD) RESPONSIVE DESIGN ===== */
+
+        /* Medium devices (tablets, 768px to 991px) */
+        @media (min-width: 768px) and (max-width: 991px) {
+            /* Adjust main container for tablet */
+            .main-container {
+                flex-direction: column;
+                padding: 15px;
+                gap: 15px;
+            }
+            
+            /* Tablet: Show sidebars but make them horizontal */
+            .left-sidebar, .right-sidebar {
+                flex: 0 0 auto !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                display: block !important;
+            }
+            
+            /* Arrange sidebar cards in grid for tablet */
+            .left-sidebar, .right-sidebar {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            .sidebar-card {
+                margin-bottom: 0;
+            }
+            
+            /* Main content full width on tablet */
+            .main-content {
+                max-width: 100% !important;
+                width: 100% !important;
+            }
+            
+            /* Adjust job cards for tablet */
+            .job-card-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            /* Adjust post modal for tablet */
+            .post-modal-content {
+                width: 95% !important;
+                max-width: 600px !important;
+            }
+            
+            /* Adjust header for tablet */
+            .main-nav {
+                padding: 10px 0;
+            }
+            
+            .logo img {
+                max-height: 35px;
+            }
+            
+            /* Adjust desktop icon bar for tablet */
+            .desktop-icon-bar {
+                display: none !important;
+            }
+            
+            /* Adjust font sizes for tablet */
+            .job-title {
+                font-size: 1.15rem;
+            }
+            
+            .company-name {
+                font-size: 0.95rem;
+            }
+            
+            .sidebar-title {
+                font-size: 16px;
+            }
+            
+            /* Adjust padding for tablet */
+            .post-header, 
+            .post-content,
+            .post-stats,
+            .post-actions-bar {
+                padding: 12px;
+            }
+            
+            /* Adjust job card layout */
+            .company-logo-container {
+                gap: 12px;
+            }
+            
+            .company-logo-small,
+            .company-logo-placeholder {
+                width: 55px;
+                height: 55px;
+            }
+            
+            /* Adjust feed toggle button position */
+            .feed-toggle-btn {
+                top: 75px;
+                right: 15px;
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+            
+            /* Adjust three dot menu for tablet */
+            .three-dot-menu .menu-content {
+                width: 250px;
+                right: -5px;
+            }
+            
+            /* Adjust share dropdown positioning */
+            .share-dropdown {
+                position: fixed !important;
+                bottom: auto !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                width: 300px;
+                max-width: 90vw;
+                z-index: 2000;
+            }
+            
+            .share-dropdown.show {
+                transform: translate(-50%, -50%) !important;
+            }
+            
+            /* Adjust profile menu for tablet */
+            .profile-menu {
+                width: 250px;
+                right: -5px;
+            }
+            
+            /* Adjust create post card */
+            .create-post-card {
+                padding: 12px;
+            }
+            
+            /* Adjust post actions */
+            .post-action-btn {
+                padding: 8px;
+                font-size: 14px;
+            }
+            
+            /* Adjust tabs for tablet */
+            .tabs-nav {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .tab-btn {
+                flex: 0 0 auto;
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+            
+            /* Hide some elements on tablet */
+            .user-badge {
+                display: inline-flex !important;
+            }
+            
+            /* Adjust modal for tablet */
+            .modal-dialog {
+                max-width: 90%;
+                margin: 20px auto;
+            }
+            
+            .modal-body {
+                max-height: 60vh;
+            }
+            
+            /* Adjust business signup modal for tablet */
+            #businessSignupModal .modal-dialog {
+                max-width: 95%;
+            }
+            
+            /* Adjust job actions for tablet */
+            .job-actions {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            
+            .job-actions button {
+                flex: 0 0 auto;
+                width: auto;
+                min-width: 120px;
+            }
+        }
+
+        /* Large tablets and small desktops (992px to 1199px) */
+        @media (min-width: 992px) and (max-width: 1199px) {
+            /* Adjust sidebars for smaller desktops */
+            .main-container {
+                max-width: 100%;
+                padding: 20px 15px;
+                gap: 15px;
+            }
+            
+            .left-sidebar,
+            .right-sidebar {
+                flex: 0 0 240px;
+            }
+            
+            .main-content {
+                max-width: calc(100% - 510px);
+            }
+            
+            /* Adjust job cards */
+            .job-card-grid {
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+                gap: 15px;
+            }
+            
+            /* Adjust company logo size */
+            .company-logo-small,
+            .company-logo-placeholder {
+                width: 55px;
+                height: 55px;
+            }
+            
+            /* Adjust desktop icon bar */
+            .desktop-icon-bar {
+                left: 5px;
+                padding: 12px 6px;
+            }
+            
+            .desktop-icon-bar a {
+                width: 45px;
+                height: 45px;
+            }
+            
+            /* Adjust font sizes */
+            .job-title {
+                font-size: 1.2rem;
+            }
+            
+            .sidebar-title {
+                font-size: 17px;
+            }
+            
+            /* Adjust header */
+            .main-nav {
+                padding: 12px 0;
+            }
+            
+            /* Adjust profile menu */
+            .profile-menu {
+                width: 240px;
+            }
+            
+            /* Adjust three dot menu */
+            .three-dot-menu .menu-content {
+                width: 240px;
+            }
+        }
+
+        /* ===== TOUCH DEVICE OPTIMIZATIONS ===== */
+        @media (hover: none) and (pointer: coarse) {
+            /* Increase touch target sizes for iPad */
+            .post-action,
+            .tab-btn,
+            .post-action-btn,
+            .btn,
+            .share-button,
+            .three-dot-btn,
+            .profile-avatar-small {
+                min-height: 44px;
+                min-width: 44px;
+                padding: 12px 16px;
+            }
+            
+            /* Increase touch targets for dropdown items */
+            .profile-menu a,
+            .three-dot-menu .menu-content a,
+            .share-dropdown a {
+                min-height: 44px;
+                padding: 14px 20px;
+            }
+            
+            /* Remove hover effects on touch devices */
+            .desktop-icon-bar a:hover {
+                transform: none;
+            }
+            
+            .desktop-icon-bar a:hover .tooltip {
+                display: none;
+            }
+            
+            /* Improve scrolling experience */
+            .main-container,
+            .post-modal-body,
+            .modal-body {
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            /* Prevent text selection on interactive elements */
+            .tab-btn,
+            .post-action,
+            .btn {
+                -webkit-user-select: none;
+                user-select: none;
+            }
+        }
+
+        /* ===== LANDSCAPE ORIENTATION OPTIMIZATIONS ===== */
+        @media (min-width: 768px) and (max-width: 991px) and (orientation: landscape) {
+            /* In landscape, show sidebars as columns */
+            .main-container {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            
+            .left-sidebar,
+            .right-sidebar {
+                flex: 0 0 200px !important;
+                width: auto !important;
+                display: flex !important;
+                flex-direction: column;
+            }
+            
+            .main-content {
+                flex: 1;
+                min-width: 0;
+            }
+            
+            /* Adjust job cards for landscape */
+            .job-card-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            /* Adjust font sizes for landscape */
+            .job-title {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* ===== SAFARI SPECIFIC FIXES FOR IPAD ===== */
+        @supports (-webkit-touch-callout: none) {
+            /* Fix for Safari on iPad */
+            .main-container {
+                min-height: 100vh;
+                min-height: -webkit-fill-available;
+            }
+            
+            /* Fix for Safari modal scrolling */
+            .modal-body {
+                max-height: 65vh;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            /* Fix for Safari dropdown positioning */
+            .dropdown-menu {
+                transform: none !important;
+            }
+            
+            /* Fix for sticky elements in Safari */
+            .header-area {
+                position: -webkit-sticky;
+                position: sticky;
+            }
+        }
+
+        /* ===== IMPROVE LOADING EXPERIENCE ===== */
+        @media (max-width: 1199px) {
+            /* Optimize images for tablet */
+            .company-logo-small,
+            .post-image {
+                max-width: 100%;
+                height: auto;
+            }
+            
+            /* Optimize text rendering for readability */
+            body {
+                text-rendering: optimizeLegibility;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+            }
+            
+            /* Improve button visibility */
+            .btn, .btn-view, .btn-apply, .btn-applied {
+                font-size: 15px !important;
+                padding: 10px 16px !important;
+            }
+        }
+
+        /* ===== FIX FOR SMALLER TABLETS ===== */
+        @media (max-width: 820px) and (min-width: 768px) {
+            /* For smaller tablets like iPad Mini */
+            .job-card-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .left-sidebar, .right-sidebar {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-container {
+                padding: 12px;
+            }
+            
+            /* Adjust header for smaller tablets */
+            .nav-icons {
+                gap: 8px;
+            }
+            
+            .profile-avatar-small {
+                width: 36px;
+                height: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% load api_utils %}
+    {% api_js_functions %}
+    <!-- Desktop Icon Bar -->
+    <div class="desktop-icon-bar">
+        {% if user.is_authenticated %}
+            {% if user.user_type == 'admin' or user.is_superuser %}
+                <!-- Business User Icons -->
+                <a href="/admin-portal/" title="Business Portal">
+                    <i class="fas fa-building"></i>
+                    <span class="tooltip">Business Portal</span>
+                </a>
+                <a href="/admin-portal/jobs/" title="Manage Jobs">
+                    <i class="fas fa-briefcase"></i>
+                    <span class="tooltip">Manage Jobs</span>
+                </a>
+                <a href="/admin-portal/applications/" title="Applications">
+                    <i class="fas fa-file-alt"></i>
+                    <span class="tooltip">Applications</span>
+                </a>
+                <a href="/admin-portal/analytics/" title="Analytics">
+                    <i class="fas fa-chart-bar"></i>
+                    <span class="tooltip">Analytics</span>
+                </a>
+                <a href="/admin-portal/users/" title="Users">
+                    <i class="fas fa-users"></i>
+                    <span class="tooltip">Users</span>
+                </a>
+            {% else %}
+                <!-- Applicant User Icons -->
+                <a href="/dashboard" title="Dashboard">
+                    <i class="fas fa-th-large"></i>
+                    <span class="tooltip">Dashboard</span>
+                </a>
+                <a href="/#job-listings" title="Browse Jobs">
+                    <i class="fas fa-search"></i>
+                    <span class="tooltip">Browse Jobs</span>
+                </a>
+                <a href="/applications/" title="Applications">
+                    <i class="fas fa-file-alt"></i>
+                    <span class="tooltip">Applications</span>
+                </a>
+                <a href="/profile/" title="Profile">
+                    <i class="fas fa-user"></i>
+                    <span class="tooltip">Profile</span>
+                </a>
+                <a href="/api/alerts/" title="Alerts">
+                    <i class="fas fa-bell"></i>
+                    <span class="tooltip">Alerts</span>
+                </a>
+            {% endif %}
+        {% else %}
+            <!-- Guest User Icons -->
+            <a href="/" title="Home">
+                <i class="fas fa-home"></i>
+                <span class="tooltip">Home</span>
+            </a>
+            <a href="/#job-listings" title="Browse Jobs">
+                <i class="fas fa-search"></i>
+                <span class="tooltip">Browse Jobs</span>
+            </a>
+            <a href="#" onclick="showLogin()" title="Login">
+                <i class="fas fa-sign-in-alt"></i>
+                <span class="tooltip">Login</span>
+            </a>
+            <a href="#" onclick="showSignup()" title="Sign Up">
+                <i class="fas fa-user-plus"></i>
+                <span class="tooltip">Sign Up</span>
+            </a>
+        {% endif %}
+    </div>
+
+    <!-- Top Navigation -->
+    <header class="header-area">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <nav class="main-nav">
+                        <a href="/" class="logo">
+                            <img src="/static/images/logo.png" alt="JobPortal" style="max-height: 40px;">
+                        </a>
+
+                        <!-- Top Right Icons -->
+                        <ul class="nav-icons">
+                            <li>
+                                <a href="/" title="Home">
+                                    <i class="fas fa-home"></i>
+                                </a>
+                            </li>
+
+                            {% if user.is_authenticated %}
+                                <!-- Show user type badge -->
+                                <li>
+                                    {% if user.user_type == 'admin' or user.is_superuser %}
+                                        <span class="user-badge business">
+                                            <i class="fas fa-building me-1"></i>Business
+                                        </span>
+                                    {% else %}
+                                        <span class="user-badge">
+                                            <i class="fas fa-user me-1"></i>Job Seeker
+                                        </span>
+                                    {% endif %}
+                                </li>
+
+                                <!-- Dashboard/Business Portal Link -->
+                                <li>
+                                    {% if user.user_type == 'admin' or user.is_superuser %}
+                                        <a href="/admin-portal/" title="Business Portal">
+                                            <i class="fas fa-building"></i>
+                                        </a>
+                                    {% else %}
+                                        <a href="/dashboard" title="Dashboard">
+                                            <i class="fas fa-th-large"></i>
+                                        </a>
+                                    {% endif %}
+                                </li>
+
+                                <!-- Profile Dropdown Icon -->
+                                <li class="profile-dropdown">
+                                    <div class="profile-avatar-small" onclick="toggleProfileMenu()">
+                                        {{ user.username|first|upper }}
+                                    </div>
+
+                                    <div class="profile-menu" id="profileMenu">
+                                        {% if user.user_type == 'admin' or user.is_superuser %}
+                                            <a href="/admin-portal/"><i class="fas fa-building"></i> Business Portal</a>
+                                            <a href="/admin-portal/jobs/"><i class="fas fa-briefcase"></i> Manage Jobs</a>
+                                            <a href="/admin-portal/applications/"><i class="fas fa-file-alt"></i> Applications</a>
+                                        {% else %}
+                                            <a href="/profile/"><i class="fas fa-user"></i> Profile</a>
+                                            <a href="/applications/"><i class="fas fa-file-alt"></i> Applications</a>
+                                            <a href="/api/alerts/"><i class="fas fa-bell"></i> Alerts</a>
+                                            <a href="/preferences/"><i class="fas fa-cog"></i> Preferences</a>
+                                        {% endif %}
+                                        
+                                        <div class="profile-divider"></div>
+                                        <a href="/logout/"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                                    </div>
+                                </li>
+                                <li>
+                                  <a href="/messaging/">
+                                     <i class="fas fa-comment-dots"></i>
+                                   </a>
+                                </li>  
+
+                                <!-- Three Dot Menu - Fixed for mobile -->
+                                <li>
+                                    <div class="three-dot-menu">
+                                        <button class="three-dot-btn" onclick="toggleThreeDotMenu(this)">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <div class="menu-content">
+                                            {% if user.user_type == 'admin' or user.is_superuser %}
+                                                <a href="/admin-portal/jobs/"><i class="fas fa-briefcase"></i> Manage Jobs</a>
+                                                <a href="/admin-portal/applications/"><i class="fas fa-users"></i> View Applicants</a>
+                                                <a href="/admin-portal/"><i class="fas fa-chart-bar"></i> Analytics</a>
+                                                <a href="/admin-portal/settings/"><i class="fas fa-cog"></i> Settings</a>
+                                            {% else %}
+                                                <a href="/profile/skills/"><i class="fas fa-cogs"></i> Skills</a>
+                                                <a href="/profile/employment/"><i class="fas fa-briefcase"></i> Employment</a>
+                                                <a href="/profile/education/"><i class="fas fa-graduation-cap"></i> Education</a>
+                                                <a href="/profile/documents/"><i class="fas fa-file-upload"></i> Documents</a>
+                                                <a href="/saved-jobs/"><i class="fas fa-bookmark"></i> Saved Jobs</a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </li>
+
+                            {% else %}
+                                <!-- Show both login and signup options for unauthenticated users -->
+                                <li>
+                                    <a href="#" onclick="showLogin()" title="Login">
+                                        <i class="fas fa-sign-in-alt"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <div class="dropdown">
+                                        <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" title="Sign Up">
+                                            <i class="fas fa-user-plus"></i>
+                                        </a>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><a class="dropdown-item" href="#" onclick="showSignup()">
+                                                <i class="fas fa-user me-2"></i>Job Seeker Signup
+                                            </a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="showBusinessSignup()">
+                                                <i class="fas fa-building me-2"></i>Business Signup
+                                            </a></li>
+                                        </ul>
+                                    </div>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Sidebar (Desktop Only) -->
+        <div class="left-sidebar">
+            <div class="sidebar-card">
+                <h3 class="sidebar-title">Quick Actions</h3>
+                <div class="d-flex flex-column gap-2">
+                    {% if user.is_authenticated %}
+                        <button class="btn btn-outline-primary" onclick="showPostModal()">
+                            <i class="fas fa-plus me-2"></i>Create Post
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="switchTab('feed')">
+                            <i class="fas fa-newspaper me-2"></i>View Feed
+                        </button>
+                        {% if user.user_type == 'admin' %}
+                        <button class="btn btn-outline-primary" onclick="switchTab('myPosts')">
+                            <i class="fas fa-user me-2"></i>My Posts
+                        </button>
+                        {% endif %}
+                    {% else %}
+                        <button class="btn btn-outline-primary" onclick="showLogin()">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login to Post
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="switchTab('jobs')">
+                            <i class="fas fa-briefcase me-2"></i>Browse Jobs
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Trending Jobs Widget -->
+            <div class="sidebar-card">
+                <h3 class="sidebar-title">Trending Jobs</h3>
+                <div id="trendingJobs">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Tabs Navigation -->
+            <div class="tabs-nav">
+                <button class="tab-btn active" onclick="switchTab('jobs')">
+                    <i class="fas fa-briefcase me-2"></i>Jobs
+                </button>
+                {% if user.is_authenticated %}
+                <button class="tab-btn" onclick="switchTab('feed')">
+                    <i class="fas fa-newspaper me-2"></i>Feed
+                </button>
+                {% if user.user_type == 'admin' %}
+                <button class="tab-btn" onclick="switchTab('myPosts')">
+                    <i class="fas fa-user me-2"></i>My Posts
+                </button>
+                {% endif %}
+                {% endif %}
+            </div>
+
+            <!-- Create Post Card (Only for authenticated users in feed/myPosts tabs) -->
+            {% if user.is_authenticated %}
+            <div id="createPostCard" class="create-post-card hidden">
+                <div class="post-input-row">
+                    <div class="user-avatar">
+                        {{ user.username|first|upper }}
+                    </div>
+                    <div class="post-input-wrapper">
+                        <input type="text" class="post-input" placeholder="What's on your mind?" onclick="showPostModal()" readonly>
+                    </div>
+                </div>
+                <div class="post-actions">
+                    <button class="post-action-btn" onclick="showPostModal()">
+                        <i class="fas fa-image text-success"></i> Photo
+                    </button>
+                    <button class="post-action-btn" onclick="showPostModal()">
+                        <i class="fas fa-video text-danger"></i> Video
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Jobs Tab Content -->
+            <div id="jobsTab" class="tab-content active">
+                <div id="jobsContainer">
+                    <!-- Jobs will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Feed Tab Content -->
+            <div id="feedTab" class="tab-content">
+                <div id="feedContainer">
+                    <!-- Posts will be loaded here -->
+                </div>
+            </div>
+
+            <!-- My Posts Tab Content -->
+            {% if user.is_authenticated and user.user_type == 'admin' %}
+            <div id="myPostsTab" class="tab-content">
+                <div id="myPostsContainer">
+                    <!-- User's posts will be loaded here -->
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Right Sidebar (Desktop Only) -->
+        <div class="right-sidebar">
+            <!-- Quick Stats Widget -->
+            <div class="sidebar-card">
+                <h3 class="sidebar-title">Quick Stats</h3>
+                <div id="quickStats">
+                    {% if user.is_authenticated and user.user_type == 'admin' %}
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Active Jobs:</span>
+                            <strong id="activeJobsCount">0</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Applications:</span>
+                            <strong id="totalApplications">0</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Profile Views:</span>
+                            <strong id="profileViews">0</strong>
+                        </div>
+                    {% else %}
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Jobs Available:</span>
+                            <strong id="jobsCount">0</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Active Posts:</span>
+                            <strong id="postsCount">0</strong>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Recent Activity Widget -->
+            <div class="sidebar-card">
+                <h3 class="sidebar-title">Recent Activity</h3>
+                <div id="recentActivity">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Post Creation Modal -->
+    <div id="postModal" class="post-modal">
+        <div class="post-modal-content">
+            <div class="post-modal-header">
+                <h5 class="mb-0">Create Post</h5>
+                <button type="button" class="btn-close" onclick="hidePostModal()"></button>
+            </div>
+            
+            <div class="post-modal-body">
+                <textarea id="postTextarea" class="post-textarea" placeholder="What's on your mind?"></textarea>
+                
+                <div id="mediaPreview" class="media-preview">
+                    <img id="previewImage" src="" alt="Preview">
+                </div>
+            </div>
+            
+            <div class="post-modal-footer">
+                <div>
+                    <input type="file" id="mediaInput" accept="image/*,video/*" style="display: none;" onchange="previewMedia(event)">
+                    <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('mediaInput').click()">
+                        <i class="fas fa-image"></i> Add Media
+                    </button>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-secondary" onclick="hidePostModal()">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="createPost()" id="createPostBtn">
+                        Post
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feed Toggle Button -->
+    {% if user.is_authenticated %}
+    <button class="feed-toggle-btn" onclick="toggleFeed()">
+        <i class="fas fa-newspaper"></i> Feed
+    </button>
+    {% endif %}
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav">
+        <a href="#" class="active" onclick="switchTab('jobs')">
+            <i class="fas fa-briefcase"></i>
+            <span>Jobs</span>
+        </a>
+        
+        {% if user.is_authenticated %}
+            <a href="#" onclick="switchTab('feed')">
+                <i class="fas fa-newspaper"></i>
+                <span>Feed</span>
+            </a>
+            
+            {% if user.user_type == 'admin' %}
+            <a href="#" onclick="switchTab('myPosts')">
+                <i class="fas fa-user"></i>
+                <span>My Posts</span>
+            </a>
+            {% endif %}
+            
+            <a href="#" onclick="showPostModal()">
+                <i class="fas fa-plus"></i>
+                <span>Create</span>
+            </a>
+            
+            <a href="/profile/">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        {% else %}
+            <a href="#" onclick="showLogin()">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Login</span>
+            </a>
+            <a href="#" onclick="showSignup()">
+                <i class="fas fa-user-plus"></i>
+                <span>Sign Up</span>
+            </a>
+        {% endif %}
+    </nav>
+
+    <!-- Toast Container -->
+    <div class="toast-container"></div>
+
+    <!-- Auth Modals -->
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Login to JobPortal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control" name="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <div class="password-input-group">
+                                <input type="password" class="form-control" name="password" id="loginPassword" required>
+                                <button type="button" class="password-toggle" onclick="togglePassword('loginPassword', this)">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- ADD THIS FORGOT PASSWORD LINK -->
+                        <div class="mb-3 text-end">
+                            <a href="/forgot-password/" class="text-decoration-none" style="color: var(--primary-color);">
+                                <i class="fas fa-key me-1"></i>Forgot Password?
+                            </a>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Job Seeker Signup Modal -->
+    <div class="modal fade" id="signupModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Job Seeker Sign Up</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="signupForm">
+                        <div class="mb-3">
+                            <label class="form-label">Username *</label>
+                            <input type="text" class="form-control" name="username" id="username" required minlength="2" maxlength="150">
+                            <div class="form-text">Choose any username you like (2-150 characters)</div>
+                            <div id="usernameError" class="error-message"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email *</label>
+                            <input type="email" class="form-control" name="email" id="email" required>
+                            <div id="emailError" class="error-message"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mobile Phone *</label>
+                            <input type="tel" class="form-control" name="mobile_phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password *</label>
+                            <div class="password-input-group">
+                                <input type="password" class="form-control" name="password" id="signupPassword" minlength="8" required>
+                                <button type="button" class="password-toggle" onclick="togglePassword('signupPassword', this)">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="form-text">Password must be at least 8 characters long</div>
+                            <div id="passwordError" class="error-message"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Confirm Password *</label>
+                            <div class="password-input-group">
+                                <input type="password" class="form-control" name="password_confirm" id="confirmPassword" minlength="8" required>
+                                <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword', this)">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div id="confirmPasswordError" class="error-message"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Create Job Seeker Account</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Business Signup Modal -->
+    <div class="modal fade" id="businessSignupModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Business Account</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="businessSignupForm" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Company Information</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Company Logo</label>
+                                    <input type="file" name="company_logo" accept="image/*" class="form-control">
+                                    <small class="text-muted">Optional: Upload your company logo</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Company Name *</label>
+                                    <input type="text" class="form-control" name="company_name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Industry</label>
+                                    <select name="industry" class="form-control" id="industrySelect">
+                                        <option value="">Select Industry</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Company Size</label>
+                                    <select name="company_size" class="form-control" id="companySizeSelect">
+                                        <option value="">Select Company Size</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Website</label>
+                                    <input type="url" class="form-control" name="website" placeholder="https://">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Account Information</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Username *</label>
+                                    <input type="text" class="form-control" name="username" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email *</label>
+                                    <input type="email" class="form-control" name="email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Password *</label>
+                                    <div class="password-input-group">
+                                        <input type="password" class="form-control" name="password" id="businessPassword" minlength="8" required>
+                                        <button type="button" class="password-toggle" onclick="togglePassword('businessPassword', this)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Confirm Password *</label>
+                                    <div class="password-input-group">
+                                        <input type="password" class="form-control" name="password_confirm" id="businessConfirmPassword" minlength="8" required>
+                                        <button type="button" class="password-toggle" onclick="togglePassword('businessConfirmPassword', this)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Contact Phone</label>
+                                    <input type="tel" class="form-control" name="phone_number">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Company Description</label>
+                            <textarea class="form-control" name="company_description" rows="3" placeholder="Brief description of your company"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Create Business Account</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ===== FIXED VERSION =====
+        // Global state
+        let currentTab = 'jobs';
+        let allPosts = [];
+        let allJobs = [];
+        let activeDropdown = null;
+        
+        // ===== HELPER FUNCTIONS =====
+        function showToast(message, type = 'success') {
+            const toastContainer = document.querySelector('.toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast show align-items-center text-bg-${type === 'success' ? 'success' : 'danger'} border-0`;
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-2"></i>
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="this.parentElement.parentElement.remove()"></button>
+                </div>
+            `;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+        
+        function getCSRFToken() {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === 'csrftoken') return decodeURIComponent(value);
+            }
+            return null;
+        }
+        
+        // ===== COMPANY LOGO FUNCTION WITH 3 FALLBACKS =====
+        function renderCompanyLogo(job) {
+            // 1. First try: Company logo from the job itself
+            if (job.company_logo) {
+                return `<img src="${job.company_logo}" class="company-logo-small" alt="${escapeHtml(job.company_name || 'Company')}">`;
+            }
+            
+            // 2. Second try: Author's business profile picture
+            if (job.author && job.author.profile_picture) {
+                return `<img src="${job.author.profile_picture}" class="company-logo-small" alt="${escapeHtml(job.author.username || 'Author')}">`;
+            }
+            
+            // 3. Fallback: Default placeholder
+            return `<div class="company-logo-placeholder">
+                        <i class="fas fa-building"></i>
+                    </div>`;
+        }
+        
+        // ===== DROPDOWN FUNCTIONS - FIXED FOR MOBILE =====
+        function toggleProfileMenu() {
+            closeAllDropdowns();
+            const dropdown = document.getElementById('profileMenu');
+            dropdown.classList.toggle('show');
+            if (dropdown.classList.contains('show')) {
+                activeDropdown = dropdown;
+                document.body.classList.add('dropdown-open');
+            } else {
+                activeDropdown = null;
+                document.body.classList.remove('dropdown-open');
+            }
+        }
+        
+        function toggleThreeDotMenu(button) {
+            closeAllDropdowns();
+            const dropdown = button.parentElement.querySelector('.menu-content');
+            dropdown.classList.toggle('show');
+            if (dropdown.classList.contains('show')) {
+                activeDropdown = dropdown;
+                document.body.classList.add('dropdown-open');
+            } else {
+                activeDropdown = null;
+                document.body.classList.remove('dropdown-open');
+            }
+        }
+        
+        // FIXED: Share dropdown function
+        function toggleShareDropdown(button) {
+            closeAllDropdowns();
+            const dropdown = button.nextElementSibling;
+            dropdown.classList.toggle('show');
+            if (dropdown.classList.contains('show')) {
+                activeDropdown = dropdown;
+                document.body.classList.add('dropdown-open');
+            } else {
+                activeDropdown = null;
+                document.body.classList.remove('dropdown-open');
+            }
+        }
+        
+        function closeAllDropdowns() {
+            // Close profile menu
+            const profileMenu = document.getElementById('profileMenu');
+            if (profileMenu) profileMenu.classList.remove('show');
+            
+            // Close all three-dot menus
+            document.querySelectorAll('.three-dot-menu .menu-content').forEach(menu => {
+                menu.classList.remove('show');
+            });
+            
+            // Close all share dropdowns
+            document.querySelectorAll('.share-dropdown').forEach(dropdown => {
+                dropdown.classList.remove('show');
+            });
+            
+            activeDropdown = null;
+            document.body.classList.remove('dropdown-open');
+        }
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.profile-dropdown') && 
+                !event.target.closest('.three-dot-menu') &&
+                !event.target.closest('.share-button-container')) {
+                closeAllDropdowns();
+            }
+        });
+        
+        // ===== POST/FEED FUNCTIONS =====
+        // Tab switching
+        function switchTab(tabName) {
+            currentTab = tabName;
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.mobile-bottom-nav a').forEach(btn => btn.classList.remove('active'));
+            
+            document.querySelectorAll(`[onclick*="${tabName}"]`).forEach(btn => btn.classList.add('active'));
+            
+            // Update tab contents
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // Show/hide create post card
+            const createPostCard = document.getElementById('createPostCard');
+            if (createPostCard) {
+                if (tabName === 'feed' || tabName === 'myPosts') {
+                    createPostCard.classList.remove('hidden');
+                } else {
+                    createPostCard.classList.add('hidden');
+                }
+            }
+            
+            // Load appropriate content
+            switch(tabName) {
+                case 'jobs':
+                    loadJobs();
+                    break;
+                case 'feed':
+                    loadFeedPosts();
+                    break;
+                case 'myPosts':
+                    loadMyPosts();
+                    break;
+            }
+        }
+        
+        // Post modal functions
+        function showPostModal() {
+            {% if user.is_authenticated %}
+            document.getElementById('postModal').classList.add('show');
+            document.getElementById('postTextarea').focus();
+            {% else %}
+            showLogin();
+            {% endif %}
+        }
+        
+        function hidePostModal() {
+            document.getElementById('postModal').classList.remove('show');
+            document.getElementById('postTextarea').value = '';
+            document.getElementById('mediaPreview').style.display = 'none';
+            document.getElementById('previewImage').src = '';
+        }
+        
+        function previewMedia(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('mediaPreview');
+                const img = document.getElementById('previewImage');
+                img.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Create post function
+        function createPost() {
+            const content = document.getElementById('postTextarea').value.trim();
+            const mediaInput = document.getElementById('mediaInput');
+            
+            if (!content && !mediaInput.files[0]) {
+                showToast('Please add some text or media', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('content', content);
+            
+            if (mediaInput.files[0]) {
+                formData.append('image', mediaInput.files[0]);
+            }
+            
+            const btn = document.getElementById('createPostBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="loading-spinner"></span>';
+            btn.disabled = true;
+            
+            fetch('/api/posts/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
+                if (data.success) {
+                    showToast('Post created successfully!', 'success');
+                    hidePostModal();
+                    
+                    // Reload posts based on current tab
+                    if (currentTab === 'feed') {
+                        loadFeedPosts();
+                    } else if (currentTab === 'myPosts') {
+                        loadMyPosts();
+                    }
+                } else {
+                    showToast(data.error || 'Failed to create post', 'error');
+                }
+            })
+            .catch(error => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                showToast('Error creating post', 'error');
+                console.error('Error:', error);
+            });
+        }
+        
+        // Load jobs function
+        function loadJobs() {
+            const container = document.getElementById('jobsContainer');
+            container.innerHTML = '';
+            
+            fetch('/api/jobs/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.jobs && data.jobs.length > 0) {
+                        allJobs = data.jobs;
+                        renderJobs(data.jobs);
+                        renderTrendingJobs(data.jobs.slice(0, 3));
+                        updateStats();
+                    } else {
+                        container.innerHTML = `
+                            <div class="text-center py-5">
+                                <i class="fas fa-briefcase fa-3x text-muted mb-3"></i>
+                                <p>No jobs available at the moment</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading jobs:', error);
+                    container.innerHTML = `
+                        <div class="text-center py-5">
+                            <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                            <p>Error loading jobs. Please try again.</p>
+                        </div>
+                    `;
+                });
+        }
+        
+        function renderJobs(jobs) {
+            const container = document.getElementById('jobsContainer');
+            container.innerHTML = jobs.map(job => {
+                // Create job status badge
+                let statusBadge = '';
+                let statusClass = 'status-published';
+                let statusText = 'Active';
+                
+                // Check if job is urgent (apply by date is within 3 days)
+                const applyBy = new Date(job.apply_by);
+                const today = new Date();
+                const daysUntilDeadline = Math.ceil((applyBy - today) / (1000 * 60 * 60 * 24));
+                
+                if (daysUntilDeadline <= 3 && daysUntilDeadline >= 0) {
+                    statusClass = 'status-urgent';
+                    statusText = 'Urgent';
+                } else if (daysUntilDeadline < 0) {
+                    statusClass = 'status-urgent';
+                    statusText = 'Expired';
+                }
+                
+                // Check if job is featured
+                if (job.is_featured) {
+                    statusClass = 'status-featured';
+                    statusText = 'Featured';
+                }
+                
+                statusBadge = `<span class="job-status-badge ${statusClass}">${statusText}</span>`;
+                
+                // Check if user has applied
+                const hasApplied = job.user_has_applied || false;
+                const applyButton = hasApplied ? 
+                    `<button class="btn btn-applied" disabled>
+                        <i class="fas fa-check"></i> Applied
+                    </button>` :
+                    `{% if user.is_authenticated %}
+                    <button class="btn btn-apply" onclick="applyForJob('${job.id}', this)">
+                        <i class="fas fa-paper-plane me-1"></i> Apply
+                    </button>
+                    {% else %}
+                    <button class="btn btn-apply" onclick="showLogin()">
+                        <i class="fas fa-sign-in-alt me-1"></i> Login to Apply
+                    </button>
+                    {% endif %}`;
+                
+                return `
+                    <div class="job-card">
+                        <div class="job-card-header">
+                            <!-- Plus icon for post creation -->
+                            <div class="add-post-icon-container">
+                                <button class="add-post-icon" onclick="showPostModal()" title="Create post">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Message icon -->
+                            <div class="message-icon-container">
+                                <a href="/messaging/" class="message-icon" title="Message employer">
+                                    <i class="fas fa-comment-dots"></i>
+                                </a>
+                            </div>
+                            
+                            ${statusBadge}
+                            <div class="company-logo-container">
+                                <!-- COMPANY LOGO SECTION - USING THE 3 FALLBACK FUNCTION -->
+                                ${renderCompanyLogo(job)}
+                                <div class="company-info">
+                                    <h5 class="job-title">${escapeHtml(job.title)}</h5>
+                                    <h6 class="company-name">${escapeHtml(job.company_name)}</h6>
+                                </div>
+                            </div>
+                            <div class="job-meta">
+                                <div class="job-meta-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>${escapeHtml(job.location)}</span>
+                                </div>
+                                <div class="job-meta-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span>${job.employment_type || 'Full-time'}</span>
+                                </div>
+                                <div class="job-meta-item">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    <span>${job.salary || 'Competitive'}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="job-card-body">
+                            <p class="job-description">${job.position_summary ? escapeHtml(job.position_summary.substring(0, 150) + '...') : 'No description available'}</p>
+                            <div class="job-meta">
+                                <div class="job-meta-item">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>Apply by: ${new Date(job.apply_by).toLocaleDateString()}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="job-card-footer">
+                            <div class="card-footer-content">
+                                <div class="job-actions">
+                                    <button class="btn btn-view" onclick="viewJob('${job.id}')">
+                                        <i class="fas fa-eye me-1"></i> View Details
+                                    </button>
+                                    ${applyButton}
+                                </div>
+                                <!-- FIXED: Share Button -->
+                                <div class="share-button-container">
+                                    <button class="share-button" onclick="toggleShareDropdown(this)">
+                                        <i class="fas fa-share-alt me-1"></i> Share
+                                    </button>
+                                    <div class="share-dropdown">
+                                        <a href="#" onclick="shareToFacebook('${job.id}'); return false;">
+                                            <i class="fab fa-facebook-f"></i> Facebook
+                                        </a>
+                                        <a href="#" onclick="shareToLinkedIn('${job.id}'); return false;">
+                                            <i class="fab fa-linkedin-in"></i> LinkedIn
+                                        </a>
+                                        <a href="#" onclick="shareToWhatsApp('${job.id}'); return false;">
+                                            <i class="fab fa-whatsapp"></i> WhatsApp
+                                        </a>
+                                        <a href="#" onclick="shareToTwitter('${job.id}'); return false;">
+                                            <i class="fab fa-twitter"></i> Twitter
+                                        </a>
+                                        <a href="#" onclick="shareViaEmail('${job.id}'); return false;">
+                                            <i class="fas fa-envelope"></i> Email
+                                        </a>
+                                        <a href="#" onclick="copyLink('${job.id}'); return false;">
+                                            <i class="fas fa-link"></i> Copy Link
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function renderTrendingJobs(jobs) {
+            const container = document.getElementById('trendingJobs');
+            if (!container) return;
+            
+            container.innerHTML = jobs.map(job => `
+                <div class="mb-3 p-2 border rounded">
+                    <div class="d-flex align-items-center mb-2">
+                        <!-- Use the same logo function for consistency -->
+                        ${renderCompanyLogo(job)}
+                        <div>
+                            <strong>${escapeHtml(job.title)}</strong>
+                            <div class="small text-muted">${escapeHtml(job.company_name)}</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-outline-primary mt-2 w-100" onclick="viewJob('${job.id}')">
+                        View Job
+                    </button>
+                </div>
+            `).join('');
+        }
+        
+        // Load feed posts function
+        function loadFeedPosts() {
+            const container = document.getElementById('feedContainer');
+            container.innerHTML = '';
+            
+            fetch('/api/posts/feed/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.posts) {
+                        allPosts = data.posts;
+                        renderPosts(data.posts, 'feedContainer');
+                        updateStats();
+                    } else {
+                        container.innerHTML = `
+                            <div class="text-center py-5">
+                                <i class="fas fa-newspaper fa-3x text-muted mb-3"></i>
+                                <p>No posts to show yet</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading feed posts:', error);
+                    container.innerHTML = `
+                        <div class="text-center py-5">
+                            <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                            <p>Error loading posts. Please try again.</p>
+                        </div>
+                    `;
+                });
+        }
+        
+        // Load my posts function
+        function loadMyPosts() {
+            const container = document.getElementById('myPostsContainer');
+            container.innerHTML = '';
+            
+            fetch('/api/posts/?show_all=false')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.posts) {
+                        renderPosts(data.posts, 'myPostsContainer');
+                    } else {
+                        container.innerHTML = `
+                            <div class="text-center py-5">
+                                <i class="fas fa-user fa-3x text-muted mb-3"></i>
+                                <p>You haven't created any posts yet</p>
+                                <button class="btn btn-primary mt-3" onclick="showPostModal()">
+                                    <i class="fas fa-plus me-2"></i>Create Your First Post
+                                </button>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading my posts:', error);
+                    container.innerHTML = `
+                        <div class="text-center py-5">
+                            <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                            <p>Error loading your posts. Please try again.</p>
+                        </div>
+                    `;
+                });
+        }
+        
+        // Render posts function
+        function renderPosts(posts, containerId) {
+            const container = document.getElementById(containerId);
+            
+            if (!posts || posts.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-newspaper fa-3x text-muted mb-3"></i>
+                        <p>No posts to show</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = posts.map(post => `
+                <div class="post-card" id="post-${post.id}">
+                    <div class="post-header">
+                        <div class="user-avatar">
+                            ${post.author?.username?.charAt(0)?.toUpperCase() || 'U'}
+                        </div>
+                        <div class="post-user-info">
+                            <span class="post-username">${escapeHtml(post.author?.username || 'Unknown')}</span>
+                            <span class="post-time">
+                                ${post.created_at ? new Date(post.created_at).toLocaleDateString() : 'Recently'}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="post-content">
+                        <p class="post-text">${escapeHtml(post.content || '')}</p>
+                        ${post.image ? `<img src="${post.image}" class="post-image" alt="Post image">` : ''}
+                    </div>
+                    
+                    <div class="post-stats">
+                        <span>${post.likes_count || 0} likes</span>
+                        <span>${post.comments_count || 0} comments</span>
+                    </div>
+                    
+                    <div class="post-actions-bar">
+                        <button class="post-action ${post.user_has_liked ? 'liked' : ''}" onclick="likePost(${post.id}, this)">
+                            <i class="fas fa-heart"></i> Like
+                        </button>
+                        <button class="post-action" onclick="toggleComments(${post.id})">
+                            <i class="fas fa-comment"></i> Comment
+                        </button>
+                    </div>
+                    
+                    <div id="comments-${post.id}" class="comments-section">
+                        <div class="comment-input-row">
+                            <input type="text" class="comment-input" id="comment-input-${post.id}" placeholder="Write a comment...">
+                            <button class="comment-btn" onclick="addComment(${post.id})">Post</button>
+                        </div>
+                        <div id="comments-list-${post.id}" class="comments-list">
+                            <!-- Comments will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Like post function
+        function likePost(postId, button) {
+            fetch(`/api/posts/${postId}/like-dislike/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify({ action: 'like' })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.user_has_liked) {
+                        button.classList.add('liked');
+                    } else {
+                        button.classList.remove('liked');
+                    }
+                    
+                    // Update likes count
+                    const postCard = document.getElementById(`post-${postId}`);
+                    if (postCard) {
+                        const stats = postCard.querySelector('.post-stats');
+                        if (stats) {
+                            const likesSpan = stats.querySelector('span');
+                            if (likesSpan) {
+                                likesSpan.textContent = `${data.likes_count} likes`;
+                            }
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error liking post:', error);
+                showToast('Failed to like post', 'error');
+            });
+        }
+        
+        // Toggle comments function
+        function toggleComments(postId) {
+            const commentsSection = document.getElementById(`comments-${postId}`);
+            if (commentsSection) {
+                commentsSection.classList.toggle('show');
+                
+                if (commentsSection.classList.contains('show')) {
+                    loadComments(postId);
+                }
+            }
+        }
+        
+        // Load comments function
+        function loadComments(postId) {
+            const commentsList = document.getElementById(`comments-list-${postId}`);
+            if (!commentsList) return;
+            
+            commentsList.innerHTML = '';
+            
+            fetch(`/api/post-comments/${postId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.comments) {
+                        commentsList.innerHTML = data.comments.map(comment => `
+                            <div class="comment-item">
+                                <div class="comment-author">
+                                    ${escapeHtml(comment.author?.username || 'User')}
+                                </div>
+                                <div class="comment-text">
+                                    ${escapeHtml(comment.content)}
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        commentsList.innerHTML = '<p class="text-muted text-center">No comments yet</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading comments:', error);
+                    commentsList.innerHTML = `
+                        <p class="text-muted text-center">
+                            <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                            Error loading comments
+                        </p>
+                    `;
+                });
+        }
+        
+        // Add comment function
+        function addComment(postId) {
+            const input = document.getElementById(`comment-input-${postId}`);
+            if (!input) return;
+            
+            const content = input.value.trim();
+            if (!content) return;
+            
+            fetch(`/api/post-comments/${postId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify({ content: content })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    input.value = '';
+                    loadComments(postId);
+                    showToast('Comment added!', 'success');
+                } else {
+                    showToast('Failed to add comment', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error adding comment:', error);
+                showToast('Error adding comment', 'error');
+            });
+        }
+        
+        // Job functions
+        function viewJob(jobId) {
+            window.location.href = `/jobs/${jobId}/`;
+        }
+        
+        function applyForJob(jobId, button) {
+            const originalText = button.innerHTML;
+            button.innerHTML = '<span class="loading-spinner"></span>';
+            button.disabled = true;
+            
+            fetch(`/api/jobs/${jobId}/apply/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    button.innerHTML = '<i class="fas fa-check"></i> Applied';
+                    button.classList.remove('btn-apply');
+                    button.classList.add('btn-applied');
+                    button.disabled = true;
+                    showToast('Application submitted successfully!', 'success');
+                } else {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    showToast(data.error || 'Failed to apply', 'error');
+                }
+            })
+            .catch(error => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+                showToast('Error submitting application', 'error');
+            });
+        }
+        
+        // Update stats
+        function updateStats() {
+            // Update jobs count
+            const jobsCount = document.getElementById('jobsCount');
+            if (jobsCount) {
+                jobsCount.textContent = allJobs.length;
+            }
+            
+            // Update posts count
+            const postsCount = document.getElementById('postsCount');
+            if (postsCount) {
+                postsCount.textContent = allPosts.length;
+            }
+        }
+        
+        // Load business stats
+        function loadBusinessStats() {
+            {% if user.is_authenticated and user.user_type == 'admin' %}
+            fetch('/api/business-stats/', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('activeJobsCount').textContent = data.stats.active_jobs || '0';
+                    document.getElementById('totalApplications').textContent = data.stats.total_applications || '0';
+                    document.getElementById('profileViews').textContent = data.stats.profile_views || '0';
+                } else {
+                    console.error('Failed to load business stats:', data.error);
+                    document.getElementById('activeJobsCount').textContent = '0';
+                    document.getElementById('totalApplications').textContent = '0';
+                    document.getElementById('profileViews').textContent = '0';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading business stats:', error);
+                document.getElementById('activeJobsCount').textContent = '0';
+                document.getElementById('totalApplications').textContent = '0';
+                document.getElementById('profileViews').textContent = '0';
+            });
+            {% endif %}
+        }
+        
+        // Toggle feed function
+        function toggleFeed() {
+            if (currentTab === 'feed') {
+                switchTab('jobs');
+                document.querySelector('.feed-toggle-btn').innerHTML = '<i class="fas fa-newspaper"></i> Feed';
+            } else {
+                switchTab('feed');
+                document.querySelector('.feed-toggle-btn').innerHTML = '<i class="fas fa-briefcase"></i> Jobs';
+            }
+        }
+        
+        // ===== SHARE FUNCTIONALITY - FIXED =====
+        // Share functions
+        function shareToFacebook(jobId) {
+            const url = encodeURIComponent(`${window.location.origin}/jobs/${jobId}/`);
+            const title = encodeURIComponent(`Check out this job opportunity!`);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${title}`, '_blank', 'width=600,height=400');
+        }
+        
+        function shareToLinkedIn(jobId) {
+            const url = encodeURIComponent(`${window.location.origin}/jobs/${jobId}/`);
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'width=600,height=400');
+        }
+        
+        function shareToWhatsApp(jobId) {
+            const url = `${window.location.origin}/jobs/${jobId}/`;
+            const text = `Check out this job opportunity! ${url}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'width=600,height=400');
+        }
+        
+        function shareToTwitter(jobId) {
+            const url = encodeURIComponent(`${window.location.origin}/jobs/${jobId}/`);
+            const text = encodeURIComponent(`Check out this job opportunity!`);
+            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'width=600,height=400');
+        }
+        
+        function shareViaEmail(jobId) {
+            const url = `${window.location.origin}/jobs/${jobId}/`;
+            const subject = encodeURIComponent(`Job Opportunity`);
+            const body = encodeURIComponent(`I found this job opportunity and thought you might be interested:\n\n${url}`);
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        }
+        
+        function copyLink(jobId) {
+            const url = `${window.location.origin}/jobs/${jobId}/`;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(() => {
+                    showToast('Link copied to clipboard!', 'success');
+                    closeAllDropdowns();
+                }).catch(() => {
+                    fallbackCopyText(url);
+                });
+            } else {
+                fallbackCopyText(url);
+            }
+        }
+        
+        function fallbackCopyText(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = 0;
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Link copied to clipboard!', 'success');
+            } catch (err) {
+                showToast('Failed to copy link', 'error');
+            }
+            document.body.removeChild(textArea);
+        }
+        
+        // ===== LOGIN SYSTEM FUNCTIONS =====
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            
+            const icon = button.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+        
+        function showLogin() {
+            const modal = new bootstrap.Modal(document.getElementById('loginModal'));
+            modal.show();
+        }
+        
+        function showSignup() {
+            const modal = new bootstrap.Modal(document.getElementById('signupModal'));
+            modal.show();
+        }
+        
+        function showBusinessSignup() {
+            loadBusinessFormData();
+            const modal = new bootstrap.Modal(document.getElementById('businessSignupModal'));
+            modal.show();
+        }
+        
+        function loadBusinessFormData() {
+            // Load industries
+            fetch('/api/industries/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const select = document.getElementById('industrySelect');
+                        select.innerHTML = '<option value="">Select Industry</option>';
+                        data.industries.forEach(industry => {
+                            const option = document.createElement('option');
+                            option.value = industry.id;
+                            option.textContent = industry.name;
+                            select.appendChild(option);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading industries:', error);
+                });
+        
+            // Load company sizes
+            fetch('/api/company-sizes/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const select = document.getElementById('companySizeSelect');
+                        select.innerHTML = '<option value="">Select Company Size</option>';
+                        data.company_sizes.forEach(size => {
+                            const option = document.createElement('option');
+                            option.value = size.id;
+                            option.textContent = size.size_range;
+                            select.appendChild(option);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading company sizes:', error);
+                });
+        }
+        
+        // Login form handler
+        document.getElementById('loginForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+    
+            submitBtn.innerHTML = '<span class="loading-spinner"></span> Logging in...';
+            submitBtn.disabled = true;
+    
+            fetch('/api/auth/login/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const loginModal = document.getElementById('loginModal');
+                    if (loginModal) {
+                        const bsModal = bootstrap.Modal.getInstance(loginModal);
+                        if (bsModal) bsModal.hide();
+                    }
+                    
+                    showToast('Login successful! Redirecting...', 'success');
+                    
+                    setTimeout(() => {
+                        if (data.redirect_to === 'admin_portal') {
+                            window.location.href = '/admin-portal/';
+                        } else if (data.redirect_to === 'applicant_dashboard') {
+                            window.location.href = '/dashboard/';
+                        } else {
+                            location.reload();
+                        }
+                    }, 1500);
+                } else {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    showToast('Login failed: ' + (data.error || 'Please check your credentials'), 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                showToast('Login failed. Please try again.', 'error');
+            });
+        });
+        
+        // Job seeker signup form handler
+        document.getElementById('signupForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            document.getElementById('usernameError').textContent = '';
+            document.getElementById('emailError').textContent = '';
+            document.getElementById('passwordError').textContent = '';
+            document.getElementById('confirmPasswordError').textContent = '';
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+    
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
+                return;
+            }
+    
+            submitBtn.innerHTML = '<span class="loading-spinner"></span> Creating account...';
+            submitBtn.disabled = true;
+    
+            fetch('/api/auth/signup/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const signupModal = document.getElementById('signupModal');
+                    if (signupModal) {
+                        const bsModal = bootstrap.Modal.getInstance(signupModal);
+                        if (bsModal) bsModal.hide();
+                    }
+                    
+                    showToast('Account created successfully! Please login.', 'success');
+                    
+                    setTimeout(() => {
+                        showLogin();
+                    }, 2000);
+                } else {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    
+                    if (data.errors) {
+                        if (data.errors.username) {
+                            document.getElementById('usernameError').textContent = data.errors.username[0];
+                        }
+                        if (data.errors.email) {
+                            document.getElementById('emailError').textContent = data.errors.email[0];
+                        }
+                        if (data.errors.password) {
+                            document.getElementById('passwordError').textContent = data.errors.password[0];
+                        }
+                    } else {
+                        showToast('Signup failed: ' + (data.error || 'Please try again'), 'error');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                showToast('Signup failed. Please try again.', 'error');
+            });
+        });
+        
+        // Business signup form handler
+        document.getElementById('businessSignupForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+    
+            const password = document.getElementById('businessPassword').value;
+            const confirmPassword = document.getElementById('businessConfirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                showToast('Passwords do not match', 'error');
+                return;
+            }
+    
+            submitBtn.innerHTML = '<span class="loading-spinner"></span> Creating business account...';
+            submitBtn.disabled = true;
+    
+            fetch('/api/business-signup/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const businessModal = document.getElementById('businessSignupModal');
+                    if (businessModal) {
+                        const bsModal = bootstrap.Modal.getInstance(businessModal);
+                        if (bsModal) bsModal.hide();
+                    }
+                    
+                    showToast('Business account created successfully! Please login.', 'success');
+                    
+                    setTimeout(() => {
+                        showLogin();
+                    }, 2000);
+                } else {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    showToast('Business signup failed: ' + (data.error || 'Please try again'), 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                showToast('Business signup failed. Please try again.', 'error');
+            });
+        });
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up event listeners for Enter key in comment inputs
+            document.addEventListener('keypress', function(event) {
+                if (event.target.classList.contains('comment-input') && event.key === 'Enter') {
+                    const postId = event.target.id.split('-')[2];
+                    addComment(postId);
+                }
+            });
+            
+            // Close post modal when clicking outside
+            document.getElementById('postModal').addEventListener('click', function(event) {
+                if (event.target === this) {
+                    hidePostModal();
+                }
+            });
+            
+            // Close dropdowns when clicking escape key
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeAllDropdowns();
+                }
+            });
+            
+            // Load initial content
+            switchTab('jobs');
+            
+            {% if user.is_authenticated and user.user_type == 'admin' %}
+            // Load business stats for admin users
+            loadBusinessStats();
+            
+            // Auto-refresh business stats every 30 seconds
+            setInterval(loadBusinessStats, 30000);
+            {% endif %}
+            
+            // Mobile bottom nav active state
+            document.querySelectorAll('.mobile-bottom-nav a').forEach(link => {
+                link.addEventListener('click', function() {
+                    document.querySelectorAll('.mobile-bottom-nav a').forEach(a => a.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
+
+        // Add to your existing JavaScript, after DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Detect iPad
+            function isiPad() {
+                return navigator.userAgent.match(/iPad/i) || 
+                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            }
+            
+            if (isiPad()) {
+                // Add iPad-specific classes
+                document.body.classList.add('ipad-device');
+                
+                // Prevent hover effects from sticking on iPad
+                document.addEventListener('touchstart', function() {}, {passive: true});
+                
+                // Close dropdowns when tapping outside (better for iPad)
+                document.addEventListener('touchend', function(event) {
+                    if (!event.target.closest('.dropdown-open') && 
+                        !event.target.closest('.profile-dropdown') && 
+                        !event.target.closest('.three-dot-menu') && 
+                        !event.target.closest('.share-button-container')) {
+                        closeAllDropdowns();
+                    }
+                }, {passive: true});
+                
+                // Improve touch scrolling
+                const containers = document.querySelectorAll('.post-modal-body, .modal-body, .main-container');
+                containers.forEach(container => {
+                    container.style.WebkitOverflowScrolling = 'touch';
+                });
+            }
+            
+            // Handle orientation changes
+            let resizeTimer;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(function() {
+                    // Reload content on orientation change
+                    if (Math.abs(window.orientation) === 90) {
+                        // Landscape
+                        switchTab(currentTab);
+                    } else {
+                        // Portrait
+                        switchTab(currentTab);
+                    }
+                }, 250);
+            });
+        });
+    </script>
+
+</body>
+</html>

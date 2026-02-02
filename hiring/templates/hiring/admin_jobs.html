@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal - Job Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Top Navbar */
+        .header-area {
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 999;
+        }
+        .main-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+        }
+        .logo img {
+            max-height: 40px;
+        }
+
+        /* Desktop Sidebar */
+        .desktop-sidebar {
+            width: 250px;
+            background: white;
+            height: calc(100vh - 80px);
+            position: fixed;
+            top: 80px;
+            left: 0;
+            padding: 20px;
+            border-right: 1px solid #eee;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+            overflow-y: auto;
+        }
+
+        .desktop-sidebar a {
+            display: block;
+            padding: 12px 10px;
+            color: #333;
+            text-decoration: none;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .desktop-sidebar a:hover,
+        .desktop-sidebar a.active {
+            background-color: rgba(255, 88, 158, 0.1);
+            color: #ff589e;
+        }
+
+        /* Hide sidebar on mobile */
+        @media (max-width: 991px) {
+            .desktop-sidebar {
+                display: none;
+            }
+        }
+
+        /* Push page content right on desktop */
+        @media (min-width: 992px) {
+            .admin-content {
+                margin-left: 270px;
+            }
+        }
+
+        /* Mobile Bottom Navbar */
+        .mobile-bottom-nav {
+            display: none;
+        }
+
+        @media (max-width: 991px) {
+            .mobile-bottom-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 65px;
+                background: white;
+                border-top: 1px solid #ddd;
+                justify-content: space-around;
+                align-items: center;
+                z-index: 9999;
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+            .mobile-bottom-nav a {
+                text-align: center;
+                color: #333;
+                font-size: 14px;
+                text-decoration: none;
+                flex: 1;
+                padding: 10px 5px;
+            }
+            .mobile-bottom-nav i {
+                font-size: 20px;
+                display: block;
+                margin-bottom: 3px;
+            }
+            .mobile-bottom-nav a.active {
+                color: #ff589e;
+            }
+        }
+
+        /* Body padding adjustments */
+        body {
+            padding-top: 80px;
+            background-color: #f8f9fa;
+            padding-bottom: 80px;
+        }
+
+        /* Top Right Navigation */
+        .nav-icons {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-icons a {
+            font-size: 20px;
+            color: #555;
+            transition: 0.2s;
+            text-decoration: none;
+        }
+
+        .nav-icons a:hover {
+            color: #ff589e;
+            transform: translateY(-2px);
+        }
+
+        /* Profile Dropdown */
+        .profile-dropdown {
+            position: relative;
+        }
+
+        .profile-avatar-small {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #ff589e 0%, #ff136f 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .profile-menu {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            width: 220px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            padding: 10px 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.25s ease;
+            z-index: 1000;
+        }
+
+        .profile-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0px);
+        }
+
+        .profile-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            color: #444;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .profile-menu a:hover {
+            background: #f5f7fa;
+            color: #ff589e;
+        }
+
+        .profile-divider {
+            height: 1px;
+            background: #eee;
+            margin: 8px 0;
+        }
+
+        /* Three Dot Menu Styles */
+        .three-dot-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .three-dot-menu i {
+            font-size: 20px;
+            color: #555;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .three-dot-menu i:hover {
+            background-color: rgba(255, 88, 158, 0.1);
+            color: #ff589e;
+        }
+
+        .three-dot-menu .menu-content {
+            position: absolute;
+            top: 45px;
+            right: 0;
+            width: 200px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            padding: 10px 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.25s ease;
+            z-index: 1000;
+        }
+
+        .three-dot-menu .menu-content.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0px);
+        }
+
+        .three-dot-menu .menu-content a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            color: #444;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .three-dot-menu .menu-content a:hover {
+            background: rgba(255, 88, 158, 0.1);
+            color: #ff589e;
+        }
+
+        .three-dot-menu .menu-content a.active {
+            background: rgba(255, 88, 158, 0.1);
+            color: #ff589e;
+            font-weight: 500;
+        }
+
+        .three-dot-menu .menu-content a i {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Admin-specific styles */
+        .stats-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .stats-card:hover {
+            transform: translateY(-2px);
+        }
+        .btn-admin-primary {
+            background: linear-gradient(135deg, #ff589e 0%, #ff136f 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 10px 20px;
+        }
+        .btn-admin-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 88, 158, 0.3);
+            color: white;
+        }
+        .job-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .job-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+        
+        /* Job Form Styles */
+        .form-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eaeaea;
+        }
+        .form-section h5 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .form-section h5 i {
+            color: #ff589e;
+        }
+        .form-label.required:after {
+            content: " *";
+            color: #dc3545;
+        }
+        
+        /* Modal adjustments for job form */
+        .modal-xl {
+            max-width: 1200px;
+        }
+        .modal-lg {
+            max-width: 900px;
+        }
+        
+        /* Form tabs */
+        .form-tabs {
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+        .form-tabs .nav-link {
+            border: none;
+            color: #6c757d;
+            font-weight: 500;
+            padding: 12px 20px;
+        }
+        .form-tabs .nav-link.active {
+            color: #ff589e;
+            border-bottom: 3px solid #ff589e;
+            background: transparent;
+        }
+        .tab-pane {
+            padding: 20px 0;
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    {% load api_utils %}
+    {% api_js_functions %}
+    <!-- Top Navigation -->
+    <header class="header-area">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <nav class="main-nav">
+                        <a href="/" class="logo">
+                            <img src="/static/images/logo.png" alt="JobPortal" style="max-height: 40px;">
+                        </a>
+
+                        <!-- Top Right Icons -->
+                        <ul class="nav-icons">
+                            <li>
+                                <a href="/" title="Home">
+                                    <i class="fas fa-home"></i>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="/#job-listings" title="Browse Jobs">
+                                    <i class="fas fa-search"></i>
+                                </a>
+                            </li>
+
+                            {% if user.is_authenticated %}
+                            <li>
+                                <a href="/dashboard" title="Dashboard">
+                                    <i class="fas fa-th-large"></i>
+                                </a>
+                            </li>
+
+                            <!-- Profile Dropdown Icon -->
+                            <li class="profile-dropdown">
+                                <div class="profile-avatar-small" onclick="toggleProfileDropdown()">
+                                    {{ user.username|first|upper }}
+                                </div>
+
+                                <div class="profile-menu" id="profileMenu">
+                                    <a href="/profile/"><i class="fas fa-user"></i> Profile</a>
+                                    <a href="/applications/"><i class="fas fa-file-alt"></i> Applications</a>
+                                    <div class="profile-divider"></div>
+
+                                    <a href="/api/alerts/"><i class="fas fa-bell"></i> Alerts</a>
+                                    <a href="/preferences/"><i class="fas fa-cog"></i> Preferences</a>
+
+                                    <div class="profile-divider"></div>
+
+                                    <a href="/logout/"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                                </div>
+                            </li>
+                            <li>
+                              <a href="/messaging/">
+                                <i class="fas fa-comment-dots"></i>
+                              </a>
+                            </li>  
+                            <li>
+                                <div class="three-dot-menu">
+                                    <i class="fas fa-ellipsis-v" onclick="toggleThreeDotMenu()"></i>
+                                    <div class="menu-content" id="threeDotMenu">
+                                        <a href="/profile/skills/"><i class="fas fa-cogs"></i> Skills</a>
+                                        <a href="/profile/employment/"><i class="fas fa-briefcase"></i> Employment</a>
+                                        <a href="/profile/education/"><i class="fas fa-graduation-cap"></i> Education</a>
+                                        <a href="/profile/documents/"><i class="fas fa-file-upload"></i> Documents</a>
+                                    </div>
+                                </div>
+                            </li>
+
+                            {% else %}
+                            <li>
+                                <a href="#" onclick="showLogin()" title="Login">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="#" onclick="showSignup()" title="Sign Up">
+                                    <i class="fas fa-user-plus"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- Desktop Sidebar -->
+    <div class="desktop-sidebar">
+        <a href="/admin-portal/"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="/admin-portal/jobs/" class="active"><i class="fas fa-briefcase"></i> Jobs Management</a>
+        <a href="/admin-portal/applications/"><i class="fas fa-file-alt"></i> Applications</a>
+        <a href="/admin-portal/users/"><i class="fas fa-users"></i> Users</a>
+        <a href="/admin-portal/analytics/"><i class="fas fa-chart-bar"></i> Analytics</a>
+        <a href="/admin-portal/export/"><i class="fas fa-download"></i> Export Data</a>
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+            <a href="/admin/" target="_blank"><i class="fas fa-cog"></i> System Admin</a>
+            <a href="/"><i class="fas fa-home"></i> Back to Site</a>
+            <a href="/logout/"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="admin-content">
+        <div class="container mt-4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h1><i class="fas fa-briefcase me-2 text-primary"></i>Jobs Management</h1>
+                        <button class="btn btn-admin-primary" onclick="showCreateJobModal()">
+                            <i class="fas fa-plus me-2"></i>Create New Job
+                        </button>
+                    </div>
+                    
+                    <!-- Stats Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card stats-card bg-primary text-white">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-grow-1">
+                                            <h5 class="card-title">Total Jobs</h5>
+                                            <h2 id="total-jobs">0</h2>
+                                        </div>
+                                        <i class="fas fa-briefcase fa-2x opacity-50"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stats-card bg-success text-white">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-grow-1">
+                                            <h5 class="card-title">Published</h5>
+                                            <h2 id="published-jobs">0</h2>
+                                        </div>
+                                        <i class="fas fa-eye fa-2x opacity-50"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stats-card bg-warning text-dark">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-grow-1">
+                                            <h5 class="card-title">Draft</h5>
+                                            <h2 id="draft-jobs">0</h2>
+                                        </div>
+                                        <i class="fas fa-edit fa-2x opacity-50"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stats-card bg-secondary text-white">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-grow-1">
+                                            <h5 class="card-title">Closed</h5>
+                                            <h2 id="archived-jobs">0</h2>
+                                        </div>
+                                        <i class="fas fa-archive fa-2x opacity-50"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Status Filter</label>
+                                    <select id="status-filter" class="form-select" onchange="loadJobs()">
+                                        <option value="all">All Statuses</option>
+                                        <option value="published">Published</option>
+                                        <option value="draft">Draft</option>
+                                        <option value="closed">Closed</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Search Jobs</label>
+                                    <input type="text" id="search-jobs" class="form-control" placeholder="Search by title, company, location..." onkeyup="searchJobs()">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">&nbsp;</label>
+                                    <button class="btn btn-outline-secondary w-100" onclick="loadJobs()">
+                                        <i class="fas fa-refresh me-2"></i>Refresh
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Jobs Table -->
+                    <div class="card">
+                        <div class="card-header bg-transparent">
+                            <h5 class="mb-0"><i class="fas fa-list me-2"></i>Job Listings</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Title</th>
+                                            <th>Reference</th>
+                                            <th>Company</th>
+                                            <th>Location</th>
+                                            <th>Status</th>
+                                            <th>Applications</th>
+                                            <th>Apply By</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="jobs-table-body">
+                                        <tr>
+                                            <td colspan="8" class="text-center py-4">
+                                                <div class="spinner-border" role="status">
+                                                    <span class="visually-hidden">Loading jobs...</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Navbar -->
+    <div class="mobile-bottom-nav">
+        <a href="/admin-portal/"><i class="fas fa-tachometer-alt"></i>Home</a>
+        <a href="/admin-portal/jobs/" class="active"><i class="fas fa-briefcase"></i>Jobs</a>
+        <a href="/admin-portal/applications/"><i class="fas fa-file-alt"></i>Apps</a>
+        <a href="/admin-portal/users/"><i class="fas fa-users"></i>Users</a>
+    </div>
+
+    <!-- Create/Edit Job Modal -->
+    <div class="modal fade" id="jobModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="jobModalTitle">Create New Job</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="jobForm">
+                        <div id="jobFormContent">
+                            <!-- Form will be loaded here -->
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveJobButton" onclick="saveJob()">
+                        <i class="fas fa-save me-2"></i>Save Job
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentEditingJobId = null;
+        let isSaving = false;
+
+        // Navigation functions
+        function toggleProfileDropdown() {
+            document.getElementById("profileMenu").classList.toggle("show");
+        }
+
+        function toggleThreeDotMenu() {
+            document.getElementById("threeDotMenu").classList.toggle("show");
+        }
+
+        // Close dropdowns on click outside
+        document.addEventListener("click", function(e) {
+            const profileMenu = document.getElementById("profileMenu");
+            const profileAvatar = document.querySelector(".profile-avatar-small");
+            const threeDotMenu = document.getElementById("threeDotMenu");
+            const threeDotIcon = document.querySelector(".three-dot-menu i");
+
+            // Close profile dropdown
+            if (profileAvatar && profileMenu && !profileAvatar.contains(e.target) && !profileMenu.contains(e.target)) {
+                profileMenu.classList.remove("show");
+            }
+
+            // Close three-dot menu
+            if (threeDotIcon && threeDotMenu && !threeDotIcon.contains(e.target) && !threeDotMenu.contains(e.target)) {
+                threeDotMenu.classList.remove("show");
+            }
+        });
+
+        // Load jobs when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadJobs();
+        });
+
+        function loadJobs() {
+            const statusFilter = document.getElementById('status-filter').value;
+            let url = '/api/admin/jobs/';
+            if (statusFilter !== 'all') {
+                url += `?status=${statusFilter}`;
+            }
+
+            // Show loading state
+            const tbody = document.getElementById('jobs-table-body');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="text-center py-4">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading jobs...</span>
+                        </div>
+                    </td>
+                </tr>
+            `;
+
+            fetch(url, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    updateJobsTable(data.jobs);
+                    updateStats(data.counts);
+                } else {
+                    throw new Error(data.message || 'Failed to load jobs');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading jobs:', error);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center py-4 text-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Error loading jobs. Please try again.
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function updateJobsTable(jobs) {
+            const tbody = document.getElementById('jobs-table-body');
+            
+            if (!jobs || jobs.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center py-4 text-muted">
+                            <i class="fas fa-inbox fa-2x mb-3"></i>
+                            <p>No jobs found</p>
+                            <button class="btn btn-primary" onclick="showCreateJobModal()">
+                                <i class="fas fa-plus me-2"></i>Create Your First Job
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = jobs.map(job => `
+                <tr>
+                    <td><strong>${escapeHtml(job.title)}</strong></td>
+                    <td><code>${escapeHtml(job.listing_reference)}</code></td>
+                    <td>${escapeHtml(job.company_name)}</td>
+                    <td>${escapeHtml(job.location)}</td>
+                    <td>
+                        <span class="badge status-badge bg-${getStatusBadgeColor(job.status)} dropdown-toggle" 
+                              role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                              style="cursor: pointer;">
+                            ${job.status}
+                        </span>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="updateJobStatus('${job.id}', 'draft')">Set as Draft</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="updateJobStatus('${job.id}', 'published')">Publish</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="updateJobStatus('${job.id}', 'closed')">Close</a></li>
+                        </ul>
+                    </td>
+                    <td>
+                        <span class="badge bg-${job.applications_count > 0 ? 'info' : 'secondary'}">
+                            ${job.applications_count || 0}
+                        </span>
+                    </td>
+                    <td>${job.apply_by ? new Date(job.apply_by).toLocaleDateString() : 'N/A'}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="editJob('${job.id}')" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-outline-info" onclick="viewApplications('${job.id}')" title="View Applications">
+                                <i class="fas fa-users"></i>
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="deleteJob('${job.id}')" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getStatusBadgeColor(status) {
+            const colors = {
+                'published': 'success',
+                'draft': 'warning',
+                'closed': 'secondary',
+                'under_review': 'info'
+            };
+            return colors[status] || 'secondary';
+        }
+
+        function updateStats(counts) {
+            document.getElementById('total-jobs').textContent = counts.total || 0;
+            document.getElementById('published-jobs').textContent = counts.published || 0;
+            document.getElementById('draft-jobs').textContent = counts.draft || 0;
+            document.getElementById('archived-jobs').textContent = counts.archived || 0;
+        }
+
+        function showCreateJobModal() {
+            document.getElementById('jobModalTitle').textContent = 'Create New Job';
+            
+            // Create form with all fields organized in tabs
+            document.getElementById('jobFormContent').innerHTML = `
+                <ul class="nav nav-tabs form-tabs" id="jobFormTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" type="button" role="tab">
+                            <i class="fas fa-info-circle me-1"></i>Basic Info
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button" role="tab">
+                            <i class="fas fa-briefcase me-1"></i>Job Details
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="requirements-tab" data-bs-toggle="tab" data-bs-target="#requirements" type="button" role="tab">
+                            <i class="fas fa-list-check me-1"></i>Requirements
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="company-tab" data-bs-toggle="tab" data-bs-target="#company" type="button" role="tab">
+                            <i class="fas fa-building me-1"></i>Company Info
+                        </button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="jobFormTabsContent">
+                    <!-- Basic Information Tab -->
+                    <div class="tab-pane fade show active" id="basic" role="tabpanel">
+                        <div class="form-section">
+                            <h5><i class="fas fa-info-circle me-2"></i>Basic Information</h5>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="mb-3">
+                                        <label class="form-label required">Job Title</label>
+                                        <input type="text" class="form-control" name="title" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Status</label>
+                                        <select class="form-select" name="status">
+                                            <option value="draft">Draft</option>
+                                            <option value="under_review">Under Review</option>
+                                            <option value="published">Published</option>
+                                            <option value="closed">Closed</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Company Name</label>
+                                        <input type="text" class="form-control" name="company_name" value="Benta Group">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label required">Location</label>
+                                        <input type="text" class="form-control" name="location" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Industry</label>
+                                        <input type="text" class="form-control" name="industry">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Job Category</label>
+                                        <input type="text" class="form-control" name="job_category">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Contract Type</label>
+                                        <input type="text" class="form-control" name="contract_type">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label required">Apply By Date</label>
+                                        <input type="date" class="form-control" name="apply_by" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="ee_position" id="ee_position" checked>
+                                    <label class="form-check-label" for="ee_position">
+                                        EE Position (Employment Equity)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Job Details Tab -->
+                    <div class="tab-pane fade" id="details" role="tabpanel">
+                        <div class="form-section">
+                            <h5><i class="fas fa-briefcase me-2"></i>Job Details</h5>
+                            <div class="mb-3">
+                                <label class="form-label required">Position Summary</label>
+                                <textarea class="form-control" name="position_summary" rows="3" required></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label required">Job Description</label>
+                                <textarea class="form-control" name="job_description" rows="5" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Requirements Tab -->
+                    <div class="tab-pane fade" id="requirements" role="tabpanel">
+                        <div class="form-section">
+                            <h5><i class="fas fa-list-check me-2"></i>Requirements & Qualifications</h5>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Knowledge Requirements</label>
+                                <textarea class="form-control" name="knowledge_requirements" rows="3"></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Skills Requirements</label>
+                                <textarea class="form-control" name="skills_requirements" rows="3"></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Competencies Requirements</label>
+                                <textarea class="form-control" name="competencies_requirements" rows="3"></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Experience Requirements</label>
+                                <textarea class="form-control" name="experience_requirements" rows="3"></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Education Requirements</label>
+                                <textarea class="form-control" name="education_requirements" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Company Information Tab -->
+                    <div class="tab-pane fade" id="company" role="tabpanel">
+                        <div class="form-section">
+                            <h5><i class="fas fa-building me-2"></i>Company Information</h5>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Company Description</label>
+                                <textarea class="form-control" name="company_description" rows="4"></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Company Logo</label>
+                                <input type="file" class="form-control" name="company_logo" accept=".jpg,.jpeg,.png,.svg,.webp">
+                                <small class="form-text text-muted">Accepted formats: JPG, JPEG, PNG, SVG, WEBP</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Reset editing state
+            currentEditingJobId = null;
+            
+            // Update save button text
+            document.getElementById('saveJobButton').innerHTML = '<i class="fas fa-save me-2"></i>Save Job';
+            
+            // Initialize tabs
+            const tabElements = [].slice.call(document.querySelectorAll('#jobFormTabs button'));
+            const tabList = tabElements.map(function (tabEl) {
+                return new bootstrap.Tab(tabEl);
+            });
+            
+            const modal = new bootstrap.Modal(document.getElementById('jobModal'));
+            modal.show();
+        }
+
+        function searchJobs() {
+            const searchTerm = document.getElementById('search-jobs').value.toLowerCase();
+            const rows = document.querySelectorAll('#jobs-table-body tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        function editJob(jobId) {
+            fetch(`/api/admin/jobs/${jobId}/`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    showEditJobModal(data.job);
+                } else {
+                    throw new Error(data.error || 'Failed to load job');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading job:', error);
+                showMessage('Error loading job details: ' + error.message, 'error');
+            });
+        }
+
+        function showEditJobModal(job) {
+            document.getElementById('jobModalTitle').textContent = 'Edit Job: ' + escapeHtml(job.title);
+            
+            // Create form with all fields organized in tabs
+            document.getElementById('jobFormContent').innerHTML = `
+                <input type="hidden" name="id" value="${job.id}">
+                <ul class="nav nav-tabs form-tabs" id="jobFormTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" type="button" role="tab">
+                            <i class="fas fa-info-circle me-1"></i>Basic Info
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button" role="tab">
+                            <i class="fas fa-briefcase me-1"></i>Job Details
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="requirements-tab" data-bs-toggle="tab" data-bs-target="#requirements" type="button" role="tab">
+                            <i class="fas fa-list-check me-1"></i>Requirements
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="company-tab" data-bs-toggle="tab" data-bs-target="#company" type="button" role="tab">
+                            <i class="fas fa-building me-1"></i>Company Info
+                        </button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="jobFormTabsContent">
+                    <!-- Basic Information Tab -->
+                    <div class="tab-pane fade show active" id="basic" role="tabpanel">
+                        <div class="form-section">
+                            <h5><i class="fas fa-info-circle me-2"></i>Basic Information</h5>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="mb-3">
+                                        <label class="form-label required">Job Title</label>
+                                        <input type="text" class="form-control" name="title" value="${escapeHtml(job.title)}" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Status</label>
+                                        <select class="form-select" name="status">
+                                            <option value="draft" ${job.status === 'draft' ? 'selected' : ''}>Draft</option>
+                                            <option value="under_review" ${job.status === 'under_review' ? 'selected' : ''}>Under Review</option>
+                                            <option value="published" ${job.status === 'published' ? 'selected' : ''}>Published</option>
+                                            <option value="closed" ${job.status === 'closed' ? 'selected' : ''}>Closed</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Company Name</label>
+                                        <input type="text" class="form-control" name="company_name" value="${escapeHtml(job.company_name)}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label required">Location</label>
+                                        <input type="text" class="form-control" name="location" value="${escapeHtml(job.location)}" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Industry</label>
+                                        <input type="text" class="form-control" name="industry" value="${escapeHtml(job.industry || '')}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Job Category</label>
+                                        <input type="text" class="form-control" name="job_category" value="${escapeHtml(job.job_category || '')}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Contract Type</label>
+                                        <input type="text" class="form-control" name="contract_type" value="${escapeHtml(job.contract_type || '')}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label required">Apply By Date</label>
+                                        <input type="date" class="form-control" name="apply_by" value="${job.apply_by}" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="ee_position" id="ee_position" ${job.ee_position ? 'checked' : ''}>
+                                    <label class="form-check-label" for="ee_position">
+                                        EE Position (Employment Equity)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Job Details Tab -->
+                    <div class="tab-pane fade" id="details" role="tabpanel">
+                        <div class="form-section">
+                            <h5><i class="fas fa-briefcase me-2"></i>Job Details</h5>
+                            <div class="mb-3">
+                                <label class="form-label required">Position Summary</label>
+                                <textarea class="form-control" name="position_summary" rows="3" required>${escapeHtml(job.position_summary)}</textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label required">Job Description</label>
+                                <textarea class="form-control" name="job_description" rows="5" required>${escapeHtml(job.job_description)}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Requirements Tab -->
+                    <div class="tab-pane fade" id="requirements" role="tabpanel">
+                        <div class="form-section">
+                            <h5><i class="fas fa-list-check me-2"></i>Requirements & Qualifications</h5>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Knowledge Requirements</label>
+                                <textarea class="form-control" name="knowledge_requirements" rows="3">${escapeHtml(job.knowledge_requirements || '')}</textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Skills Requirements</label>
+                                <textarea class="form-control" name="skills_requirements" rows="3">${escapeHtml(job.skills_requirements || '')}</textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Competencies Requirements</label>
+                                <textarea class="form-control" name="competencies_requirements" rows="3">${escapeHtml(job.competencies_requirements || '')}</textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Experience Requirements</label>
+                                <textarea class="form-control" name="experience_requirements" rows="3">${escapeHtml(job.experience_requirements || '')}</textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Education Requirements</label>
+                                <textarea class="form-control" name="education_requirements" rows="3">${escapeHtml(job.education_requirements || '')}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Company Information Tab -->
+                    <div class="tab-pane fade" id="company" role="tabpanel">
+                        <div class="form-section">
+                            <h5><i class="fas fa-building me-2"></i>Company Information</h5>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Company Description</label>
+                                <textarea class="form-control" name="company_description" rows="4">${escapeHtml(job.company_description || '')}</textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Company Logo</label>
+                                <input type="file" class="form-control" name="company_logo" accept=".jpg,.jpeg,.png,.svg,.webp">
+                                <small class="form-text text-muted">Accepted formats: JPG, JPEG, PNG, SVG, WEBP</small>
+                                ${job.company_logo ? `<div class="mt-2">
+                                    <small>Current logo: ${job.company_logo.split('/').pop()}</small>
+                                </div>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            currentEditingJobId = job.id;
+            
+            // Update save button text
+            document.getElementById('saveJobButton').innerHTML = '<i class="fas fa-save me-2"></i>Update Job';
+            
+            // Initialize tabs
+            const tabElements = [].slice.call(document.querySelectorAll('#jobFormTabs button'));
+            const tabList = tabElements.map(function (tabEl) {
+                return new bootstrap.Tab(tabEl);
+            });
+            
+            const modal = new bootstrap.Modal(document.getElementById('jobModal'));
+            modal.show();
+        }
+
+        function saveJob() {
+            if (isSaving) return; // Prevent multiple clicks
+            
+            const formData = new FormData(document.getElementById('jobForm'));
+            const data = Object.fromEntries(formData.entries());
+            
+            // Prepare job data with all required fields
+            const jobData = {
+                'title': data.title || '',
+                'company_name': data.company_name || 'Benta Group',
+                'location': data.location || '',
+                'position_summary': data.position_summary || '',
+                'job_description': data.job_description || '',
+                'status': data.status || 'draft',
+                'apply_by': data.apply_by || '',
+                
+                // All additional fields from your model
+                'industry': data.industry || '',
+                'job_category': data.job_category || '',
+                'contract_type': data.contract_type || '',
+                'ee_position': data.ee_position === 'on',
+                'company_description': data.company_description || '',
+                'knowledge_requirements': data.knowledge_requirements || '',
+                'skills_requirements': data.skills_requirements || '',
+                'competencies_requirements': data.competencies_requirements || '',
+                'experience_requirements': data.experience_requirements || '',
+                'education_requirements': data.education_requirements || '',
+                
+                // Generate reference if not provided
+                'listing_reference': data.listing_reference || `JOB-${Date.now()}`
+            };
+
+            // Basic validation
+            const requiredFields = ['title', 'location', 'position_summary', 'job_description', 'apply_by'];
+            const missingFields = requiredFields.filter(field => !jobData[field] || jobData[field].trim() === '');
+            
+            if (missingFields.length > 0) {
+                showMessage('Please fill in all required fields: ' + missingFields.join(', '), 'error');
+                return;
+            }
+
+            const url = currentEditingJobId ? `/api/admin/jobs/${currentEditingJobId}/` : '/api/admin/jobs/';
+            const method = currentEditingJobId ? 'PUT' : 'POST';
+
+            console.log('Sending job data to:', url, jobData);
+
+            // Show loading state
+            isSaving = true;
+            const saveButton = document.getElementById('saveJobButton');
+            const originalText = saveButton.innerHTML;
+            saveButton.innerHTML = '<div class="loading-spinner me-2"></div>Saving...';
+            saveButton.disabled = true;
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify(jobData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                isSaving = false;
+                saveButton.innerHTML = originalText;
+                saveButton.disabled = false;
+
+                if (data.success) {
+                    showMessage(currentEditingJobId ? 'Job updated successfully!' : 'Job created successfully!', 'success');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('jobModal'));
+                    modal.hide();
+                    loadJobs();
+                } else {
+                    showMessage('Error saving job: ' + (data.error || JSON.stringify(data.errors) || 'Unknown error'), 'error');
+                }
+            })
+            .catch(error => {
+                isSaving = false;
+                saveButton.innerHTML = originalText;
+                saveButton.disabled = false;
+                console.error('Error saving job:', error);
+                showMessage('Error saving job: ' + error.message, 'error');
+            });
+        }
+
+        function updateJobStatus(jobId, newStatus) {
+            fetch(`/api/admin/jobs/${jobId}/status/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify({ status: newStatus })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage(`Job status updated to ${newStatus}`, 'success');
+                    loadJobs();
+                } else {
+                    showMessage('Error updating status: ' + (data.error || 'Unknown error'), 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating status:', error);
+                showMessage('Error updating job status', 'error');
+            });
+        }
+
+        function viewApplications(jobId) {
+            window.location.href = `/admin-portal/applications/?job=${jobId}`;
+        }
+
+        function deleteJob(jobId) {
+            if (confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
+                fetch(`/api/admin/jobs/${jobId}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCSRFToken()
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage('Job deleted successfully', 'success');
+                        loadJobs();
+                    } else {
+                        showMessage('Error deleting job: ' + (data.error || 'Unknown error'), 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting job:', error);
+                    showMessage('Error deleting job', 'error');
+                });
+            }
+        }
+
+        function showMessage(message, type) {
+            // Remove any existing alerts
+            const existingAlerts = document.querySelectorAll('.alert');
+            existingAlerts.forEach(alert => alert.remove());
+
+            // Create and show alert message
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
+            alertDiv.style.cssText = 'top: 100px; right: 20px; z-index: 1060; min-width: 300px;';
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(alertDiv);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.parentNode.removeChild(alertDiv);
+                }
+            }, 5000);
+        }
+
+        // Utility function for CSRF token
+        function getCSRFToken() {
+            const name = 'csrftoken';
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Utility function to escape HTML
+        function escapeHtml(unsafe) {
+            if (unsafe === null || unsafe === undefined) return '';
+            return unsafe
+                .toString()
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>

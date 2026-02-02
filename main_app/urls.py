@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path
+from django.views.generic import TemplateView
 from main_app.EditResultView import EditResultView
 from django.contrib.auth import views as auth_views
 from . import hod_views, staff_views, parent_views, member_views, educator_views, circuit_manager_views, student_views, principal_views, cwa_admin_views, views
@@ -50,6 +51,14 @@ sitemaps = {
 
 urlpatterns = [
     path('', views.index_view, name='index'),
+    #APPLICATION SITEMAP
+    # PWA URLs
+    # Manifest URL
+    # PWA URLs
+    path('manifest.json', views.manifest_view, name='manifest'),
+    path('serviceworker.js', views.service_worker_view, name='serviceworker'),
+    path('offline/', views.offline_view, name='offline'),
+    # End
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, 
          name='django.contrib.sitemaps.views.sitemap'),
     #icons

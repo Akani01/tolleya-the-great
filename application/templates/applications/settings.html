@@ -1,0 +1,934 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Automation Settings</h2>
+    
+    <div class="row">
+        <div class="col-md-3">
+            <!-- Settings Navigation -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>Settings</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="#general" class="list-group-item list-group-item-action active" data-bs-toggle="tab">
+                        <i class="fas fa-cog me-2"></i>General
+                    </a>
+                    <a href="#ai" class="list-group-item list-group-item-action" data-bs-toggle="tab">
+                        <i class="fas fa-robot me-2"></i>AI Configuration
+                    </a>
+                    <a href="#automation" class="list-group-item list-group-item-action" data-bs-toggle="tab">
+                        <i class="fas fa-magic me-2"></i>Automation
+                    </a>
+                    <a href="#appearance" class="list-group-item list-group-item-action" data-bs-toggle="tab">
+                        <i class="fas fa-palette me-2"></i>Appearance
+                    </a>
+                    <a href="#notifications" class="list-group-item list-group-item-action" data-bs-toggle="tab">
+                        <i class="fas fa-bell me-2"></i>Notifications
+                    </a>
+                    <a href="#advanced" class="list-group-item list-group-item-action" data-bs-toggle="tab">
+                        <i class="fas fa-code me-2"></i>Advanced
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5>Your Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <small>Total Applications</small>
+                        <h5>{{ automation_stats.total }}</h5>
+                    </div>
+                    <div class="mb-2">
+                        <small>Successful Automations</small>
+                        <h5>{{ automation_stats.automated }}</h5>
+                    </div>
+                    <div>
+                        <small>Failed Automations</small>
+                        <h5>{{ automation_stats.failed }}</h5>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-outline-primary btn-sm w-100 mb-2" onclick="exportSettings()">
+                        <i class="fas fa-download me-1"></i>Export Settings
+                    </button>
+                    <button class="btn btn-outline-warning btn-sm w-100 mb-2" onclick="resetSettings()">
+                        <i class="fas fa-undo me-1"></i>Reset to Defaults
+                    </button>
+                    <button class="btn btn-outline-success btn-sm w-100" onclick="saveAllSettings()">
+                        <i class="fas fa-save me-1"></i>Save All Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <!-- Settings Forms -->
+            <div class="tab-content">
+                <!-- General Settings -->
+                <div class="tab-pane fade show active" id="general">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>General Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="general-settings">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Default Browser</label>
+                                            <select name="default_browser" class="form-select">
+                                                {% for value, label in browser_options %}
+                                                <option value="{{ value }}" {% if settings.general.default_browser == value %}selected{% endif %}>
+                                                    {{ label }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Timeout (seconds)</label>
+                                            <input type="number" name="timeout" class="form-control" 
+                                                   value="{{ settings.general.timeout }}" min="10" max="300">
+                                            <small class="text-muted">Maximum time to wait for page loads</small>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Retry Attempts</label>
+                                            <input type="number" name="retry_attempts" class="form-control" 
+                                                   value="{{ settings.general.retry_attempts }}" min="0" max="10">
+                                            <small class="text-muted">Number of retries on failure</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Delay Between Steps (seconds)</label>
+                                            <input type="number" step="0.1" name="delay_between_steps" class="form-control" 
+                                                   value="{{ settings.general.delay_between_steps }}" min="0" max="10">
+                                            <small class="text-muted">Delay to simulate human interaction</small>
+                                        </div>
+                                        
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" name="auto_start" class="form-check-input" 
+                                                   id="auto_start" {% if settings.general.auto_start %}checked{% endif %}>
+                                            <label class="form-check-label" for="auto_start">
+                                                Auto-start automation when ready
+                                            </label>
+                                        </div>
+                                        
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" name="show_preview" class="form-check-input" 
+                                                   id="show_preview" {% if settings.general.show_preview %}checked{% endif %}>
+                                            <label class="form-check-label" for="show_preview">
+                                                Show preview before automation
+                                            </label>
+                                        </div>
+                                        
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" name="enable_sound" class="form-check-input" 
+                                                   id="enable_sound" {% if settings.general.enable_sound %}checked{% endif %}>
+                                            <label class="form-check-label" for="enable_sound">
+                                                Enable sound notifications
+                                            </label>
+                                        </div>
+                                        
+                                        <div class="form-check">
+                                            <input type="checkbox" name="notifications" class="form-check-input" 
+                                                   id="notifications" {% if settings.general.notifications %}checked{% endif %}>
+                                            <label class="form-check-label" for="notifications">
+                                                Enable notifications
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI Configuration -->
+                <div class="tab-pane fade" id="ai">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>AI Configuration</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="ai-settings">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Default AI Service</label>
+                                            <select name="default_service" class="form-select">
+                                                <option value="">Auto-select (Recommended)</option>
+                                                {% for service in ai_services %}
+                                                <option value="{{ service.id }}" {% if settings.ai.default_service == service.id|stringformat:"i" %}selected{% endif %}>
+                                                    {{ service.name }} ({{ service.provider }})
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Max Tokens per Request</label>
+                                            <input type="number" name="max_tokens_per_request" class="form-control" 
+                                                   value="{{ settings.ai.max_tokens_per_request }}" min="100" max="100000">
+                                            <small class="text-muted">Maximum tokens for AI responses</small>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Temperature</label>
+                                            <input type="number" step="0.01" name="temperature" class="form-control" 
+                                                   value="{{ settings.ai.temperature }}" min="0" max="2">
+                                            <small class="text-muted">Lower = more deterministic, Higher = more creative</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Cost Warning Threshold ($)</label>
+                                            <input type="number" step="0.01" name="cost_warning_threshold" class="form-control" 
+                                                   value="{{ settings.ai.cost_warning_threshold }}" min="0" max="1000">
+                                            <small class="text-muted">Warn when estimated cost exceeds this amount</small>
+                                        </div>
+                                        
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" name="auto_select_service" class="form-check-input" 
+                                                   id="auto_select_service" {% if settings.ai.auto_select_service %}checked{% endif %}>
+                                            <label class="form-check-label" for="auto_select_service">
+                                                Auto-select best AI service
+                                            </label>
+                                        </div>
+                                        
+                                        <div class="form-check">
+                                            <input type="checkbox" name="enable_fallback" class="form-check-input" 
+                                                   id="enable_fallback" {% if settings.ai.enable_fallback %}checked{% endif %}>
+                                            <label class="form-check-label" for="enable_fallback">
+                                                Enable fallback to alternative services
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                            
+                            <!-- AI Services Status -->
+                            <div class="mt-4">
+                                <h6>AI Services Status</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Service</th>
+                                                <th>Provider</th>
+                                                <th>Status</th>
+                                                <th>Requests</th>
+                                                <th>Last Used</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for service in ai_services %}
+                                            <tr>
+                                                <td>{{ service.name }}</td>
+                                                <td>{{ service.provider|title }}</td>
+                                                <td>
+                                                    <span class="badge {% if service.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                                        {% if service.is_active %}Active{% else %}Inactive{% endif %}
+                                                    </span>
+                                                </td>
+                                                <td>{{ service.total_requests }}</td>
+                                                <td>{{ service.last_used|date:"Y-m-d H:i"|default:"Never" }}</td>
+                                            </tr>
+                                            {% empty %}
+                                            <tr>
+                                                <td colspan="5" class="text-center">No AI services configured</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Automation Settings -->
+                <div class="tab-pane fade" id="automation">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Automation Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="automation-settings">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" name="capture_screenshots" class="form-check-input" 
+                                                   id="capture_screenshots" {% if settings.automation.capture_screenshots %}checked{% endif %}>
+                                            <label class="form-check-label" for="capture_screenshots">
+                                                Capture screenshots during automation
+                                            </label>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Screenshot Quality</label>
+                                            <select name="screenshot_quality" class="form-select">
+                                                {% for value, label in quality_options %}
+                                                <option value="{{ value }}" {% if settings.automation.screenshot_quality == value %}selected{% endif %}>
+                                                    {{ label }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" name="save_logs" class="form-check-input" 
+                                                   id="save_logs" {% if settings.automation.save_logs %}checked{% endif %}>
+                                            <label class="form-check-label" for="save_logs">
+                                                Save automation logs
+                                            </label>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Log Retention (days)</label>
+                                            <input type="number" name="log_retention_days" class="form-control" 
+                                                   value="{{ settings.automation.log_retention_days }}" min="1" max="365">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" name="auto_submit" class="form-check-input" 
+                                                   id="auto_submit" {% if settings.automation.auto_submit %}checked{% endif %}>
+                                            <label class="form-check-label" for="auto_submit">
+                                                Auto-submit after filling
+                                            </label>
+                                        </div>
+                                        
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" name="require_confirmation" class="form-check-input" 
+                                                   id="require_confirmation" {% if settings.automation.require_confirmation %}checked{% endif %}>
+                                            <label class="form-check-label" for="require_confirmation">
+                                                Require confirmation before submission
+                                            </label>
+                                        </div>
+                                        
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" name="validate_urls" class="form-check-input" 
+                                                   id="validate_urls" {% if settings.automation.validate_urls %}checked{% endif %}>
+                                            <label class="form-check-label" for="validate_urls">
+                                                Validate form URLs before automation
+                                            </label>
+                                        </div>
+                                        
+                                        <div class="form-check">
+                                            <input type="checkbox" name="test_connection" class="form-check-input" 
+                                                   id="test_connection" {% if settings.automation.test_connection %}checked{% endif %}>
+                                            <label class="form-check-label" for="test_connection">
+                                                Test AI connection before starting
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Appearance Settings -->
+                <div class="tab-pane fade" id="appearance">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Appearance Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="appearance-settings">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Theme</label>
+                                            <select name="theme" class="form-select">
+                                                {% for value, label in theme_options %}
+                                                <option value="{{ value }}" {% if settings.appearance.theme == value %}selected{% endif %}>
+                                                    {{ label }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Language</label>
+                                            <select name="language" class="form-select">
+                                                {% for value, label in language_options %}
+                                                <option value="{{ value }}" {% if settings.appearance.language == value %}selected{% endif %}>
+                                                    {{ label }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Time Format</label>
+                                            <select name="time_format" class="form-select">
+                                                {% for value, label in time_format_options %}
+                                                <option value="{{ value }}" {% if settings.appearance.time_format == value %}selected{% endif %}>
+                                                    {{ label }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Date Format</label>
+                                            <select name="date_format" class="form-select">
+                                                {% for value, label in date_format_options %}
+                                                <option value="{{ value }}" {% if settings.appearance.date_format == value %}selected{% endif %}>
+                                                    {{ label }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" name="compact_view" class="form-check-input" 
+                                                   id="compact_view" {% if settings.appearance.compact_view %}checked{% endif %}>
+                                            <label class="form-check-label" for="compact_view">
+                                                Use compact view
+                                            </label>
+                                        </div>
+                                        
+                                        <div class="form-check">
+                                            <input type="checkbox" name="show_tutorial" class="form-check-input" 
+                                                   id="show_tutorial" {% if settings.appearance.show_tutorial %}checked{% endif %}>
+                                            <label class="form-check-label" for="show_tutorial">
+                                                Show tutorial tips
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Notification Settings -->
+                <div class="tab-pane fade" id="notifications">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Notification Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="notification-settings">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>Email Notifications</h6>
+                                        <div class="form-check mb-2">
+                                            <input type="checkbox" name="email_completion" class="form-check-input" 
+                                                   id="email_completion" {% if settings.notifications.email_completion %}checked{% endif %}>
+                                            <label class="form-check-label" for="email_completion">
+                                                When automation completes
+                                            </label>
+                                        </div>
+                                        
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" name="email_errors" class="form-check-input" 
+                                                   id="email_errors" {% if settings.notifications.email_errors %}checked{% endif %}>
+                                            <label class="form-check-label" for="email_errors">
+                                                When automation fails
+                                            </label>
+                                        </div>
+                                        
+                                        <h6 class="mt-3">Browser Notifications</h6>
+                                        <div class="form-check mb-2">
+                                            <input type="checkbox" name="browser_completion" class="form-check-input" 
+                                                   id="browser_completion" {% if settings.notifications.browser_completion %}checked{% endif %}>
+                                            <label class="form-check-label" for="browser_completion">
+                                                When automation completes
+                                            </label>
+                                        </div>
+                                        
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" name="browser_errors" class="form-check-input" 
+                                                   id="browser_errors" {% if settings.notifications.browser_errors %}checked{% endif %}>
+                                            <label class="form-check-label" for="browser_errors">
+                                                When automation fails
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <h6>Sound Notifications</h6>
+                                        <div class="form-check mb-2">
+                                            <input type="checkbox" name="sound_completion" class="form-check-input" 
+                                                   id="sound_completion" {% if settings.notifications.sound_completion %}checked{% endif %}>
+                                            <label class="form-check-label" for="sound_completion">
+                                                When automation completes
+                                            </label>
+                                        </div>
+                                        
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" name="sound_errors" class="form-check-input" 
+                                                   id="sound_errors" {% if settings.notifications.sound_errors %}checked{% endif %}>
+                                            <label class="form-check-label" for="sound_errors">
+                                                When automation fails
+                                            </label>
+                                        </div>
+                                        
+                                        <h6 class="mt-3">Desktop Notifications</h6>
+                                        <div class="form-check mb-2">
+                                            <input type="checkbox" name="desktop_completion" class="form-check-input" 
+                                                   id="desktop_completion" {% if settings.notifications.desktop_completion %}checked{% endif %}>
+                                            <label class="form-check-label" for="desktop_completion">
+                                                When automation completes
+                                            </label>
+                                        </div>
+                                        
+                                        <div class="form-check">
+                                            <input type="checkbox" name="desktop_errors" class="form-check-input" 
+                                                   id="desktop_errors" {% if settings.notifications.desktop_errors %}checked{% endif %}>
+                                            <label class="form-check-label" for="desktop_errors">
+                                                When automation fails
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Advanced Settings -->
+                <div class="tab-pane fade" id="advanced">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Advanced Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="advanced-settings">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" name="debug_mode" class="form-check-input" 
+                                                   id="debug_mode" {% if settings.advanced.debug_mode %}checked{% endif %}>
+                                            <label class="form-check-label" for="debug_mode">
+                                                Enable debug mode
+                                            </label>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Log Level</label>
+                                            <select name="log_level" class="form-select">
+                                                {% for value, label in log_level_options %}
+                                                <option value="{{ value }}" {% if settings.advanced.log_level == value %}selected{% endif %}>
+                                                    {{ label }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">API Rate Limit (requests/min)</label>
+                                            <input type="number" name="api_rate_limit" class="form-control" 
+                                                   value="{{ settings.advanced.api_rate_limit }}" min="1" max="1000">
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Cache Duration (seconds)</label>
+                                            <input type="number" name="cache_duration" class="form-control" 
+                                                   value="{{ settings.advanced.cache_duration }}" min="0" max="3600">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" name="enable_webhook" class="form-check-input" 
+                                                   id="enable_webhook" {% if settings.advanced.enable_webhook %}checked{% endif %}>
+                                            <label class="form-check-label" for="enable_webhook">
+                                                Enable webhook notifications
+                                            </label>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Webhook URL</label>
+                                            <input type="url" name="webhook_url" class="form-control" 
+                                                   value="{{ settings.advanced.webhook_url }}">
+                                        </div>
+                                        
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" name="enable_backup" class="form-check-input" 
+                                                   id="enable_backup" {% if settings.advanced.enable_backup %}checked{% endif %}>
+                                            <label class="form-check-label" for="enable_backup">
+                                                Enable automatic backups
+                                            </label>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Backup Frequency</label>
+                                            <select name="backup_frequency" class="form-select">
+                                                {% for value, label in backup_frequency_options %}
+                                                <option value="{{ value }}" {% if settings.advanced.backup_frequency == value %}selected{% endif %}>
+                                                    {{ label }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Import/Export Section -->
+                                <div class="mt-4 border-top pt-3">
+                                    <h6>Import/Export Settings</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Import Settings</label>
+                                                <input type="file" id="importFile" class="form-control" accept=".json">
+                                                <small class="text-muted">Select a JSON settings file to import</small>
+                                            </div>
+                                            <button type="button" class="btn btn-outline-primary" onclick="importSettings()">
+                                                Import Settings
+                                            </button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Export Settings</label>
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" value="automation_settings.json" readonly>
+                                                    <button class="btn btn-outline-success" type="button" onclick="exportSettings()">
+                                                        Export
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Save Button -->
+            <div class="mt-3">
+                <button type="button" class="btn btn-primary" onclick="saveAllSettings()">
+                    <i class="fas fa-save me-1"></i>Save All Settings
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="resetSettings()">
+                    <i class="fas fa-undo me-1"></i>Reset to Defaults
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Save individual setting via AJAX
+function saveSetting(category, key, value) {
+    fetch('/api/save-settings/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            category: category,
+            key: key,
+            value: value
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Setting saved', 'success');
+        } else {
+            showToast('Error: ' + data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Network error', 'error');
+    });
+}
+
+// Save all settings
+function saveAllSettings() {
+    // Collect all form data
+    const forms = [
+        'general-settings',
+        'ai-settings',
+        'automation-settings',
+        'appearance-settings',
+        'notification-settings',
+        'advanced-settings'
+    ];
+    
+    const formData = new FormData();
+    
+    forms.forEach(formId => {
+        const form = document.getElementById(formId);
+        if (form) {
+            const data = new FormData(form);
+            for (let [key, value] of data.entries()) {
+                formData.append(key, value);
+            }
+        }
+    });
+    
+    // Submit via regular form (since we have complex data)
+    const tempForm = document.createElement('form');
+    tempForm.method = 'POST';
+    tempForm.action = window.location.href;
+    
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = getCookie('csrftoken');
+    tempForm.appendChild(csrfInput);
+    
+    for (let [key, value] of formData.entries()) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = value;
+        tempForm.appendChild(input);
+    }
+    
+    document.body.appendChild(tempForm);
+    tempForm.submit();
+}
+
+// Reset settings to defaults
+function resetSettings() {
+    if (confirm('Are you sure you want to reset all settings to defaults? This cannot be undone.')) {
+        fetch('/api/reset-settings/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Settings reset to defaults', 'success');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                showToast('Error: ' + data.error, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Network error', 'error');
+        });
+    }
+}
+
+// Export settings
+function exportSettings() {
+    fetch('/api/export-settings/')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Create download link
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `automation_settings_${data.user}_${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            
+            showToast('Settings exported successfully', 'success');
+        } else {
+            showToast('Error: ' + data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Network error', 'error');
+    });
+}
+
+// Import settings
+function importSettings() {
+    const fileInput = document.getElementById('importFile');
+    if (!fileInput.files.length) {
+        showToast('Please select a file to import', 'warning');
+        return;
+    }
+    
+    const file = fileInput.files[0];
+    const formData = new FormData();
+    formData.append('settings_file', file);
+    
+    fetch('/api/import-settings/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Settings imported successfully', 'success');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            showToast('Error: ' + data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Network error', 'error');
+    });
+}
+
+// Show toast notification
+function showToast(message, type = 'info') {
+    // Create toast container if it doesn't exist
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+        document.body.appendChild(toastContainer);
+    }
+    
+    // Create toast
+    const toastId = 'toast-' + Date.now();
+    const toast = document.createElement('div');
+    toast.id = toastId;
+    toast.className = `toast align-items-center text-bg-${type} border-0`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">
+                ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
+    // Show toast
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    
+    // Remove toast after it's hidden
+    toast.addEventListener('hidden.bs.toast', function () {
+        toast.remove();
+    });
+}
+
+// Auto-save on change for some inputs
+document.addEventListener('DOMContentLoaded', function() {
+    // Setup change listeners for instant saving of some settings
+    const instantSaveElements = document.querySelectorAll('[data-instant-save]');
+    instantSaveElements.forEach(element => {
+        element.addEventListener('change', function() {
+            const category = this.dataset.category;
+            const key = this.name;
+            const value = this.type === 'checkbox' ? this.checked : this.value;
+            
+            saveSetting(category, key, value);
+        });
+    });
+});
+</script>
+
+<style>
+.setting-group {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.setting-group:last-child {
+    border-bottom: none;
+}
+
+.stat-box {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.stat-box h6 {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+}
+
+.stat-box h3 {
+    font-weight: bold;
+    margin: 0;
+}
+
+/* Toast styles */
+.toast-container {
+    z-index: 9999;
+}
+
+/* Tab styling */
+.nav-tabs .nav-link {
+    border: none;
+    color: #495057;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #0d6efd;
+    color: white;
+    border-radius: 0.375rem;
+}
+
+/* Form styling */
+.form-check-label {
+    cursor: pointer;
+}
+
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+</style>
+{% endblock %}

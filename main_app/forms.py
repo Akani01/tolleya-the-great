@@ -6,6 +6,8 @@ from crispy_forms.layout import Layout, Div, Row, Column
 from college.models import CollegeAndUniversities
 from bursary.models import Bursary
 from .models import *
+import re
+
 
 class FormSettings(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -57,48 +59,223 @@ class CustomUserForm(FormSettings):
         model = CustomUser
         fields = ['first_name','last_name', 'email', 'gender',  'password','profile_pic', 'address' ]
 
-#student Form
+#student form
 class StudentForm(CustomUserForm):
     class Meta(CustomUserForm.Meta):
         model = Student
         fields = CustomUserForm.Meta.fields + ['school', 'grade', 'course']
+        widgets = {
+            'school': forms.Select(attrs={'class': 'form-control'}),
+            'grade': forms.Select(attrs={'class': 'form-control'}),
+            'course': forms.Select(attrs={'class': 'form-control'}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # Make school and grade required, but NOT course
+        # Instead of redefining the fields, just update their properties
+        # Make fields required
         self.fields['school'].required = True
         self.fields['grade'].required = True
-        self.fields['course'].required = False  # This is key!
-
-        # Hide course field initially for young grades
-        self.toggle_course_field_based_on_grade()
-
+        self.fields['course'].required = False  # Not required for R-9
+        
+        # Update querysets and empty labels
+        self.fields['school'].queryset = School.objects.all().order_by('name')
+        self.fields['school'].empty_label = "Select School"
+        
+        self.fields['grade'].queryset = Grade.objects.all().order_by('name')
+        self.fields['grade'].empty_label = "Select Grade"
+        
+        self.fields['course'].queryset = Course.objects.all().order_by('name')
+        self.fields['course'].empty_label = "Select Course (for Grade 10-12)"
+        
+        # Add help text
+        self.fields['grade'].help_text = "Select Grade R to Grade 12"
+        self.fields['course'].help_text = "Required only for Grades 10-12"
+        
+        # Handle Excel/import data - convert names to IDs
+        if 'grade' in self.data and self.data['grade']:
+            grade_input = self.data.get('grade')
+            if grade_input and not grade_input.isdigit():  # It's a name, not an ID
+                grade = self.find_grade(grade_input)
+                if grade:
+                    # Create mutable copy of data
+                    mutable_data = self.data.copy()
+                    mutable_data['grade'] = str(grade.id)
+                    self.data = mutable_data
+        
+        if 'school' in self.data and self.data['school']:
+            school_input = self.data.get('school')
+            if school_input and not school_input.isdigit():  # It's a name, not an ID
+                school = self.find_school(school_input)
+                if school:
+                    mutable_data = self.data.copy()
+                    mutable_data['school'] = str(school.id)
+                    self.data = mutable_data
+        
+        if 'course' in self.data and self.data['course']:
+            course_input = self.data.get('course')
+            if course_input and not course_input.isdigit():
+                course = self.find_course(course_input)
+                if course:
+                    mutable_data = self.data.copy()
+                    mutable_data['course'] = str(course.id)
+                    self.data = mutable_data
+        
+        # Toggle course field based on selected grade
+        self.toggle_course_field()
+        
+        # Style all fields (just in case)
         for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
-
-    def toggle_course_field_based_on_grade(self):
+            if 'class' not in field.widget.attrs:
+                field.widget.attrs['class'] = 'form-control'
+    
+    def find_grade(self, grade_input):
+        """Find grade by various naming patterns from Excel"""
+        if not grade_input:
+            return None
+        
+        grade_input = str(grade_input).strip()
+        
+        # Try exact match first
+        grade = Grade.objects.filter(name__iexact=grade_input).first()
+        if grade:
+            return grade
+        
+        # Try with 'Grade' prefix
+        if not re.match(r'^(grade|gr|grd)\s+', grade_input, re.IGNORECASE):
+            grade = Grade.objects.filter(name__iexact=f"Grade {grade_input}").first()
+            if grade:
+                return grade
+        
+        # Try common variations
+        variations = [
+            ('^gr\s+', 'Grade '),
+            ('^grd\s+', 'Grade '),
+            ('^grade\s+', 'Grade '),
+            ('^std\s+', 'Grade '),
+            ('^class\s+', 'Grade '),
+        ]
+        
+        for pattern, replacement in variations:
+            if re.match(pattern, grade_input, re.IGNORECASE):
+                normalized = re.sub(pattern, replacement, grade_input, flags=re.IGNORECASE)
+                grade = Grade.objects.filter(name__iexact=normalized).first()
+                if grade:
+                    return grade
+        
+        # Try partial match
+        grade = Grade.objects.filter(name__icontains=grade_input).first()
+        if grade:
+            return grade
+        
+        # Try extracting just the number
+        match = re.search(r'\b(R|\d+)\b', grade_input, re.IGNORECASE)
+        if match:
+            grade_num = match.group(1).upper()
+            # Try with Grade prefix
+            grade = Grade.objects.filter(name__iexact=f"Grade {grade_num}").first()
+            if grade:
+                return grade
+        
+        return None
+    
+    def find_school(self, school_input):
+        """Find school by name"""
+        if not school_input:
+            return None
+        
+        school_name = str(school_input).strip()
+        
+        # Try exact match
+        school = School.objects.filter(name__iexact=school_name).first()
+        if school:
+            return school
+        
+        # Try partial match
+        school = School.objects.filter(name__icontains=school_name).first()
+        if school:
+            return school
+        
+        return None
+    
+    def find_course(self, course_input):
+        """Find course by name"""
+        if not course_input:
+            return None
+        
+        course_name = str(course_input).strip()
+        
+        # Try exact match
+        course = Course.objects.filter(name__iexact=course_name).first()
+        if course:
+            return course
+        
+        # Try partial match
+        course = Course.objects.filter(name__icontains(course_name)).first()
+        if course:
+            return course
+        
+        return None
+    
+    def toggle_course_field(self):
         """Show/hide course field based on selected grade"""
-        if 'grade' in self.data:  # Form was submitted
+        if 'grade' in self.data:
             try:
-                grade_id = int(self.data.get('grade'))
-                grade = Grade.objects.get(id=grade_id)
-                if self.is_young_grade(grade.name):
-                    # Hide course field for R-9
-                    self.fields['course'].widget.attrs['style'] = 'display: none;'
-                    self.fields['course'].label = ''
-                else:
-                    # Show course field for 10-12
-                    self.fields['course'].widget.attrs.pop('style', None)
-                    self.fields['course'].label = 'Course'
+                grade_id = self.data.get('grade')
+                if grade_id and grade_id.isdigit():
+                    grade = Grade.objects.get(id=int(grade_id))
+                    if self.is_young_grade(grade.name):
+                        # Hide for R-9
+                        self.fields['course'].widget.attrs['style'] = 'display: none;'
+                        self.fields['course'].label = ''
+                        self.fields['course'].required = False
+                        # Remove 'disabled' attribute if it exists
+                        if 'disabled' in self.fields['course'].widget.attrs:
+                            del self.fields['course'].widget.attrs['disabled']
+                    else:
+                        # Show for 10-12
+                        if 'style' in self.fields['course'].widget.attrs:
+                            del self.fields['course'].widget.attrs['style']
+                        self.fields['course'].label = 'Course'
+                        self.fields['course'].required = True
             except (ValueError, Grade.DoesNotExist):
                 pass
-
+    
     def is_young_grade(self, grade_name):
-        young_grades = ['Grade R', 'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 
-                       'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9']
-        return grade_name in young_grades
+        """Check if grade is R-9 (no course needed)"""
+        if not grade_name:
+            return False
         
+        grade_name = str(grade_name).strip().upper()
+        
+        # Clean the grade name
+        grade_name = re.sub(r'^(GRADE|GR|GRD|STD|CLASS)\s+', '', grade_name, flags=re.IGNORECASE)
+        
+        # Young grades are R, 1-9
+        young_grades = ['R', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+        return grade_name in young_grades
+    
+    def clean(self):
+        """Custom validation"""
+        cleaned_data = super().clean()
+        
+        # Get grade and check course requirement
+        grade = cleaned_data.get('grade')
+        course = cleaned_data.get('course')
+        
+        if grade:
+            if not self.is_young_grade(grade.name) and not course:
+                # Grade 10-12 requires course
+                raise forms.ValidationError({
+                    'course': f"Course is required for {grade.name}"
+                })
+            
+            if self.is_young_grade(grade.name) and course:
+                # R-9 shouldn't have course
+                cleaned_data['course'] = None
+        
+        return cleaned_data
 #educator form 
 # educator form 
 # educator form 

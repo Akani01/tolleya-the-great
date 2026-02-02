@@ -1,0 +1,1029 @@
+{% extends 'main_app/base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block extra_css %}
+<style>
+    /* === MAIN CONTAINER === */
+    .automation-console {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+    }
+    
+    .console-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        border: none;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    /* === BROWSER WINDOW === */
+    .browser-window {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        overflow: hidden;
+        background: white;
+    }
+    
+    .browser-header {
+        background: #f8f9fa;
+        padding: 12px 20px;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .browser-controls {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .browser-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+    }
+    
+    .browser-dot.red { background: #ff5f57; }
+    .browser-dot.yellow { background: #ffbd2e; }
+    .browser-dot.green { background: #28ca42; }
+    
+    .browser-content {
+        height: 500px;
+        background: white;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .browser-placeholder {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: #6c757d;
+    }
+    
+    /* === ACTIVITY LOG === */
+    .activity-log {
+        height: 300px;
+        background: #1a1a1a;
+        border-radius: 8px;
+        padding: 15px;
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        overflow-y: auto;
+    }
+    
+    .log-entry {
+        padding: 8px 0;
+        border-bottom: 1px solid #333;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .log-timestamp {
+        color: #6c757d;
+        font-size: 0.85em;
+    }
+    
+    .log-success { color: #28a745; }
+    .log-warning { color: #ffc107; }
+    .log-error { color: #dc3545; }
+    .log-info { color: #17a2b8; }
+    
+    /* === CONTROL BUTTONS === */
+    .control-button {
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+    }
+    
+    .control-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    /* === STEP INDICATOR === */
+    .step-indicator {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        padding: 10px;
+        background: rgba(0,0,0,0.03);
+        border-radius: 10px;
+    }
+    
+    .step-number {
+        width: 30px;
+        height: 30px;
+        background: #6c757d;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        font-weight: bold;
+    }
+    
+    .step-number.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .step-number.completed {
+        background: #28a745;
+    }
+    
+    /* === PROGRESS RINGS === */
+    .progress-ring-container {
+        position: relative;
+        width: 100px;
+        height: 100px;
+    }
+    
+    .progress-ring {
+        transform: rotate(-90deg);
+    }
+    
+    .progress-ring-bg {
+        fill: none;
+        stroke: #e9ecef;
+        stroke-width: 8;
+    }
+    
+    .progress-ring-fill {
+        fill: none;
+        stroke: #007bff;
+        stroke-width: 8;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 0.3s;
+    }
+    
+    .progress-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 24px;
+        font-weight: bold;
+        color: #007bff;
+    }
+    
+    /* === APPLICATION DATA === */
+    .application-data-card {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        height: 100%;
+        border: 1px solid #e9ecef;
+    }
+    
+    .data-field {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #f8f9fa;
+    }
+    
+    .data-field:last-child {
+        border-bottom: none;
+    }
+    
+    .field-label {
+        font-weight: 500;
+        color: #6c757d;
+    }
+    
+    .field-value {
+        font-weight: 600;
+        color: #212529;
+        text-align: right;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* === ANIMATIONS === */
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+    
+    /* === CONTROL PANEL === */
+    .control-panel {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    /* === RESPONSIVE ADJUSTMENTS === */
+    @media (max-width: 768px) {
+        .browser-content {
+            height: 300px;
+        }
+        
+        .activity-log {
+            height: 200px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="automation-console">
+    <div class="container">
+        <!-- HEADER -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-1 text-white">Automation Console</h1>
+                <p class="text-white-50 mb-0">Application: {{ application.name }}</p>
+            </div>
+            
+            <!-- START BUTTON -->
+            {% if can_start_automation %}
+                <form method="post" action="{% url 'start_automation' application.pk %}" class="mb-0">
+                    {% csrf_token %}
+                    <button type="submit" id="startBtn" class="btn btn-lg btn-success px-4">
+                        <i class="fas fa-rocket me-2"></i>Start Automation
+                    </button>
+                </form>
+            {% else %}
+                <button class="btn btn-lg btn-secondary px-4" disabled>
+                    <i class="fas fa-sync-alt fa-spin me-2"></i>Automation Running
+                </button>
+            {% endif %}
+        </div>
+
+        <!-- DJANGO MESSAGES -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="row">
+            <!-- LEFT COLUMN: CONTROLS & DATA -->
+            <div class="col-lg-4">
+                <!-- CONTROL PANEL -->
+                <div class="control-panel mb-4">
+                    <h5 class="mb-3"><i class="fas fa-gamepad me-2"></i>Controls</h5>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <button id="pauseBtn" class="btn btn-warning w-100 control-button" disabled>
+                                <i class="fas fa-pause me-2"></i>Pause
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button id="stopBtn" class="btn btn-danger w-100 control-button" disabled>
+                                <i class="fas fa-stop me-2"></i>Stop
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <button id="stepBtn" class="btn btn-info w-100 control-button" disabled>
+                                <i class="fas fa-step-forward me-2"></i>Step
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button id="screenshotBtn" class="btn btn-secondary w-100 control-button">
+                                <i class="fas fa-camera me-2"></i>Screenshot
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- APPLICATION INFO -->
+                <div class="console-card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3"><i class="fas fa-info-circle me-2"></i>Application Details</h5>
+                        
+                        <div class="data-field">
+                            <span class="field-label">Status:</span>
+                            <span class="field-value">{{ application.status }}</span>
+                        </div>
+                        
+                        <div class="data-field">
+                            <span class="field-label">Target URL:</span>
+                            <span class="field-value">
+                                {% if application.target_form_url %}
+                                    <a href="{{ application.target_form_url }}" target="_blank" class="text-truncate d-inline-block" style="max-width: 150px;">
+                                        {{ application.target_form_url|truncatechars:30 }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-danger">Not set</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        
+                        <div class="data-field">
+                            <span class="field-label">AI Service:</span>
+                            <span class="field-value">{{ application.ai_service|default:"Not selected" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SESSION INFO -->
+                {% if session %}
+                <div class="console-card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3"><i class="fas fa-play-circle me-2"></i>Automation Session</h5>
+                        
+                        <div class="data-field">
+                            <span class="field-label">Session ID:</span>
+                            <span class="field-value text-monospace">{{ session.session_id|truncatechars:15 }}</span>
+                        </div>
+                        
+                        <div class="data-field">
+                            <span class="field-label">Status:</span>
+                            <span class="field-value">
+                                <span class="badge 
+                                    {% if session.status == 'RUNNING' %} bg-primary
+                                    {% elif session.status == 'ANALYZING' %} bg-warning
+                                    {% elif session.status == 'COMPLETED' %} bg-success
+                                    {% elif session.status == 'FAILED' %} bg-danger
+                                    {% else %} bg-secondary
+                                    {% endif %}">
+                                    {{ session.status }}
+                                </span>
+                            </span>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <small>Progress</small>
+                                <small id="progressText">
+                                    {% if session.progress_percent %}
+                                        {{ session.progress_percent }}%
+                                    {% else %}
+                                        0%
+                                    {% endif %}
+                                </small>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                                     role="progressbar" 
+                                     style="width: 
+                                     {% if session.progress_percent %}
+                                        {{ session.progress_percent }}%
+                                     {% else %}
+                                        0%
+                                     {% endif %};">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- RIGHT COLUMN: BROWSER & LOGS -->
+            <div class="col-lg-8">
+                <!-- BROWSER WINDOW -->
+                <div class="console-card mb-4">
+                    <div class="card-body p-0">
+                        <div class="browser-window">
+                            <div class="browser-header">
+                                <div class="browser-controls">
+                                    <div class="browser-dot red"></div>
+                                    <div class="browser-dot yellow"></div>
+                                    <div class="browser-dot green"></div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button id="refreshBtn" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-redo"></i>
+                                    </button>
+                                    <button id="fullscreenBtn" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-expand"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="browser-content" id="browserContent">
+                                <div class="browser-placeholder" id="browserPlaceholder">
+                                    <i class="fas fa-globe fa-3x mb-3 text-muted"></i>
+                                    <p class="mb-0">Browser preview will appear here</p>
+                                    <small class="text-muted">Automation will display form interactions</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP INDICATOR -->
+                <div id="stepIndicator" class="console-card mb-4 d-none">
+                    <div class="card-body">
+                        <div class="step-indicator">
+                            <div class="step-number active" id="currentStepNumber">1</div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <span id="stepDescription">Initializing automation...</span>
+                                    <small id="stepTimer">00:00</small>
+                                </div>
+                                <div class="progress mt-2" style="height: 5px;">
+                                    <div id="stepProgress" class="progress-bar bg-success" style="width: 0%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LOGS -->
+                <div class="console-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title mb-0"><i class="fas fa-terminal me-2"></i>Automation Logs</h5>
+                            <div class="btn-group btn-group-sm">
+                                <button id="clearLogBtn" class="btn btn-outline-secondary">
+                                    <i class="fas fa-trash-alt me-1"></i>Clear
+                                </button>
+                                <button id="copyLogBtn" class="btn btn-outline-secondary">
+                                    <i class="fas fa-copy me-1"></i>Copy
+                                </button>
+                                <button id="exportLogBtn" class="btn btn-outline-secondary">
+                                    <i class="fas fa-download me-1"></i>Export
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="activityLog" class="activity-log">
+                            {% if logs %}
+                                {% for log in logs %}
+                                    <div class="log-entry">
+                                        <span class="log-timestamp">[{{ log.created_at|date:"Y-m-d H:i:s" }}]</span>
+                                        <span class="
+                                            {% if log.level == 'error' %}log-error
+                                            {% elif log.level == 'warning' %}log-warning
+                                            {% elif log.level == 'success' %}log-success
+                                            {% else %}log-info{% endif %}">
+                                            {{ log.level|upper }}: {{ log.message }}
+                                        </span>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center py-5 text-muted">
+                                    <i class="fas fa-list-alt fa-2x mb-3"></i>
+                                    <p class="mb-0">No logs yet. Start automation to see logs here.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Global variables - FIXED the template syntax error here
+    const applicationId = {{ application.pk }};
+    
+    {% if structured_data %}
+        const applicationData = {{ structured_data|safe }};
+    {% else %}
+        const applicationData = {};
+    {% endif %}
+    
+    // Determine if automation is active - FIXED template syntax
+    let automationActive = {% if session and session.status == 'RUNNING' %}true{% else %}false{% endif %};
+    
+    let currentStep = 0;
+    let stepTimer = null;
+    let logUpdateInterval = null;
+
+    // Initialize console
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Automation console initialized for application:', applicationId);
+        setupEventListeners();
+        
+        // Get initial progress from session
+        const initialProgress = {% if session and session.progress_percent %}{{ session.progress_percent }}{% else %}0{% endif %};
+        updateProgressDisplay(initialProgress);
+        
+        // Auto-refresh logs if automation is active
+        if (automationActive) {
+            updateControlButtons(true);
+            document.getElementById('stepIndicator').classList.remove('d-none');
+            startStepTimer();
+            startLogRefresh();
+            
+            // Show initial log
+            addLogEntry('Automation is running...', 'info');
+        }
+    });
+
+    function setupEventListeners() {
+        // Control buttons
+        document.getElementById('pauseBtn').addEventListener('click', pauseAutomation);
+        document.getElementById('stopBtn').addEventListener('click', stopAutomation);
+        document.getElementById('stepBtn').addEventListener('click', stepAutomation);
+        document.getElementById('screenshotBtn').addEventListener('click', takeScreenshot);
+        
+        // Log buttons
+        document.getElementById('clearLogBtn').addEventListener('click', clearLog);
+        document.getElementById('copyLogBtn').addEventListener('click', copyLog);
+        document.getElementById('exportLogBtn').addEventListener('click', exportLog);
+        
+        // Browser buttons
+        document.getElementById('refreshBtn').addEventListener('click', refreshBrowser);
+        document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
+        
+        // Start button (if it exists as a separate element)
+        const startBtn = document.getElementById('startBtn');
+        if (startBtn && !startBtn.closest('form')) {
+            startBtn.addEventListener('click', startAutomation);
+        }
+    }
+
+    function startAutomation() {
+        if (automationActive) {
+            addLogEntry('Automation is already running', 'warning');
+            return;
+        }
+        
+        // Show loading state
+        const startBtn = document.getElementById('startBtn');
+        if (startBtn) {
+            const originalText = startBtn.innerHTML;
+            startBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Starting...';
+            startBtn.disabled = true;
+        }
+        
+        addLogEntry('Starting automation process...', 'info');
+        
+        // Use AJAX to start automation
+        fetch("{% url 'start_automation' application.pk %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                automationActive = true;
+                updateControlButtons(true);
+                updateProgressDisplay(10);
+                document.getElementById('stepIndicator').classList.remove('d-none');
+                startStepTimer();
+                startLogRefresh();
+                addLogEntry('Automation started successfully', 'success');
+                
+                // Simulate automation steps (replace with WebSocket in production)
+                simulateAutomation();
+            } else {
+                addLogEntry('Failed to start automation: ' + (data.error || 'Unknown error'), 'error');
+            }
+        })
+        .catch(error => {
+            addLogEntry('Error starting automation: ' + error.message, 'error');
+        })
+        .finally(() => {
+            // Reset button state
+            if (startBtn) {
+                startBtn.innerHTML = originalText;
+                startBtn.disabled = false;
+            }
+        });
+    }
+
+    function pauseAutomation() {
+        addLogEntry('Automation paused', 'warning');
+        updateControlButtons(false);
+        
+        fetch("{% url 'pause_automation' application.pk %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .catch(error => {
+            console.error('Error pausing automation:', error);
+        });
+    }
+
+    function stepAutomation() {
+        currentStep++;
+        const steps = [
+            'Opening university form...',
+            'Analyzing form structure...',
+            'Mapping form fields...',
+            'Filling personal information...',
+            'Filling contact details...',
+            'Filling academic information...',
+            'Handling dropdown selections...',
+            'Clicking next button...',
+            'Filling additional pages...',
+            'Final review complete!'
+        ];
+        
+        if (currentStep <= steps.length) {
+            const progress = Math.min(100, Math.round((currentStep / steps.length) * 100));
+            
+            addLogEntry(steps[currentStep - 1], 'info');
+            updateProgressDisplay(progress);
+            updateStepIndicator(currentStep, steps[currentStep - 1]);
+            
+            // Simulate browser action
+            simulateBrowserAction(steps[currentStep - 1]);
+            
+            // Update backend
+            fetch("{% url 'update_automation_step' application.pk %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    step: currentStep,
+                    progress: progress
+                })
+            })
+            .catch(error => {
+                console.error('Error updating step:', error);
+            });
+        }
+        
+        if (currentStep >= steps.length) {
+            addLogEntry('Automation complete! Please review the form and click submit.', 'success');
+            updateControlButtons(false);
+            automationActive = false;
+            updateProgressDisplay(100);
+        }
+    }
+
+    function stopAutomation() {
+        if (confirm('Are you sure you want to stop automation?')) {
+            automationActive = false;
+            updateControlButtons(false);
+            addLogEntry('Automation stopped by user', 'warning');
+            updateProgressDisplay(0);
+            resetStepIndicator();
+            
+            // Clear timers
+            if (stepTimer) clearInterval(stepTimer);
+            if (logUpdateInterval) clearInterval(logUpdateInterval);
+            
+            fetch("{% url 'stop_automation' application.pk %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .catch(error => {
+                console.error('Error stopping automation:', error);
+            });
+        }
+    }
+
+    function simulateAutomation() {
+        // This simulates the automation process
+        // In real app, this would be handled by backend WebSocket
+        
+        const steps = [
+            {delay: 1000, message: 'Opening university website...', progress: 15},
+            {delay: 2000, message: 'Analyzing form structure...', progress: 25},
+            {delay: 1500, message: 'Found 12 input fields and 3 dropdowns', progress: 35},
+            {delay: 1000, message: 'Mapping fields to application data...', progress: 45},
+            {delay: 1500, message: 'Filling full name: ' + (applicationData.personal_information?.full_name || 'N/A'), progress: 55},
+            {delay: 1000, message: 'Filling email address: ' + (applicationData.contact_information?.email || 'N/A'), progress: 65},
+            {delay: 1500, message: 'Filling ID number: ' + (applicationData.personal_information?.id_number || 'N/A'), progress: 75},
+            {delay: 2000, message: 'Selecting course: ' + (applicationData.academic_information?.course_faculty || 'N/A'), progress: 85},
+            {delay: 1000, message: 'Clicking next button...', progress: 92},
+            {delay: 1500, message: 'Automation complete! Please review and submit.', progress: 100}
+        ];
+        
+        let stepIndex = 0;
+        
+        function processNextStep() {
+            if (stepIndex >= steps.length || !automationActive) {
+                updateControlButtons(false);
+                automationActive = false;
+                return;
+            }
+            
+            const step = steps[stepIndex];
+            
+            setTimeout(() => {
+                if (!automationActive) return;
+                
+                addLogEntry(step.message, 'info');
+                updateProgressDisplay(step.progress);
+                updateStepIndicator(stepIndex + 1, step.message);
+                simulateBrowserAction(step.message);
+                
+                stepIndex++;
+                processNextStep();
+            }, step.delay);
+        }
+        
+        processNextStep();
+    }
+
+    function simulateBrowserAction(action) {
+        const placeholder = document.getElementById('browserPlaceholder');
+        const content = document.getElementById('browserContent');
+        
+        // Create simulated form
+        if (action.includes('Filling full name')) {
+            if (placeholder) placeholder.style.display = 'none';
+            if (content) {
+                content.innerHTML = `
+                    <div class="p-4">
+                        <h5 class="mb-3">University Application Form</h5>
+                        <div class="mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" value="${applicationData.personal_information?.full_name || ''}" style="border-color: #28a745; background-color: #f8fff9;">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-control" placeholder="Enter email">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" placeholder="Enter phone">
+                        </div>
+                        <button class="btn btn-primary">Next</button>
+                    </div>
+                `;
+            }
+        } else if (action.includes('Filling email address') && applicationData.contact_information?.email) {
+            const emailInput = content?.querySelector('input[type="email"]');
+            if (emailInput) {
+                emailInput.value = applicationData.contact_information.email;
+                emailInput.style.borderColor = '#28a745';
+                emailInput.style.backgroundColor = '#f8fff9';
+            }
+        } else if (action.includes('Clicking next button')) {
+            if (content) {
+                content.innerHTML += `
+                    <div class="alert alert-success m-4">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Form filled successfully! Please review all information and click the submit button.
+                    </div>
+                `;
+            }
+        }
+    }
+
+    function addLogEntry(message, level = 'info') {
+        const logContainer = document.getElementById('activityLog');
+        if (!logContainer) return;
+        
+        const now = new Date();
+        const timestamp = `[${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}]`;
+        
+        const logEntry = document.createElement('div');
+        logEntry.className = 'log-entry';
+        logEntry.innerHTML = `
+            <span class="log-timestamp">${timestamp}</span>
+            <span class="log-${level}">${level.toUpperCase()}: ${message}</span>
+        `;
+        
+        logContainer.appendChild(logEntry);
+        logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
+    function updateProgressDisplay(percentage) {
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        
+        if (progressBar) {
+            progressBar.style.width = percentage + '%';
+            progressBar.textContent = percentage + '%';
+        }
+        
+        if (progressText) {
+            progressText.textContent = percentage + '%';
+        }
+        
+        if (percentage >= 100 && progressBar) {
+            progressBar.classList.remove('progress-bar-animated');
+        }
+    }
+
+    function updateControlButtons(active) {
+        const pauseBtn = document.getElementById('pauseBtn');
+        const stepBtn = document.getElementById('stepBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        
+        if (pauseBtn) pauseBtn.disabled = !active;
+        if (stepBtn) stepBtn.disabled = !active;
+        if (stopBtn) stopBtn.disabled = !active;
+    }
+
+    function updateStepIndicator(stepNumber, description) {
+        const stepNumberElement = document.getElementById('currentStepNumber');
+        const stepDescriptionElement = document.getElementById('stepDescription');
+        
+        if (stepNumberElement) stepNumberElement.textContent = stepNumber;
+        if (stepDescriptionElement) stepDescriptionElement.textContent = description;
+        
+        // Update step progress
+        const stepProgress = document.getElementById('stepProgress');
+        if (stepProgress) {
+            stepProgress.style.width = Math.min(100, (stepNumber / 10) * 100) + '%';
+        }
+    }
+
+    function resetStepIndicator() {
+        const stepIndicator = document.getElementById('stepIndicator');
+        if (stepIndicator) stepIndicator.classList.add('d-none');
+        
+        const currentStepNumber = document.getElementById('currentStepNumber');
+        if (currentStepNumber) currentStepNumber.textContent = '1';
+        
+        const stepDescription = document.getElementById('stepDescription');
+        if (stepDescription) stepDescription.textContent = 'Initializing...';
+        
+        const stepProgress = document.getElementById('stepProgress');
+        if (stepProgress) stepProgress.style.width = '0%';
+        
+        currentStep = 0;
+    }
+
+    function startStepTimer() {
+        let seconds = 0;
+        const timerElement = document.getElementById('stepTimer');
+        
+        if (stepTimer) clearInterval(stepTimer);
+        
+        stepTimer = setInterval(() => {
+            seconds++;
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            if (timerElement) {
+                timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+            }
+        }, 1000);
+    }
+
+    function startLogRefresh() {
+        if (logUpdateInterval) clearInterval(logUpdateInterval);
+        
+        logUpdateInterval = setInterval(() => {
+            // This URL needs to exist in your Django URLs
+            fetch("{% url 'automation_console_refresh' application.pk %}")
+                .then(res => {
+                    if (!res.ok) throw new Error('Network response was not ok');
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.progress_percent !== undefined) {
+                        updateProgressDisplay(data.progress_percent);
+                    }
+                    
+                    if (data.logs && data.logs.length > 0) {
+                        const logContainer = document.getElementById('activityLog');
+                        if (!logContainer) return;
+                        
+                        const currentLogs = Array.from(logContainer.querySelectorAll('.log-entry'))
+                            .map(entry => entry.textContent);
+                        
+                        data.logs.forEach(log => {
+                            const logText = `[${log.created_at}] ${log.level.toUpperCase()}: ${log.message}`;
+                            if (!currentLogs.includes(logText)) {
+                                addLogEntry(log.message, log.level);
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    // Silently fail - this is just for auto-refresh
+                    console.debug('Log refresh failed (might be expected):', error);
+                });
+        }, 5000);
+    }
+
+    function clearLog() {
+        if (confirm('Clear all log entries?')) {
+            const logContainer = document.getElementById('activityLog');
+            if (!logContainer) return;
+            
+            const now = new Date();
+            const timestamp = `[${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}]`;
+            
+            logContainer.innerHTML = `
+                <div class="log-entry">
+                    <span class="log-timestamp">${timestamp}</span>
+                    <span class="log-info">LOG CLEARED BY USER</span>
+                </div>
+            `;
+        }
+    }
+
+    function copyLog() {
+        const logContainer = document.getElementById('activityLog');
+        if (!logContainer) return;
+        
+        const logText = Array.from(logContainer.querySelectorAll('.log-entry'))
+            .map(entry => entry.textContent)
+            .join('\n');
+        
+        navigator.clipboard.writeText(logText).then(() => {
+            addLogEntry('Log copied to clipboard', 'success');
+        }).catch(err => {
+            addLogEntry('Failed to copy log: ' + err.message, 'error');
+        });
+    }
+
+    function exportLog() {
+        const logContainer = document.getElementById('activityLog');
+        if (!logContainer) return;
+        
+        const logText = Array.from(logContainer.querySelectorAll('.log-entry'))
+            .map(entry => entry.textContent)
+            .join('\n');
+        
+        const dataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(logText);
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", `automation_log_${applicationId}_${new Date().toISOString().split('T')[0]}.txt`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+        
+        addLogEntry('Log exported to file', 'success');
+    }
+
+    function refreshBrowser() {
+        addLogEntry('Refreshing browser preview...', 'info');
+        const placeholder = document.getElementById('browserPlaceholder');
+        const content = document.getElementById('browserContent');
+        
+        if (placeholder) placeholder.style.display = 'block';
+        if (content) {
+            content.innerHTML = '';
+            if (placeholder) content.appendChild(placeholder);
+        }
+    }
+
+    function toggleFullscreen() {
+        const browserContent = document.getElementById('browserContent');
+        if (!browserContent) return;
+        
+        if (!document.fullscreenElement) {
+            browserContent.requestFullscreen().catch(err => {
+                console.error(`Error attempting to enable fullscreen: ${err.message}`);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    }
+
+    function takeScreenshot() {
+        addLogEntry('Screenshot captured', 'info');
+        
+        const screenshotBtn = document.getElementById('screenshotBtn');
+        if (screenshotBtn) {
+            const originalHTML = screenshotBtn.innerHTML;
+            screenshotBtn.innerHTML = '<i class="fas fa-check me-2"></i>Captured!';
+            screenshotBtn.classList.add('btn-success');
+            
+            setTimeout(() => {
+                screenshotBtn.innerHTML = originalHTML;
+                screenshotBtn.classList.remove('btn-success');
+            }, 2000);
+        }
+    }
+
+    // Utility function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

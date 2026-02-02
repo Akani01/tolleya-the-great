@@ -162,6 +162,36 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.last_name + ", " + self.first_name
 
+    @property
+    def student(self):
+        """Easy access to student profile if user is a student"""
+        try:
+            if self.user_type == 3:
+                return Student.objects.get(admin=self)
+        except Student.DoesNotExist:
+            return None
+        return None
+    
+    @property
+    def staff(self):
+        """Easy access to staff profile if user is staff"""
+        try:
+            if self.user_type == 2:
+                return Staff.objects.get(admin=self)
+        except Staff.DoesNotExist:
+            return None
+        return None
+    
+    @property
+    def adminhod(self):
+        """Easy access to HOD profile if user is HOD"""
+        try:
+            if self.user_type == 1:
+                return AdminHOD.objects.get(admin=self)
+        except AdminHOD.DoesNotExist:
+            return None
+        return None
+
 
 
 #grade
@@ -499,50 +529,29 @@ class QuestionPaperManager(models.Manager):
         return self.get_queryset().search(query)
 
 
+
+#create an account
 @receiver(post_save, sender=CustomUser)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         if instance.user_type == 1:
             Admin.objects.create(admin=instance)
-        if instance.user_type == 2:
+        elif instance.user_type == 2:
             Staff.objects.create(admin=instance)
-        if instance.user_type == 3:
-            Student.objects.create(admin=instance)
-        if instance.user_type == 4:
+        elif instance.user_type == 3:
+            Student.objects.create(admin=instance)  # Creates empty student
+        elif instance.user_type == 4:
             Principal.objects.create(admin=instance)
-        if instance.user_type == 5:
+        elif instance.user_type == 5:
             Educator.objects.create(admin=instance)
-        if instance.user_type == 6:
+        elif instance.user_type == 6:
             Circuit_Manager.objects.create(admin=instance)
-        if instance.user_type == 7:
+        elif instance.user_type == 7:
             Parent.objects.create(admin=instance)
-        if instance.user_type == 8:
+        elif instance.user_type == 8:
             Member.objects.create(admin=instance)
-        if instance.user_type == 9:
+        elif instance.user_type == 9:
             CWA_Admin.objects.create(admin=instance)
-
-
-@receiver(post_save, sender=CustomUser)
-def save_user_profile(sender, instance, **kwargs):
-    if instance.user_type == 1:
-        instance.admin.save()
-    if instance.user_type == 2:
-        instance.staff.save()
-    if instance.user_type == 3:
-        instance.student.save()
-    if instance.user_type == 4:
-        instance.principal.save()
-    if instance.user_type == 5:
-        instance.educator.save()
-    if instance.user_type == 6:
-        instance.circuit_manager.save()
-    if instance.user_type == 7:
-        instance.parent.save()
-    if instance.user_type == 8:
-        instance.member.save()
-    if instance.user_type == 9:
-        instance.cwa_admin.save()
-
 
 #Documents
 

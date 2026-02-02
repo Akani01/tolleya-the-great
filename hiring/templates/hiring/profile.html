@@ -1,0 +1,2059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - JobPortal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        .header-area {
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 999;
+        }
+        .main-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+        }
+        .logo img {
+            max-height: 40px;
+        }
+
+        .desktop-sidebar {
+            width: 250px;
+            background: white;
+            height: calc(100vh - 80px);
+            position: fixed;
+            top: 80px;
+            left: 0;
+            padding: 20px;
+            border-right: 1px solid #eee;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+            overflow-y: auto;
+        }
+
+        .desktop-sidebar a {
+            display: block;
+            padding: 12px 10px;
+            color: #333;
+            text-decoration: none;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .desktop-sidebar a:hover,
+        .desktop-sidebar a.active {
+            background-color: rgba(255, 88, 158, 0.1);
+            color: #ff589e;
+        }
+
+        @media (max-width: 991px) {
+            .desktop-sidebar {
+                display: none;
+            }
+        }
+
+        @media (min-width: 992px) {
+            body {
+                padding-left: 270px !important;
+            }
+        }
+
+        .mobile-bottom-nav {
+            display: none;
+        }
+
+        @media (max-width: 991px) {
+            .mobile-bottom-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 65px;
+                background: white;
+                border-top: 1px solid #ddd;
+                justify-content: space-around;
+                align-items: center;
+                z-index: 9999;
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+            .mobile-bottom-nav a {
+                text-align: center;
+                color: #333;
+                font-size: 14px;
+                text-decoration: none;
+                flex: 1;
+                padding: 10px 5px;
+            }
+            .mobile-bottom-nav i {
+                font-size: 20px;
+                display: block;
+                margin-bottom: 3px;
+            }
+            .mobile-bottom-nav a.active {
+                color: #ff589e;
+            }
+        }
+
+        body {
+            padding-top: 80px;
+            background-color: #f8f9fa;
+            padding-bottom: 80px;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .profile-completeness {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            color: #333;
+        }
+        .progress {
+            height: 10px;
+        }
+        .section-card {
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            border-radius: 10px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .section-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #dee2e6;
+        }
+        .skill-item, .employment-item, .education-item, .document-item {
+            border-left: 4px solid #ff589e;
+            transition: all 0.3s;
+        }
+        .skill-item:hover, .employment-item:hover, .education-item:hover, .document-item:hover {
+            background-color: #f8f9fa;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #ff589e 0%, #ff136f 100%);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #ff136f 0%, #ff589e 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(255, 88, 158, 0.3);
+        }
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .modal-content {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .modal-header {
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            padding: 20px;
+        }
+        .modal-body {
+            padding: 20px;
+        }
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .nav-icons {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-icons a {
+            font-size: 20px;
+            color: #555;
+            transition: 0.2s;
+            text-decoration: none;
+        }
+
+        .nav-icons a:hover {
+            color: #ff589e;
+            transform: translateY(-2px);
+        }
+
+        .profile-dropdown {
+            position: relative;
+        }
+
+        .profile-avatar-small {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #ff589e 0%, #ff136f 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .profile-menu {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            width: 220px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            padding: 10px 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.25s ease;
+            z-index: 1000;
+        }
+
+        .profile-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0px);
+        }
+
+        .profile-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            color: #444;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .profile-menu a:hover {
+            background: #f5f7fa;
+            color: #ff589e;
+        }
+
+        .profile-divider {
+            height: 1px;
+            background: #eee;
+            margin: 8px 0;
+        }
+
+        .dropdown-menu {
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        #menuIcon {
+            padding: 8px;
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+
+        #menuIcon:hover {
+            background: rgba(0,0,0,0.1);
+        }
+
+        .three-dot-menu {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .three-dot-menu i {
+            font-size: 22px;
+            color: #555;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .three-dot-menu i:hover {
+            background-color: #f0f0f0;
+            color: #ff589e;
+        }
+
+        .three-dot-menu .menu-content {
+            position: absolute;
+            right: 0;
+            top: 45px;
+            background: #fff;
+            width: 200px;
+            padding: 8px 0;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .three-dot-menu:hover .menu-content {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .three-dot-menu .menu-content a {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #444;
+            transition: all 0.2s ease;
+            border: none;
+            background: none;
+            width: 100%;
+        }
+
+        .three-dot-menu .menu-content a:hover {
+            background: rgba(255, 88, 158, 0.1);
+            color: #ff589e;
+        }
+
+        .three-dot-menu .menu-content a i {
+            margin-right: 10px;
+            font-size: 16px;
+            width: 16px;
+            text-align: center;
+            padding: 0;
+            background: none;
+        }
+
+        /* Business-specific styles */
+        .business-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .company-logo-preview {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        .business-info-card {
+            border-left: 4px solid #667eea;
+        }
+        
+        /* Toast notifications */
+        .toast-container {
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+    {% load api_utils %}
+    {% api_js_functions %}
+    <!-- Top Navigation -->
+    <header class="header-area">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <nav class="main-nav">
+                        <a href="/" class="logo">
+                            <img src="/static/images/logo.png" alt="JobPortal" style="max-height: 40px;">
+                        </a>
+
+                        <!-- Top Right Icons -->
+                        <ul class="nav-icons">
+                            <li>
+                                <a href="/" title="Home">
+                                    <i class="fas fa-home"></i>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="/#job-listings" title="Browse Jobs">
+                                    <i class="fas fa-search"></i>
+                                </a>
+                            </li>
+
+                            {% if user.is_authenticated %}
+                            <li>
+                                <a href="/dashboard" title="Dashboard">
+                                    <i class="fas fa-th-large"></i>
+                                </a>
+                            </li>
+
+                            <!-- Profile Dropdown Icon -->
+                            <li class="profile-dropdown">
+                                <div class="profile-avatar-small" onclick="toggleProfileDropdown()">
+                                    {{ user.username|first|upper }}
+                                </div>
+
+                                <div class="profile-menu" id="profileMenu">
+                                    <a href="/profile/"><i class="fas fa-user"></i> Profile</a>
+                                    <a href="/applications/"><i class="fas fa-file-alt"></i> Applications</a>
+                                    <div class="profile-divider"></div>
+
+                                    <a href="/api/alerts/"><i class="fas fa-bell"></i> Alerts</a>
+                                    <a href="/preferences/"><i class="fas fa-cog"></i> Preferences</a>
+
+                                    <div class="profile-divider"></div>
+
+                                    <a href="/logout/"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                                </div>
+                            </li>
+                            <li>
+                              <a href="/messaging/">
+                                <i class="fas fa-comment-dots"></i>
+                              </a>
+                            </li>  
+                            <li>
+                                <div class="three-dot-menu">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                    <div class="menu-content">
+                                        <a href="/profile/skills/"><i class="fas fa-cogs"></i> Skills</a>
+                                        <a href="/profile/employment/"><i class="fas fa-briefcase"></i> Employment</a>
+                                        <a href="/profile/education/"><i class="fas fa-graduation-cap"></i> Education</a>
+                                        <a href="/profile/documents/"><i class="fas fa-file-upload"></i> Documents</a>
+                                    </div>
+                                </div>
+                            </li>
+
+                            {% else %}
+                            <li>
+                                <a href="#" onclick="showLogin()" title="Login">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="#" onclick="showSignup()" title="Sign Up">
+                                    <i class="fas fa-user-plus"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Desktop Sidebar -->
+    <div class="desktop-sidebar">
+        <a href="/profile/" class="active"><i class="fas fa-user"></i> My Profile</a>
+        <a href="/applications/"><i class="fas fa-file-alt"></i> Applications</a>
+        <a href="/profile/skills/"><i class="fas fa-cogs"></i> Skills</a>
+        <a href="/profile/education/"><i class="fas fa-graduation-cap"></i> Education</a>
+        <a href="/profile/employment/"><i class="fas fa-briefcase"></i> Employment</a>
+        <a href="/profile/documents/"><i class="fas fa-file-upload"></i> Documents</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <!-- Profile Header -->
+        <div class="profile-header" id="profileHeader">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="display-5" id="profileTitle">My Profile</h1>
+                    <p class="lead" id="profileSubtitle">Manage your professional information and job preferences</p>
+                </div>
+                <div class="col-md-4">
+                    <div class="profile-completeness" id="profileCompletenessSection">
+                        <h5>Profile Completeness</h5>
+                        <div class="progress mb-2">
+                            <div id="completenessBar" class="progress-bar" role="progressbar" style="width: 0%; background: linear-gradient(135deg, #ff589e 0%, #ff136f 100%);"></div>
+                        </div>
+                        <small id="completenessText" class="text-muted">0% Complete</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Information Section -->
+        <div class="card section-card" id="userInfoSection">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0" id="userInfoTitle"><i class="fas fa-user me-2"></i>Personal Information</h5>
+                <button class="btn btn-primary btn-sm" id="editUserInfoBtn" onclick="editUserInfo()">Edit</button>
+            </div>
+            <div class="card-body">
+                <div id="userInfoContent">
+                    <div class="text-center py-4">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Business Profile Section (Only for Business Users) -->
+        <div class="card section-card business-info-card" id="businessProfileSection" style="display: none;">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-building me-2"></i>Business Profile</h5>
+                <button class="btn btn-primary btn-sm" onclick="editBusinessProfile()">Edit Business Profile</button>
+            </div>
+            <div class="card-body">
+                <div id="businessProfileContent">
+                    <div class="text-center py-4">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Applicant Sections (Only for Applicant Users) -->
+        <div id="applicantSections">
+            <!-- Skills Section -->
+            <div class="card section-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Skills</h5>
+                    <button class="btn btn-primary btn-sm" onclick="addSkill()">Add Skill</button>
+                </div>
+                <div class="card-body">
+                    <div id="skillsContent">
+                        <div class="text-center py-4">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Employment History -->
+            <div class="card section-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-briefcase me-2"></i>Employment History</h5>
+                    <button class="btn btn-primary btn-sm" onclick="addEmployment()">Add Employment</button>
+                </div>
+                <div class="card-body">
+                    <div id="employmentContent">
+                        <div class="text-center py-4">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Education -->
+            <div class="card section-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Education</h5>
+                    <button class="btn btn-primary btn-sm" onclick="addEducation()">Add Education</button>
+                </div>
+                <div class="card-body">
+                    <div id="educationContent">
+                        <div class="text-center py-4">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documents -->
+            <div class="card section-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-file-upload me-2"></i>Documents</h5>
+                    <button class="btn btn-primary btn-sm" onclick="addDocument()">Upload Document</button>
+                </div>
+                <div class="card-body">
+                    <div id="documentsContent">
+                        <div class="text-center py-4">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Navbar -->
+    <div class="mobile-bottom-nav">
+        <a href="/"><i class="fas fa-home"></i>Home</a>
+        <a href="/dashboard"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+        <a href="/applications/"><i class="fas fa-file-alt"></i>Jobs</a>
+        <a href="/profile/" class="active"><i class="fas fa-user"></i>Profile</a>
+    </div>
+
+    <!-- Add Skill Modal -->
+    <div class="modal fade" id="skillModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Skill</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="skillForm">
+                        <div class="mb-3">
+                            <label class="form-label">Skill Name</label>
+                            <input type="text" class="form-control" name="skill_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Proficiency</label>
+                            <select class="form-select" name="proficiency" required>
+                                <option value="beginner">Beginner</option>
+                                <option value="intermediate">Intermediate</option>
+                                <option value="good" selected>Good</option>
+                                <option value="expert">Expert</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Add Skill</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Employment Modal -->
+    <div class="modal fade" id="employmentModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Employment History</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="employmentForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Job Title *</label>
+                                    <input type="text" class="form-control" name="job_title" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Company *</label>
+                                    <input type="text" class="form-control" name="company" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Location</label>
+                                    <input type="text" class="form-control" name="location">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Contract Type</label>
+                                    <select class="form-select" name="contract_type">
+                                        <option value="">Select Type</option>
+                                        <option value="full_time">Full Time</option>
+                                        <option value="part_time">Part Time</option>
+                                        <option value="contract">Contract</option>
+                                        <option value="temporary">Temporary</option>
+                                        <option value="internship">Internship</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Start Date *</label>
+                                    <input type="date" class="form-control" name="start_date" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">End Date</label>
+                                    <input type="date" class="form-control" name="end_date">
+                                    <div class="form-check mt-2">
+                                        <input class="form-check-input" type="checkbox" id="currentlyWorking" name="currently_working">
+                                        <label class="form-check-label" for="currentlyWorking">
+                                            I currently work here
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" name="description" rows="4" placeholder="Describe your responsibilities and achievements"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Add Employment</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Education Modal -->
+    <div class="modal fade" id="educationModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Education</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="educationForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Qualification *</label>
+                                    <input type="text" class="form-control" name="qualification" required placeholder="e.g., Bachelor of Science">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Institution *</label>
+                                    <input type="text" class="form-control" name="institution" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Completion Year *</label>
+                                    <input type="number" class="form-control" name="completion_year" min="1900" max="2030" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Major Subject</label>
+                                    <input type="text" class="form-control" name="major_subject" placeholder="e.g., Computer Science">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Grade</label>
+                                    <input type="text" class="form-control" name="grade" placeholder="e.g., 3.8 GPA, First Class">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Country</label>
+                                    <input type="text" class="form-control" name="country" placeholder="Country of institution">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Add Education</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Document Modal -->
+    <div class="modal fade" id="documentModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Upload Document</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="documentForm" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label class="form-label">Document Type</label>
+                            <select class="form-select" name="document_type" required>
+                                <option value="">Select Document Type</option>
+                                <option value="cv">CV / Resume</option>
+                                <option value="cover_letter">Cover Letter</option>
+                                <option value="certificate">Certificate</option>
+                                <option value="transcript">Academic Transcript</option>
+                                <option value="id">ID Document</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Select File</label>
+                            <input type="file" class="form-control" name="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+                            <div class="form-text">Allowed formats: PDF, DOC, DOCX, JPG, JPEG, PNG (Max 5MB)</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-upload me-2"></i>Upload Document
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Personal Info Modal -->
+    <div class="modal fade" id="personalInfoModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="personalInfoForm">
+                         <button type="submit" class="btn btn-primary w-100">Update Information</button></h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Title</label>
+                                    <select class="form-select" name="title" id="titleInput">
+                                        <option value="">Select Title</option>
+                                        <option value="mr">Mr</option>
+                                        <option value="ms">Ms</option>
+                                        <option value="mrs">Mrs</option>
+                                        <option value="dr">Dr</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Gender</label>
+                                    <select class="form-select" name="gender" id="genderInput">
+                                        <option value="">Select Gender</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">First Name *</label>
+                                    <input type="text" class="form-control" name="first_name" id="firstNameInput" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Last Name *</label>
+                                    <input type="text" class="form-control" name="last_name" id="lastNameInput" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Ethnicity</label>
+                                    <select class="form-select" name="ethnicity" id="ethnicityInput">
+                                        <option value="">Select Ethnicity</option>
+                                        <option value="african">African</option>
+                                        <option value="coloured">Coloured</option>
+                                        <option value="indian">Indian</option>
+                                        <option value="white">White</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Citizenship Status</label>
+                                    <select class="form-select" name="is_citizen" id="citizenInput">
+                                        <option value="">Select Status</option>
+                                        <option value="south_african">South African Citizen</option>
+                                        <option value="permanent_resident">Permanent Resident</option>
+                                        <option value="work_permit">Work Permit</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Date of Birth</label>
+                                    <input type="date" class="form-control" name="birth_date" id="birthDateInput">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Current Location</label>
+                                    <input type="text" class="form-control" name="current_home_location" id="locationInput" placeholder="e.g., City, Country">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" name="has_drivers_license" id="driversLicenseInput">
+                                    <label class="form-check-label" for="driversLicenseInput">
+                                        Has Driver's License
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" name="has_own_transport" id="ownTransportInput">
+                                    <label class="form-check-label" for="ownTransportInput">
+                                        Has Own Transport
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" name="willing_to_relocate" id="relocateInput">
+                                    <label class="form-check-label" for="relocateInput">
+                                        Willing to Relocate
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Preferred Job Title</label>
+                                    <input type="text" class="form-control" name="preferred_job_title" id="preferredJobInput" placeholder="e.g., Software Engineer">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Availability</label>
+                                    <input type="text" class="form-control" name="availability" id="availabilityInput" placeholder="e.g., Immediate, 2 weeks notice">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Current Salary Range</label>
+                                    <select class="form-select" name="current_salary" id="currentSalaryInput">
+                                        <option value="">Select Range</option>
+                                        <option value="0_50k">0 - 50K Annually</option>
+                                        <option value="50_100k">50 - 100K Annually</option>
+                                        <option value="100_150k">100 - 150K Annually</option>
+                                        <option value="150_200k">150 - 200K Annually</option>
+                                        <option value="200k_plus">200K+ Annually</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Desired Salary Range</label>
+                                    <select class="form-select" name="desired_salary" id="desiredSalaryInput">
+                                        <option value="">Select Range</option>
+                                        <option value="0_50k">0 - 50K Annually</option>
+                                        <option value="50_100k">50 - 100K Annually</option>
+                                        <option value="100_150k">100 - 150K Annually</option>
+                                        <option value="150_200k">150 - 200K Annually</option>
+                                        <option value="200k_plus">200K+ Annually</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Professional Introduction</label>
+                            <textarea class="form-control" name="introduction" id="introductionInput" rows="4" placeholder="Brief professional introduction about yourself"></textarea>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Business Profile Modal -->
+    <div class="modal fade" id="businessProfileModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><button type="submit" class="btn btn-primary w-100">Update Business Profile</button></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="businessProfileForm" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Company Name *</label>
+                                    <input type="text" class="form-control" name="company_name" id="companyNameInput" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Phone Number</label>
+                                    <input type="text" class="form-control" name="phone_number" id="companyPhoneInput">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Company Description</label>
+                            <textarea class="form-control" name="company_description" id="companyDescriptionInput" rows="3" placeholder="Brief description of your company"></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Industry</label>
+                                    <select class="form-select" name="industry" id="industryInput">
+                                        <option value="">Select Industry</option>
+                                        <!-- Options will be populated dynamically -->
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Company Size</label>
+                                    <select class="form-select" name="company_size" id="companySizeInput">
+                                        <option value="">Select Company Size</option>
+                                        <!-- Options will be populated dynamically -->
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Website</label>
+                                    <input type="url" class="form-control" name="website" id="websiteInput" placeholder="https://example.com">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Company Logo</label>
+                                    <input type="file" class="form-control" name="company_logo" id="companyLogoInput" accept="image/*">
+                                    <div class="form-text">Recommended size: 150x150 pixels</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div id="companyLogoPreview" class="mt-2"></div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Address</label>
+                                    <input type="text" class="form-control" name="address" id="addressInput" placeholder="Street address">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">City</label>
+                                    <input type="text" class="form-control" name="city" id="cityInput" placeholder="City">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Country</label>
+                                    <input type="text" class="form-control" name="country" id="countryInput" placeholder="Country">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Postal Code</label>
+                                    <input type="text" class="form-control" name="postal_code" id="postalCodeInput" placeholder="Postal code">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" name="receive_applicant_notifications" id="notificationsInput">
+                                    <label class="form-check-label" for="notificationsInput">
+                                        Receive Applicant Notifications
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" name="receive_newsletter" id="newsletterInput">
+                                    <label class="form-check-label" for="newsletterInput">
+                                        Receive Newsletter
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variable to track user type
+        let currentUserType = 'applicant';
+
+        // Simple navigation functions
+        function toggleProfileDropdown() {
+            document.getElementById("profileMenu").classList.toggle("show");
+        }
+
+        // Close dropdown on click outside
+        document.addEventListener("click", function(e) {
+            const menu = document.getElementById("profileMenu");
+            const avatar = document.querySelector(".profile-avatar-small");
+            const threeDotMenu = document.querySelector(".three-dot-menu");
+
+            if (avatar && menu && !avatar.contains(e.target) && !menu.contains(e.target)) {
+                menu.classList.remove("show");
+            }
+        });
+
+        // Load profile data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProfileData();
+            setupFormHandlers();
+        });
+
+        function setupFormHandlers() {
+            // Skill form handler
+            document.getElementById('skillForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData);
+                
+                fetch('/api/profile/skills/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken()
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        bootstrap.Modal.getInstance(document.getElementById('skillModal')).hide();
+                        document.getElementById('skillForm').reset();
+                        loadProfileData();
+                        showToast('Skill added successfully!', 'success');
+                    } else {
+                        showToast('Error adding skill: ' + (data.errors || 'Please try again'), 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error adding skill. Please try again.', 'error');
+                });
+            });
+
+            // Employment form handler
+            document.getElementById('employmentForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData);
+                
+                // Handle currently working checkbox
+                data.currently_working = document.getElementById('currentlyWorking').checked;
+                if (data.currently_working) {
+                    data.end_date = null;
+                }
+                
+                fetch('/api/profile/employment/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken()
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        bootstrap.Modal.getInstance(document.getElementById('employmentModal')).hide();
+                        document.getElementById('employmentForm').reset();
+                        loadProfileData();
+                        showToast('Employment history added successfully!', 'success');
+                    } else {
+                        showToast('Error adding employment: ' + (data.errors || 'Please try again'), 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error adding employment history. Please try again.', 'error');
+                });
+            });
+
+            // Education form handler
+            document.getElementById('educationForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData);
+                
+                fetch('/api/profile/education/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken()
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        bootstrap.Modal.getInstance(document.getElementById('educationModal')).hide();
+                        document.getElementById('educationForm').reset();
+                        loadProfileData();
+                        showToast('Education added successfully!', 'success');
+                    } else {
+                        showToast('Error adding education: ' + (data.errors || 'Please try again'), 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error adding education. Please try again.', 'error');
+                });
+            });
+
+            // Document form handler
+            document.getElementById('documentForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                
+                // Show loading state
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Uploading...';
+                submitBtn.disabled = true;
+
+                fetch('/api/profile/documents/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCSRFToken()
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        bootstrap.Modal.getInstance(document.getElementById('documentModal')).hide();
+                        this.reset();
+                        loadProfileData();
+                        showToast('Document uploaded successfully!', 'success');
+                    } else {
+                        let errorMessage = 'Error uploading document: ';
+                        if (data.errors) {
+                            errorMessage += Object.values(data.errors).join(', ');
+                        } else {
+                            errorMessage += 'Please try again.';
+                        }
+                        showToast(errorMessage, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error uploading document. Please try again.', 'error');
+                })
+                .finally(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                });
+            });
+
+            // Personal info form handler
+            document.getElementById('personalInfoForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData);
+                
+                // Handle checkboxes properly
+                data.has_drivers_license = document.getElementById('driversLicenseInput').checked;
+                data.has_own_transport = document.getElementById('ownTransportInput').checked;
+                data.willing_to_relocate = document.getElementById('relocateInput').checked;
+                
+                // Handle empty strings for optional fields
+                const optionalFields = ['title', 'gender', 'ethnicity', 'is_citizen', 'current_home_location', 'preferred_job_title', 'availability', 'current_salary', 'desired_salary', 'introduction'];
+                optionalFields.forEach(field => {
+                    if (data[field] === '') {
+                        data[field] = null;
+                    }
+                });
+                
+                console.log('Sending profile update:', data);
+                
+                fetch('/api/profile/edit/', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken()
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json().then(data => ({ status: response.status, data })))
+                .then(({ status, data }) => {
+                    if (status === 200 && data.success) {
+                        bootstrap.Modal.getInstance(document.getElementById('personalInfoModal')).hide();
+                        loadProfileData();
+                        showToast('Personal information updated successfully!', 'success');
+                    } else {
+                        console.error('Update failed:', data);
+                        let errorMessage = 'Error updating information';
+                        if (data.errors) {
+                            const errorMessages = [];
+                            for (const field in data.errors) {
+                                errorMessages.push(`${field}: ${data.errors[field].join(', ')}`);
+                            }
+                            errorMessage += ': ' + errorMessages.join('; ');
+                        }
+                        showToast(errorMessage, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Network error:', error);
+                    showToast('Network error. Please check your connection and try again.', 'error');
+                });
+            });
+
+            // Business profile form handler
+            document.getElementById('businessProfileForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                
+                // Show loading state
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
+                submitBtn.disabled = true;
+                
+                fetch('/api/profile/edit/', {
+                    method: 'PUT',
+                    headers: {
+                        'X-CSRFToken': getCSRFToken()
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        bootstrap.Modal.getInstance(document.getElementById('businessProfileModal')).hide();
+                        loadProfileData();
+                        showToast('Business profile updated successfully!', 'success');
+                    } else {
+                        let errorMessage = 'Error updating business profile';
+                        if (data.errors) {
+                            const errorMessages = [];
+                            for (const field in data.errors) {
+                                errorMessages.push(`${field}: ${data.errors[field].join(', ')}`);
+                            }
+                            errorMessage += ': ' + errorMessages.join('; ');
+                        }
+                        showToast(errorMessage, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error updating business profile. Please try again.', 'error');
+                })
+                .finally(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                });
+            });
+
+            // Currently working checkbox handler
+            document.getElementById('currentlyWorking').addEventListener('change', function() {
+                const endDateInput = document.querySelector('input[name="end_date"]');
+                if (this.checked) {
+                    endDateInput.disabled = true;
+                    endDateInput.value = '';
+                } else {
+                    endDateInput.disabled = false;
+                }
+            });
+
+            // Company logo preview
+            document.getElementById('companyLogoInput').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                const preview = document.getElementById('companyLogoPreview');
+                
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.innerHTML = `<img src="${e.target.result}" class="company-logo-preview" alt="Company Logo Preview">`;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    preview.innerHTML = '';
+                }
+            });
+        }
+
+        function loadProfileData() {
+            fetch('/api/profile/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Determine user type and update UI accordingly
+                        currentUserType = data.user_type || 'applicant';
+                        updateUIForUserType(currentUserType, data);
+                        
+                        if (currentUserType === 'applicant') {
+                            updateProfileCompleteness(data.profile);
+                            displayPersonalInfo(data.profile);
+                            displaySkills(data.skills);
+                            displayEmployment(data.employment);
+                            displayEducation(data.education);
+                            displayDocuments(data.documents);
+                        } else if (currentUserType === 'admin') {
+                            displayUserInfo(data.user);
+                            displayBusinessProfile(data.business_profile);
+                        }
+                    } else {
+                        console.error('Failed to load profile data');
+                        showToast('Error loading profile data', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading profile:', error);
+                    // Show error states
+                    document.querySelectorAll('.card-body').forEach(el => {
+                        if (el.querySelector('.spinner-border')) {
+                            el.innerHTML = '<div class="text-center text-muted py-4">Error loading data. Please refresh the page.</div>';
+                        }
+                    });
+                    showToast('Error loading profile data', 'error');
+                });
+        }
+
+        function updateUIForUserType(userType, data) {
+            const profileHeader = document.getElementById('profileHeader');
+            const profileTitle = document.getElementById('profileTitle');
+            const profileSubtitle = document.getElementById('profileSubtitle');
+            const userInfoTitle = document.getElementById('userInfoTitle');
+            const editUserInfoBtn = document.getElementById('editUserInfoBtn');
+            const profileCompletenessSection = document.getElementById('profileCompletenessSection');
+            const applicantSections = document.getElementById('applicantSections');
+            const businessProfileSection = document.getElementById('businessProfileSection');
+
+            if (userType === 'admin') {
+                // Business user UI
+                profileHeader.classList.add('business-section');
+                profileTitle.textContent = 'Business Profile';
+                profileSubtitle.textContent = 'Manage your company information and settings';
+                userInfoTitle.innerHTML = '<i class="fas fa-user me-2"></i>Account Information';
+                editUserInfoBtn.textContent = 'Edit Account';
+                profileCompletenessSection.style.display = 'none';
+                applicantSections.style.display = 'none';
+                businessProfileSection.style.display = 'block';
+            } else {
+                // Applicant user UI
+                profileHeader.classList.remove('business-section');
+                profileTitle.textContent = 'My Profile';
+                profileSubtitle.textContent = 'Manage your professional information and job preferences';
+                userInfoTitle.innerHTML = '<i class="fas fa-user me-2"></i>Personal Information';
+                editUserInfoBtn.textContent = 'Edit';
+                profileCompletenessSection.style.display = 'block';
+                applicantSections.style.display = 'block';
+                businessProfileSection.style.display = 'none';
+            }
+        }
+
+        function updateProfileCompleteness(profile) {
+            const completeness = profile.profile_completeness || 0;
+            document.getElementById('completenessBar').style.width = `${completeness}%`;
+            document.getElementById('completenessText').textContent = `${completeness}% Complete`;
+        }
+
+        function displayUserInfo(user) {
+            const content = document.getElementById('userInfoContent');
+            
+            content.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Username:</strong> ${user.username || 'Not set'}</p>
+                        <p><strong>Email:</strong> ${user.email || 'Not set'}</p>
+                        <p><strong>First Name:</strong> ${user.first_name || 'Not set'}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Last Name:</strong> ${user.last_name || 'Not set'}</p>
+                        <p><strong>Phone:</strong> ${user.mobile_phone || 'Not set'}</p>
+                        <p><strong>User Type:</strong> ${user.user_type || 'Not set'}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayBusinessProfile(businessProfile) {
+            const content = document.getElementById('businessProfileContent');
+            
+            if (!businessProfile) {
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-building"></i>
+                        <h5>No Business Profile</h5>
+                        <p>Set up your business profile to start posting jobs.</p>
+                        <button class="btn btn-primary" onclick="editBusinessProfile()">Setup Business Profile</button>
+                    </div>
+                `;
+                return;
+            }
+
+            content.innerHTML = `
+                <div class="row">
+                    <div class="col-md-4 text-center mb-3">
+                        ${businessProfile.company_logo ? 
+                            `<img src="${businessProfile.company_logo}" class="company-logo-preview" alt="${businessProfile.company_name}">` :
+                            '<div class="text-muted"><i class="fas fa-building fa-3x"></i><br>No Logo</div>'
+                        }
+                    </div>
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Company Name:</strong> ${businessProfile.company_name || 'Not set'}</p>
+                                <p><strong>Industry:</strong> ${businessProfile.industry_name || 'Not set'}</p>
+                                <p><strong>Company Size:</strong> ${businessProfile.company_size_name || 'Not set'}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Phone:</strong> ${businessProfile.phone_number || 'Not set'}</p>
+                                <p><strong>Website:</strong> ${businessProfile.website ? `<a href="${businessProfile.website}" target="_blank">${businessProfile.website}</a>` : 'Not set'}</p>
+                                <p><strong>Verification:</strong> ${businessProfile.is_verified ? '<span class="badge bg-success">Verified</span>' : '<span class="badge bg-warning">Pending</span>'}</p>
+                            </div>
+                        </div>
+                        ${businessProfile.company_description ? `
+                            <div class="mt-3">
+                                <strong>Company Description:</strong>
+                                <p class="mt-1">${businessProfile.company_description}</p>
+                            </div>
+                        ` : ''}
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <p><strong>Address:</strong> ${businessProfile.address || 'Not set'}</p>
+                                <p><strong>City:</strong> ${businessProfile.city || 'Not set'}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Country:</strong> ${businessProfile.country || 'Not set'}</p>
+                                <p><strong>Postal Code:</strong> ${businessProfile.postal_code || 'Not set'}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayPersonalInfo(profile) {
+            const content = document.getElementById('userInfoContent');
+            const user = profile.user || {};
+            
+            content.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Name:</strong> ${profile.first_name || 'Not set'} ${profile.last_name || ''}</p>
+                        <p><strong>Email:</strong> ${user.email || 'Not set'}</p>
+                        <p><strong>Phone:</strong> ${user.mobile_phone || 'Not set'}</p>
+                        <p><strong>Title:</strong> ${profile.title || 'Not set'}</p>
+                        <p><strong>Gender:</strong> ${profile.gender || 'Not set'}</p>
+                        <p><strong>Ethnicity:</strong> ${profile.ethnicity || 'Not set'}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Citizenship:</strong> ${profile.is_citizen || 'Not set'}</p>
+                        <p><strong>Date of Birth:</strong> ${profile.birth_date || 'Not set'}</p>
+                        <p><strong>Location:</strong> ${profile.current_home_location || 'Not set'}</p>
+                        <p><strong>Driver's License:</strong> ${profile.has_drivers_license ? 'Yes' : 'No'}</p>
+                        <p><strong>Own Transport:</strong> ${profile.has_own_transport ? 'Yes' : 'No'}</p>
+                        <p><strong>Willing to Relocate:</strong> ${profile.willing_to_relocate ? 'Yes' : 'No'}</p>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <p><strong>Preferred Job:</strong> ${profile.preferred_job_title || 'Not set'}</p>
+                        <p><strong>Availability:</strong> ${profile.availability || 'Not set'}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Current Salary:</strong> ${profile.current_salary || 'Not set'}</p>
+                        <p><strong>Desired Salary:</strong> ${profile.desired_salary || 'Not set'}</p>
+                    </div>
+                </div>
+                ${profile.introduction ? `<div class="mt-3"><strong>Introduction:</strong><p class="mt-1">${profile.introduction}</p></div>` : ''}
+            `;
+        }
+
+        function displaySkills(skills) {
+            const content = document.getElementById('skillsContent');
+            
+            if (!skills || skills.length === 0) {
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-cogs"></i>
+                        <h5>No Skills Added</h5>
+                        <p>Add your skills to showcase your expertise to employers.</p>
+                        <button class="btn btn-primary" onclick="addSkill()">Add Your First Skill</button>
+                    </div>
+                `;
+                return;
+            }
+
+            content.innerHTML = skills.map(skill => `
+                <div class="skill-item mb-3 p-3 border rounded">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">${skill.skill_name}</h6>
+                            <small class="text-muted">Proficiency: ${skill.proficiency}</small>
+                        </div>
+                        <button class="btn btn-outline-danger btn-sm" onclick="deleteSkill('${skill.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function displayEmployment(employment) {
+            const content = document.getElementById('employmentContent');
+            
+            if (!employment || employment.length === 0) {
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-briefcase"></i>
+                        <h5>No Employment History</h5>
+                        <p>Add your work experience to show employers your background.</p>
+                        <button class="btn btn-primary" onclick="addEmployment()">Add Employment</button>
+                    </div>
+                `;
+                return;
+            }
+
+            content.innerHTML = employment.map(job => `
+                <div class="employment-item mb-3 p-3 border rounded">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">${job.job_title}</h6>
+                            <p class="mb-1"><strong>${job.company}</strong> - ${job.location || 'Location not specified'}</p>
+                            <small class="text-muted">
+                                ${job.start_date ? new Date(job.start_date).toLocaleDateString() : 'Start date not set'} - 
+                                ${job.currently_working ? 'Present' : (job.end_date ? new Date(job.end_date).toLocaleDateString() : 'End date not set')}
+                            </small>
+                            ${job.description ? `<p class="mt-2">${job.description}</p>` : ''}
+                        </div>
+                        <button class="btn btn-outline-danger btn-sm" onclick="deleteEmployment('${job.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function displayEducation(education) {
+            const content = document.getElementById('educationContent');
+            
+            if (!education || education.length === 0) {
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-graduation-cap"></i>
+                        <h5>No Education Added</h5>
+                        <p>Add your educational background to complete your profile.</p>
+                        <button class="btn btn-primary" onclick="addEducation()">Add Education</button>
+                    </div>
+                `;
+                return;
+            }
+
+            content.innerHTML = education.map(edu => `
+                <div class="education-item mb-3 p-3 border rounded">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">${edu.qualification}</h6>
+                            <p class="mb-1"><strong>${edu.institution}</strong></p>
+                            <small class="text-muted">
+                                ${edu.completion_year ? `Completed: ${edu.completion_year}` : 'Completion year not set'}
+                                ${edu.major_subject ? ` | Major: ${edu.major_subject}` : ''}
+                                ${edu.grade ? ` | Grade: ${edu.grade}` : ''}
+                            </small>
+                        </div>
+                        <button class="btn btn-outline-danger btn-sm" onclick="deleteEducation('${edu.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function displayDocuments(documents) {
+            const content = document.getElementById('documentsContent');
+            
+            if (!documents || documents.length === 0) {
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-file-upload"></i>
+                        <h5>No Documents Uploaded</h5>
+                        <p>Upload your CV, certificates, and other important documents.</p>
+                        <button class="btn btn-primary" onclick="addDocument()">Upload Document</button>
+                    </div>
+                `;
+                return;
+            }
+
+            content.innerHTML = documents.map(doc => `
+                <div class="document-item mb-3 p-3 border rounded">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">${doc.file_name}</h6>
+                            <small class="text-muted">
+                                Type: ${doc.document_type} | 
+                                Uploaded: ${doc.uploaded_at ? new Date(doc.uploaded_at).toLocaleDateString() : 'Date not available'}
+                            </small>
+                        </div>
+                        <div>
+                            <a href="${doc.file}" class="btn btn-outline-primary btn-sm me-2" target="_blank">
+                                <i class="fas fa-download"></i>
+                            </a>
+                            <button class="btn btn-outline-danger btn-sm" onclick="deleteDocument('${doc.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Modal functions
+        function addSkill() {
+            const modal = new bootstrap.Modal(document.getElementById('skillModal'));
+            modal.show();
+        }
+
+        function addEmployment() {
+            const modal = new bootstrap.Modal(document.getElementById('employmentModal'));
+            modal.show();
+        }
+
+        function addEducation() {
+            const modal = new bootstrap.Modal(document.getElementById('educationModal'));
+            modal.show();
+        }
+
+        function addDocument() {
+            const modal = new bootstrap.Modal(document.getElementById('documentModal'));
+            modal.show();
+        }
+
+        function editUserInfo() {
+            if (currentUserType === 'applicant') {
+                // Load current data into personal info form
+                fetch('/api/profile/')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const profile = data.profile;
+                            
+                            // Populate all form fields
+                            document.getElementById('titleInput').value = profile.title || '';
+                            document.getElementById('genderInput').value = profile.gender || '';
+                            document.getElementById('firstNameInput').value = profile.first_name || '';
+                            document.getElementById('lastNameInput').value = profile.last_name || '';
+                            document.getElementById('ethnicityInput').value = profile.ethnicity || '';
+                            document.getElementById('citizenInput').value = profile.is_citizen || '';
+                            document.getElementById('birthDateInput').value = profile.birth_date || '';
+                            document.getElementById('locationInput').value = profile.current_home_location || '';
+                            document.getElementById('driversLicenseInput').checked = profile.has_drivers_license || false;
+                            document.getElementById('ownTransportInput').checked = profile.has_own_transport || false;
+                            document.getElementById('relocateInput').checked = profile.willing_to_relocate || false;
+                            document.getElementById('preferredJobInput').value = profile.preferred_job_title || '';
+                            document.getElementById('availabilityInput').value = profile.availability || '';
+                            document.getElementById('currentSalaryInput').value = profile.current_salary || '';
+                            document.getElementById('desiredSalaryInput').value = profile.desired_salary || '';
+                            document.getElementById('introductionInput').value = profile.introduction || '';
+                            
+                            const modal = new bootstrap.Modal(document.getElementById('personalInfoModal'));
+                            modal.show();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading profile data:', error);
+                        showToast('Error loading profile data', 'error');
+                    });
+            } else {
+                // For business users, edit account info
+                editAccountInfo();
+            }
+        }
+
+        function editAccountInfo() {
+            // Load current user data for business users
+            fetch('/api/profile/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const user = data.user;
+                        
+                        // For business users, we'll use the personal info modal but with limited fields
+                        document.getElementById('firstNameInput').value = user.first_name || '';
+                        document.getElementById('lastNameInput').value = user.last_name || '';
+                        
+                        // Show only relevant fields for business users
+                        document.querySelectorAll('#personalInfoForm .mb-3').forEach(el => {
+                            if (!el.querySelector('#firstNameInput') && !el.querySelector('#lastNameInput')) {
+                                el.style.display = 'none';
+                            }
+                        });
+                        
+                        const modal = new bootstrap.Modal(document.getElementById('personalInfoModal'));
+                        modal.show();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading user data:', error);
+                    showToast('Error loading user data', 'error');
+                });
+        }
+
+        function editBusinessProfile() {
+            // Load current business data
+            fetch('/api/profile/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const business = data.business_profile || {};
+                        
+                        // Populate business form fields
+                        document.getElementById('companyNameInput').value = business.company_name || '';
+                        document.getElementById('companyPhoneInput').value = business.phone_number || '';
+                        document.getElementById('companyDescriptionInput').value = business.company_description || '';
+                        document.getElementById('websiteInput').value = business.website || '';
+                        document.getElementById('addressInput').value = business.address || '';
+                        document.getElementById('cityInput').value = business.city || '';
+                        document.getElementById('countryInput').value = business.country || '';
+                        document.getElementById('postalCodeInput').value = business.postal_code || '';
+                        document.getElementById('notificationsInput').checked = business.receive_applicant_notifications || false;
+                        document.getElementById('newsletterInput').checked = business.receive_newsletter || false;
+                        
+                        // Load industries and company sizes
+                        loadIndustriesAndSizes(business.industry, business.company_size);
+                        
+                        // Show logo preview if exists
+                        if (business.company_logo) {
+                            document.getElementById('companyLogoPreview').innerHTML = 
+                                `<img src="${business.company_logo}" class="company-logo-preview" alt="Current Logo">`;
+                        }
+                        
+                        const modal = new bootstrap.Modal(document.getElementById('businessProfileModal'));
+                        modal.show();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading business profile:', error);
+                    showToast('Error loading business profile', 'error');
+                });
+        }
+
+        function loadIndustriesAndSizes(selectedIndustry = null, selectedSize = null) {
+            // Load industries
+            fetch('/api/industries/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const industrySelect = document.getElementById('industryInput');
+                        industrySelect.innerHTML = '<option value="">Select Industry</option>';
+                        data.industries.forEach(industry => {
+                            const option = document.createElement('option');
+                            option.value = industry.id;
+                            option.textContent = industry.name;
+                            if (selectedIndustry && industry.id === selectedIndustry) {
+                                option.selected = true;
+                            }
+                            industrySelect.appendChild(option);
+                        });
+                    }
+                });
+
+            // Load company sizes
+            fetch('/api/company-sizes/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const sizeSelect = document.getElementById('companySizeInput');
+                        sizeSelect.innerHTML = '<option value="">Select Company Size</option>';
+                        data.company_sizes.forEach(size => {
+                            const option = document.createElement('option');
+                            option.value = size.id;
+                            option.textContent = size.size_range;
+                            if (selectedSize && size.id === selectedSize) {
+                                option.selected = true;
+                            }
+                            sizeSelect.appendChild(option);
+                        });
+                    }
+                });
+        }
+
+        // Delete functions (only for applicants)
+        function deleteSkill(skillId) {
+            if (confirm('Are you sure you want to delete this skill?')) {
+                fetch(`/api/profile/skills/${skillId}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCSRFToken()
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        loadProfileData();
+                        showToast('Skill deleted successfully!', 'success');
+                    } else {
+                        showToast('Error deleting skill', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error deleting skill', 'error');
+                });
+            }
+        }
+
+        function deleteEmployment(employmentId) {
+            if (confirm('Are you sure you want to delete this employment record?')) {
+                fetch(`/api/profile/employment/${employmentId}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCSRFToken()
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        loadProfileData();
+                        showToast('Employment record deleted successfully!', 'success');
+                    } else {
+                        showToast('Error deleting employment record', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error deleting employment record', 'error');
+                });
+            }
+        }
+
+        function deleteEducation(educationId) {
+            if (confirm('Are you sure you want to delete this education record?')) {
+                fetch(`/api/profile/education/${educationId}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCSRFToken()
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        loadProfileData();
+                        showToast('Education record deleted successfully!', 'success');
+                    } else {
+                        showToast('Error deleting education record', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error deleting education record', 'error');
+                });
+            }
+        }
+
+        function deleteDocument(documentId) {
+            if (confirm('Are you sure you want to delete this document?')) {
+                fetch(`/api/profile/documents/${documentId}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCSRFToken()
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        loadProfileData();
+                        showToast('Document deleted successfully!', 'success');
+                    } else {
+                        showToast('Error deleting document', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error deleting document', 'error');
+                });
+            }
+        }
+
+        // Utility functions
+        function getCSRFToken() {
+            const name = 'csrftoken';
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function showToast(message, type = 'info') {
+            // Create toast container if it doesn't exist
+            let toastContainer = document.getElementById('toastContainer');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'toastContainer';
+                toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+                toastContainer.style.zIndex = '9999';
+                document.body.appendChild(toastContainer);
+            }
+
+            const toastId = 'toast-' + Date.now();
+            const bgColor = type === 'success' ? 'bg-success' : type === 'error' ? 'bg-danger' : 'bg-info';
+            
+            const toastHtml = `
+                <div id="${toastId}" class="toast align-items-center text-white ${bgColor} border-0" role="alert">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                </div>
+            `;
+            
+            toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+            
+            const toastElement = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+            toast.show();
+            
+            // Remove toast from DOM after it's hidden
+            toastElement.addEventListener('hidden.bs.toast', function () {
+                toastElement.remove();
+            });
+        }
+    </script>
+</body>
+</html>

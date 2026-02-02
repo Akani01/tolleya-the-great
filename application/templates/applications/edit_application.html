@@ -1,0 +1,663 @@
+{% extends 'main_app/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Edit Application</h2>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5>Application for {{ application.student }}</h5>
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="badge bg-{% if application.status == 'submitted' %}success{% elif application.status == 'draft' %}warning{% else %}info{% endif %}">
+                    {{ application.get_status_display }}
+                </span>
+                <small class="text-muted">Created: {{ application.created_at|date:"Y-m-d H:i" }}</small>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- Status and AI Service Selection -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label">Application Status</label>
+                        <select name="status" class="form-select">
+                            {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if application.status == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Preferred AI Service</label>
+                        <select name="preferred_ai_service" class="form-select">
+                            <option value="none">Auto-select</option>
+                            {% for service in ai_services %}
+                            <option value="{{ service.id }}" 
+                                    {% if application.preferred_ai_service == service %}selected{% endif %}>
+                                {{ service.name }} ({{ service.model_name }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Personal Information -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0">Personal Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Full Name *</label>
+                                    <input type="text" class="form-control" name="student" 
+                                           value="{{ application.student }}" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">ID/Passport Number</label>
+                                    <input type="text" class="form-control" name="id_number" 
+                                           value="{{ application.id_number|default:'' }}">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Date of Birth</label>
+                                    <input type="date" class="form-control" name="date_of_birth" 
+                                           value="{% if application.date_of_birth %}{{ application.date_of_birth|date:'Y-m-d' }}{% endif %}">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Gender</label>
+                                    <select name="gender" class="form-select">
+                                        <option value="">Select gender</option>
+                                        <option value="male" {% if application.gender == 'male' %}selected{% endif %}>Male</option>
+                                        <option value="female" {% if application.gender == 'female' %}selected{% endif %}>Female</option>
+                                        <option value="other" {% if application.gender == 'other' %}selected{% endif %}>Other</option>
+                                        <option value="prefer_not_to_say" {% if application.gender == 'prefer_not_to_say' %}selected{% endif %}>Prefer not to say</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Marital Status</label>
+                                    <select name="marital_status" class="form-select">
+                                        <option value="">Select status</option>
+                                        <option value="single" {% if application.marital_status == 'single' %}selected{% endif %}>Single</option>
+                                        <option value="married" {% if application.marital_status == 'married' %}selected{% endif %}>Married</option>
+                                        <option value="divorced" {% if application.marital_status == 'divorced' %}selected{% endif %}>Divorced</option>
+                                        <option value="widowed" {% if application.marital_status == 'widowed' %}selected{% endif %}>Widowed</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Email Address *</label>
+                                    <input type="email" class="form-control" name="email" 
+                                           value="{{ application.email|default:'' }}" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Phone Number *</label>
+                                    <input type="tel" class="form-control" name="phone" 
+                                           value="{{ application.phone|default:'' }}" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Home Language</label>
+                                    <input type="text" class="form-control" name="home_language" 
+                                           value="{{ application.home_language|default:'' }}">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Citizenship</label>
+                                    <input type="text" class="form-control" name="citizenship" 
+                                           value="{{ application.citizenship|default:'' }}">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Race</label>
+                                    <select name="race" class="form-select">
+                                        <option value="">Select race</option>
+                                        <option value="black" {% if application.race == 'black' %}selected{% endif %}>Black</option>
+                                        <option value="white" {% if application.race == 'white' %}selected{% endif %}>White</option>
+                                        <option value="coloured" {% if application.race == 'coloured' %}selected{% endif %}>Coloured</option>
+                                        <option value="indian" {% if application.race == 'indian' %}selected{% endif %}>Indian/Asian</option>
+                                        <option value="other" {% if application.race == 'other' %}selected{% endif %}>Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Full Address *</label>
+                            <textarea class="form-control" name="address" rows="3" required>{{ application.address|default:'' }}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Disability Information</label>
+                            <textarea class="form-control" name="disability" rows="2">{{ application.disability|default:'' }}</textarea>
+                            <small class="text-muted">State any disabilities or 'No' if none</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Academic Information -->
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">Academic Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <!-- MULTIPLE UNIVERSITY SELECTION -->
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label fw-bold">Select Universities (Multiple)</label>
+                                <div>
+                                    <span id="university-count" class="badge bg-secondary">0 selected</span>
+                                    <button type="button" class="btn btn-sm btn-outline-primary ms-2" onclick="selectAllUniversities()">Select All</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearAllUniversities()">Clear All</button>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                {% for university in universities %}
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-check card-checkbox">
+                                        <input class="form-check-input" type="checkbox" 
+                                               name="selected_universities[]" 
+                                               value="{{ university.id }}" 
+                                               id="university_{{ university.id }}"
+                                               {% if university in application.universities.all %}checked{% endif %}>
+                                        <label class="form-check-label w-100" for="university_{{ university.id }}">
+                                            <div class="d-flex align-items-center">
+                                                {% if university.logo %}
+                                                <img src="{{ university.logo.url }}" alt="{{ university.title }}" 
+                                                     class="me-2" style="width: 24px; height: 24px; object-fit: contain;">
+                                                {% endif %}
+                                                <div>
+                                                    <strong>{{ university.title }}</strong>
+                                                    {% if university.location %}
+                                                    <small class="text-muted d-block">📍 {{ university.location }}</small>
+                                                    {% endif %}
+                                                    {% if university.website_url %}
+                                                    <small class="d-block">
+                                                        <a href="{{ university.website_url }}" target="_blank" class="text-decoration-none">
+                                                            <i class="fas fa-external-link-alt"></i> Website
+                                                        </a>
+                                                    </small>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="col-12">
+                                    <div class="alert alert-info">
+                                        No universities available. Please add universities first or use manual entry below.
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="mt-3">
+                                <label class="form-label">Or enter university name manually</label>
+                                <input type="text" class="form-control" name="university_manual" 
+                                       value="{{ application.university_manual|default:'' }}"
+                                       placeholder="Enter university name if not in list above">
+                            </div>
+                        </div>
+                        
+                        <!-- Course and School Information -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Course/Faculty Choice</label>
+                                    <input type="text" class="form-control" name="course_faculty" 
+                                           value="{{ application.course_faculty|default:'' }}"
+                                           placeholder="e.g., BSc Computer Science">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Target Form URL</label>
+                                    <input type="url" class="form-control" name="target_form_url" 
+                                           value="{{ application.target_form_url|default:'' }}"
+                                           placeholder="https://university.ac.za/apply">
+                                    <small class="text-muted">Paste the exact URL of the university's online application form</small>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">High School Name</label>
+                                    <input type="text" class="form-control" name="school_name" 
+                                           value="{{ application.school_name|default:'' }}">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Matriculation Year</label>
+                                    <input type="number" class="form-control" name="matric_year" 
+                                           value="{{ application.matric_year|default:'' }}"
+                                           min="1900" max="{% now 'Y' %}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bursary Information -->
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">Bursary Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Select Bursaries (Multiple)</label>
+                            <div class="row">
+                                {% for bursary in bursaries %}
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" 
+                                               name="selected_bursaries[]" 
+                                               value="{{ bursary.id }}" 
+                                               id="bursary_{{ bursary.id }}"
+                                               {% if bursary in application.selected_bursaries.all %}checked{% endif %}>
+                                        <label class="form-check-label" for="bursary_{{ bursary.id }}">
+                                            {{ bursary.title }}
+                                            {% if bursary.provider %}
+                                            <small class="text-muted d-block">Provider: {{ bursary.provider }}</small>
+                                            {% endif %}
+                                            {% if bursary.closing_date %}
+                                            <small class="text-muted d-block">Closes: {{ bursary.closing_date|date:"Y-m-d" }}</small>
+                                            {% endif %}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="col-12">
+                                    <div class="alert alert-info">
+                                        No bursaries available.
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Or enter bursary name manually</label>
+                            <input type="text" class="form-control" name="bursary_manual" 
+                                   value="{{ application.bursary_manual|default:'' }}"
+                                   placeholder="Enter bursary name if not in list above">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Additional Information -->
+                <div class="card mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0">Additional Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Application Details</label>
+                            <textarea class="form-control" name="details" rows="6">{{ application.details|default:'' }}</textarea>
+                            <small class="text-muted">
+                                Enter any additional details: Courses/Faculty, Gender, Marital-status, 
+                                Home Language, Citizenship, Race, Email, Phone, ID Number, Birth Date, School Name
+                            </small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Next of Kin Details</label>
+                            <textarea class="form-control" name="next_of_kin" rows="3">{{ application.next_of_kin|default:'' }}</textarea>
+                            <small class="text-muted">Full name, address, phone numbers of next of kin</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Internal Notes</label>
+                            <textarea class="form-control" name="notes" rows="3">{{ application.notes|default:'' }}</textarea>
+                            <small class="text-muted">Internal notes for your reference only</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- File Uploads -->
+                <div class="card mb-4">
+                    <div class="card-header bg-warning">
+                        <h6 class="mb-0">File Uploads</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Profile Photo</label>
+                                    <input type="file" class="form-control" name="profile_image" accept="image/*">
+                                    {% if application.profile_image %}
+                                    <div class="mt-2">
+                                        <img src="{{ application.profile_image.url }}" alt="Profile Photo" 
+                                             class="img-thumbnail" style="max-width: 150px;">
+                                        <small class="d-block text-muted">Current photo</small>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Introduction Video (Optional)</label>
+                                    <input type="file" class="form-control" name="introduction_video" accept="video/*">
+                                    {% if application.introduction_video %}
+                                    <div class="mt-2">
+                                        <video controls class="w-100" style="max-height: 200px;">
+                                            <source src="{{ application.introduction_video.url }}" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                        <small class="d-block text-muted">Current video</small>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <button type="submit" name="save" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Save Changes
+                        </button>
+                        <button type="submit" name="save_and_view" class="btn btn-outline-info">
+                            <i class="fas fa-eye me-1"></i>Save & View
+                        </button>
+                    </div>
+                    
+                    <div>
+                        <button type="submit" name="save_and_automate" class="btn btn-success">
+                            <i class="fas fa-robot me-1"></i>Save & Start Automation
+                        </button>
+                        <a href="{% url 'my_applications' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Application Statistics -->
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h6>Progress</h6>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar {% if application.progress_percentage < 50 %}bg-warning{% else %}bg-success{% endif %}" 
+                             role="progressbar" 
+                             style="width: {{ application.progress_percentage }}%;"
+                             aria-valuenow="{{ application.progress_percentage }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                            {{ application.progress_percentage }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h6>Universities</h6>
+                    <h3>{{ application.universities.count }}</h3>
+                    <small class="text-muted">Selected</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h6>Bursaries</h6>
+                    <h3>{{ application.selected_bursaries.count }}</h3>
+                    <small class="text-muted">Selected</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h6>Automation</h6>
+                    <span class="badge 
+                        {% if application.automation_status == 'completed' %}bg-success
+                        {% elif application.automation_status == 'failed' %}bg-danger
+                        {% elif application.automation_status == 'analyzing' %}bg-info
+                        {% else %}bg-secondary{% endif %}">
+                        {{ application.get_automation_status_display }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Update university selection count
+function updateUniversityCount() {
+    const checkboxes = document.querySelectorAll('input[name="selected_universities[]"]:checked');
+    const count = checkboxes.length;
+    const countElement = document.getElementById('university-count');
+    
+    if (countElement) {
+        countElement.textContent = count + ' university' + (count !== 1 ? 's' : '') + ' selected';
+        countElement.className = count > 0 ? 
+            'badge bg-success' : 'badge bg-secondary';
+    }
+}
+
+// Select all universities
+function selectAllUniversities() {
+    const checkboxes = document.querySelectorAll('input[name="selected_universities[]"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = true;
+    });
+    updateUniversityCount();
+}
+
+// Clear all universities
+function clearAllUniversities() {
+    const checkboxes = document.querySelectorAll('input[name="selected_universities[]"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    updateUniversityCount();
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Add change listeners to university checkboxes
+    const universityCheckboxes = document.querySelectorAll('input[name="selected_universities[]"]');
+    universityCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateUniversityCount);
+    });
+    
+    // Initial count update
+    updateUniversityCount();
+    
+    // Add event listener for form submission
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        // Validate required fields
+        const requiredFields = form.querySelectorAll('[required]');
+        let isValid = true;
+        
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                isValid = false;
+                field.classList.add('is-invalid');
+                
+                // Create error message if it doesn't exist
+                if (!field.nextElementSibling || !field.nextElementSibling.classList.contains('invalid-feedback')) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback';
+                    errorDiv.textContent = 'This field is required';
+                    field.parentNode.appendChild(errorDiv);
+                }
+            } else {
+                field.classList.remove('is-invalid');
+                // Remove error message if it exists
+                if (field.nextElementSibling && field.nextElementSibling.classList.contains('invalid-feedback')) {
+                    field.nextElementSibling.remove();
+                }
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Please fill in all required fields (marked with *)');
+        }
+    });
+    
+    // Auto-format phone number
+    const phoneInput = document.querySelector('input[name="phone"]');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 0) {
+                if (value.length <= 2) {
+                    value = '+' + value;
+                } else if (value.length <= 5) {
+                    value = '+' + value.substring(0, 2) + ' ' + value.substring(2);
+                } else if (value.length <= 8) {
+                    value = '+' + value.substring(0, 2) + ' ' + value.substring(2, 5) + ' ' + value.substring(5);
+                } else {
+                    value = '+' + value.substring(0, 2) + ' ' + value.substring(2, 5) + ' ' + value.substring(5, 8) + ' ' + value.substring(8, 12);
+                }
+            }
+            e.target.value = value;
+        });
+    }
+    
+    // Validate email format
+    const emailInput = document.querySelector('input[name="email"]');
+    if (emailInput) {
+        emailInput.addEventListener('blur', function(e) {
+            const email = e.target.value;
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (email && !emailPattern.test(email)) {
+                e.target.classList.add('is-invalid');
+                if (!e.target.nextElementSibling || !e.target.nextElementSibling.classList.contains('invalid-feedback')) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback';
+                    errorDiv.textContent = 'Please enter a valid email address';
+                    e.target.parentNode.appendChild(errorDiv);
+                }
+            } else if (email) {
+                e.target.classList.remove('is-invalid');
+                if (e.target.nextElementSibling && e.target.nextElementSibling.classList.contains('invalid-feedback')) {
+                    e.target.nextElementSibling.remove();
+                }
+            }
+        });
+    }
+});
+</script>
+
+<style>
+.card-checkbox {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+    transition: all 0.2s;
+}
+
+.card-checkbox:hover {
+    border-color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+.card-checkbox .form-check-input {
+    margin-top: 0.25rem;
+}
+
+.card-checkbox .form-check-label {
+    cursor: pointer;
+}
+
+/* Custom scrollbar for long content */
+.form-control[rows="6"] {
+    resize: vertical;
+}
+
+/* Progress bar styling */
+.progress {
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    font-weight: bold;
+}
+
+/* Required field indicator */
+.form-label:after {
+    content: " *";
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.form-label:not([for*="required"]):after {
+    content: "";
+}
+
+/* File upload styling */
+input[type="file"] {
+    cursor: pointer;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card-checkbox {
+        margin-bottom: 0.5rem;
+    }
+    
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .d-flex.justify-content-between > div {
+        width: 100%;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Animation for form validation */
+.is-invalid {
+    animation: shake 0.5s;
+    border-color: #dc3545 !important;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Card headers */
+.card-header {
+    font-weight: 600;
+}
+</style>
+{% endblock %}

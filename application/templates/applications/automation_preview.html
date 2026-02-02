@@ -1,0 +1,616 @@
+{% extends 'main_app/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">Automation Preview</h4>
+                        <span class="badge bg-light text-primary">Preview Mode</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        This is a preview of what the AI will do when automating your application.
+                        No actual automation will occur until you confirm.
+                    </div>
+                    
+                    <!-- Application Summary -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card border-light">
+                                <div class="card-body">
+                                    <h6>Application Details</h6>
+                                    <p class="mb-1"><strong>Student:</strong> {{ application.student }}</p>
+                                    <p class="mb-1"><strong>Universities:</strong> {{ application.universities.count }} selected</p>
+                                    <p class="mb-1"><strong>Course:</strong> {{ application.course_faculty|default:"Not specified" }}</p>
+                                    <p class="mb-1"><strong>Target URL:</strong> 
+                                        <a href="{{ application.target_form_url }}" target="_blank" class="text-decoration-none">
+                                            {{ application.target_form_url|truncatechars:30 }}
+                                            <i class="fas fa-external-link-alt ms-1"></i>
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-light">
+                                <div class="card-body">
+                                    <h6>AI Service</h6>
+                                    {% if ai_service %}
+                                    <p class="mb-1"><strong>Service:</strong> {{ ai_service.name }}</p>
+                                    <p class="mb-1"><strong>Model:</strong> {{ ai_service.model_name }}</p>
+                                    <p class="mb-1"><strong>Provider:</strong> {{ ai_service.provider|title }}</p>
+                                    <p class="mb-0">
+                                        <span class="badge {% if ai_service.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                            {% if ai_service.is_active %}Active{% else %}Inactive{% endif %}
+                                        </span>
+                                    </p>
+                                    {% else %}
+                                    <p class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>No AI service available</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Automation Steps -->
+                    <h5 class="mb-3">Automation Steps</h5>
+                    <div class="timeline">
+                        {% for step in preview_steps %}
+                        <div class="timeline-item {% if forloop.first %}active{% endif %}">
+                            <div class="timeline-marker">
+                                <div class="timeline-number">{{ step.step }}</div>
+                                {% if forloop.first %}
+                                <div class="timeline-dot active"></div>
+                                {% else %}
+                                <div class="timeline-dot"></div>
+                                {% endif %}
+                            </div>
+                            <div class="timeline-content">
+                                <div class="card {% if forloop.first %}border-primary{% endif %}">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="card-title mb-1">
+                                                    <span class="badge bg-{% if step.action == 'navigate' %}info{% elif step.action == 'analyze' %}warning{% elif step.action == 'fill' %}success{% else %}secondary{% endif %} me-2">
+                                                        {{ step.action|title }}
+                                                    </span>
+                                                    {{ step.description }}
+                                                </h6>
+                                                <p class="card-text text-muted small mb-0">
+                                                    <i class="fas fa-clock me-1"></i>Estimated: {{ step.estimated_time }}
+                                                </p>
+                                            </div>
+                                            {% if forloop.first %}
+                                            <span class="badge bg-primary">Current</span>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <!-- Step Details (expandable) -->
+                                        {% if step.action == 'navigate' %}
+                                        <div class="mt-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-globe me-1"></i>
+                                                The browser will navigate to the target URL and wait for the page to load.
+                                            </small>
+                                        </div>
+                                        {% elif step.action == 'analyze' %}
+                                        <div class="mt-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-search me-1"></i>
+                                                AI will analyze the form structure, identify input fields, buttons, and form layout.
+                                            </small>
+                                        </div>
+                                        {% elif step.action == 'map_fields' %}
+                                        <div class="mt-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-project-diagram me-1"></i>
+                                                Application data will be mapped to corresponding form fields.
+                                            </small>
+                                        </div>
+                                        {% elif 'fill' in step.action %}
+                                        <div class="mt-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-keyboard me-1"></i>
+                                                Data will be entered into form fields with appropriate validation.
+                                            </small>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Estimated Summary -->
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h6 class="mb-0">Estimated Summary</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 text-center">
+                                    <div class="stat-box">
+                                        <h3>{{ preview_steps|length }}</h3>
+                                        <p class="text-muted mb-0">Total Steps</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-center">
+                                    <div class="stat-box">
+                                        <h3>2-3 min</h3>
+                                        <p class="text-muted mb-0">Estimated Time</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-center">
+                                    <div class="stat-box">
+                                        <h3>{{ application.progress_percentage }}%</h3>
+                                        <p class="text-muted mb-0">Data Ready</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <!-- Action Panel -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Start Automation</h5>
+                </div>
+                <div class="card-body">
+                    {% if application.is_ready_for_automation and ai_service and ai_service.is_active %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Ready to start automation!
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'start_automation' application.id %}" class="btn btn-success btn-lg">
+                            <i class="fas fa-play me-2"></i>Start Automation
+                        </a>
+                        <a href="{% url 'automation_console' application.id %}" class="btn btn-outline-primary">
+                            <i class="fas fa-terminal me-2"></i>Open Console
+                        </a>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-lightbulb me-1"></i>
+                            The automation will begin immediately and you can monitor progress in the console.
+                        </small>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        {% if not application.is_ready_for_automation %}
+                        Application is not ready for automation. Please complete all required fields.
+                        {% elif not ai_service %}
+                        No active AI service available. Please configure an AI service first.
+                        {% elif not ai_service.is_active %}
+                        Selected AI service is not active. Please activate or select another service.
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'edit_application' application.id %}" class="btn btn-warning">
+                            <i class="fas fa-edit me-2"></i>Edit Application
+                        </a>
+                        <a href="{% url 'ai_services' %}" class="btn btn-outline-info">
+                            <i class="fas fa-cog me-2"></i>Configure AI Services
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Data Preview -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Data to be Used</h5>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="dataAccordion">
+                        <!-- Personal Data -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#personalData">
+                                    <i class="fas fa-user me-2"></i>Personal Information
+                                </button>
+                            </h2>
+                            <div id="personalData" class="accordion-collapse collapse" data-bs-parent="#dataAccordion">
+                                <div class="accordion-body">
+                                    <small>
+                                        <p><strong>Name:</strong> {{ application.student }}</p>
+                                        <p><strong>ID:</strong> {{ application.id_number|default:"Not provided" }}</p>
+                                        <p><strong>DOB:</strong> {{ application.date_of_birth|date:"Y-m-d"|default:"Not provided" }}</p>
+                                        <p><strong>Gender:</strong> {{ application.gender|default:"Not provided"|title }}</p>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Contact Data -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#contactData">
+                                    <i class="fas fa-address-book me-2"></i>Contact Information
+                                </button>
+                            </h2>
+                            <div id="contactData" class="accordion-collapse collapse" data-bs-parent="#dataAccordion">
+                                <div class="accordion-body">
+                                    <small>
+                                        <p><strong>Email:</strong> {{ application.email|default:"Not provided" }}</p>
+                                        <p><strong>Phone:</strong> {{ application.phone|default:"Not provided" }}</p>
+                                        <p><strong>Address:</strong> {{ application.address|truncatechars:50|default:"Not provided" }}</p>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Academic Data -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#academicData">
+                                    <i class="fas fa-graduation-cap me-2"></i>Academic Information
+                                </button>
+                            </h2>
+                            <div id="academicData" class="accordion-collapse collapse" data-bs-parent="#dataAccordion">
+                                <div class="accordion-body">
+                                    <small>
+                                        <p><strong>Course:</strong> {{ application.course_faculty|default:"Not provided" }}</p>
+                                        <p><strong>School:</strong> {{ application.school_name|default:"Not provided" }}</p>
+                                        <p><strong>Matric Year:</strong> {{ application.matric_year|default:"Not provided" }}</p>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Status & Progress -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Current Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Application Status</label>
+                        <div class="d-flex align-items-center">
+                            <span class="badge 
+                                {% if application.status == 'submitted' %}bg-success
+                                {% elif application.status == 'draft' %}bg-warning
+                                {% else %}bg-info{% endif %} me-2">
+                                {{ application.get_status_display }}
+                            </span>
+                            <small>{{ application.created_at|date:"Y-m-d" }}</small>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Automation Status</label>
+                        <div>
+                            <span class="badge 
+                                {% if application.automation_status == 'completed' %}bg-success
+                                {% elif application.automation_status == 'failed' %}bg-danger
+                                {% elif application.automation_status == 'analyzing' %}bg-info
+                                {% else %}bg-secondary{% endif %}">
+                                {{ application.get_automation_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Data Completion</label>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar {% if application.progress_percentage < 50 %}bg-warning{% else %}bg-success{% endif %}" 
+                                 role="progressbar" 
+                                 style="width: {{ application.progress_percentage }}%;"
+                                 aria-valuenow="{{ application.progress_percentage }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                                {{ application.progress_percentage }}%
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <a href="{% url 'viewApplication' application.id %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-file-alt me-1"></i>View Full Application
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Timeline Styling */
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #e9ecef;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -30px;
+    top: 0;
+    width: 40px;
+    text-align: center;
+}
+
+.timeline-number {
+    font-size: 12px;
+    font-weight: bold;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.timeline-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    margin: 0 auto;
+    border: 2px solid white;
+    transition: all 0.3s;
+}
+
+.timeline-dot.active {
+    background-color: #0d6efd;
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.2);
+}
+
+.timeline-content {
+    margin-left: 10px;
+}
+
+/* Card hover effects */
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Stat boxes */
+.stat-box {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.stat-box h3 {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+/* Badge styling */
+.badge {
+    font-weight: 500;
+    padding: 5px 10px;
+}
+
+/* Accordion styling */
+.accordion-button:not(.collapsed) {
+    background-color: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+}
+
+.accordion-body {
+    font-size: 0.875rem;
+}
+
+/* Progress bar */
+.progress {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .timeline {
+        padding-left: 20px;
+    }
+    
+    .timeline::before {
+        left: 9px;
+    }
+    
+    .timeline-marker {
+        left: -20px;
+        width: 30px;
+    }
+    
+    .timeline-dot {
+        width: 12px;
+        height: 12px;
+    }
+    
+    .stat-box {
+        padding: 10px;
+        margin-bottom: 15px;
+    }
+}
+
+/* Animation for active step */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.timeline-dot.active {
+    animation: pulse 2s infinite;
+}
+
+/* Button styling */
+.btn-lg {
+    padding: 12px 24px;
+    font-weight: 500;
+}
+
+/* Alert enhancements */
+.alert {
+    border-radius: 8px;
+}
+
+.alert i {
+    font-size: 1.1em;
+}
+</style>
+
+<script>
+// Add some interactive effects
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click animation to timeline items
+    const timelineItems = document.querySelectorAll('.timeline-item');
+    timelineItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // Remove active class from all items
+            timelineItems.forEach(i => {
+                i.classList.remove('active');
+                const dot = i.querySelector('.timeline-dot');
+                if (dot) dot.classList.remove('active');
+            });
+            
+            // Add active class to clicked item
+            this.classList.add('active');
+            const dot = this.querySelector('.timeline-dot');
+            if (dot) dot.classList.add('active');
+        });
+    });
+    
+    // Auto-expand first accordion item
+    const firstAccordion = document.querySelector('.accordion-button');
+    if (firstAccordion && !firstAccordion.classList.contains('collapsed')) {
+        setTimeout(() => {
+            firstAccordion.click();
+        }, 500);
+    }
+    
+    // Add visual feedback for start button
+    const startBtn = document.querySelector('.btn-success.btn-lg');
+    if (startBtn) {
+        startBtn.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.05)';
+            this.style.transition = 'transform 0.2s';
+        });
+        
+        startBtn.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    }
+    
+    // Show estimated time calculation
+    function calculateTotalTime() {
+        let totalSeconds = 0;
+        const timeElements = document.querySelectorAll('.card-text.small');
+        
+        timeElements.forEach(el => {
+            const text = el.textContent;
+            const match = text.match(/Estimated: (\d+)([smh])/);
+            if (match) {
+                const value = parseInt(match[1]);
+                const unit = match[2];
+                
+                if (unit === 's') totalSeconds += value;
+                else if (unit === 'm') totalSeconds += value * 60;
+                else if (unit === 'h') totalSeconds += value * 3600;
+            }
+        });
+        
+        // Convert to minutes
+        const totalMinutes = Math.ceil(totalSeconds / 60);
+        
+        // Update the estimated time display
+        const timeDisplay = document.querySelector('.stat-box h3:nth-child(2)');
+        if (timeDisplay && totalMinutes > 0) {
+            timeDisplay.textContent = totalMinutes + ' min';
+        }
+    }
+    
+    calculateTotalTime();
+    
+    // Simulate step-by-step preview
+    function simulatePreview() {
+        let currentStep = 0;
+        const steps = document.querySelectorAll('.timeline-item');
+        const interval = 2000; // 2 seconds per step
+        
+        function nextStep() {
+            if (currentStep < steps.length) {
+                // Remove active class from all steps
+                steps.forEach(step => {
+                    step.classList.remove('active');
+                    const dot = step.querySelector('.timeline-dot');
+                    if (dot) dot.classList.remove('active');
+                });
+                
+                // Add active class to current step
+                if (currentStep > 0) {
+                    steps[currentStep - 1].classList.add('active');
+                    const dot = steps[currentStep - 1].querySelector('.timeline-dot');
+                    if (dot) dot.classList.add('active');
+                }
+                
+                currentStep++;
+                setTimeout(nextStep, interval);
+            }
+        }
+        
+        // Start simulation
+        setTimeout(nextStep, 1000);
+    }
+    
+    // Add simulation button
+    const actionPanel = document.querySelector('.card-header.bg-success');
+    if (actionPanel) {
+        const simulateBtn = document.createElement('button');
+        simulateBtn.className = 'btn btn-sm btn-outline-light ms-2';
+        simulateBtn.innerHTML = '<i class="fas fa-play-circle me-1"></i>Simulate';
+        simulateBtn.title = 'Simulate automation steps';
+        simulateBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            simulatePreview();
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-sync fa-spin me-1"></i>Simulating...';
+        });
+        
+        actionPanel.querySelector('.d-flex').appendChild(simulateBtn);
+    }
+});
+</script>
+{% endblock %}

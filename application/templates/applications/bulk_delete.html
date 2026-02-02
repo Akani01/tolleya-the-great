@@ -1,0 +1,749 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Bulk Delete Applications</h2>
+    
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>Warning:</strong> This action is permanent and cannot be undone. 
+        Deleted applications, along with their files and automation logs, will be permanently removed.
+    </div>
+    
+    <div class="row">
+        <div class="col-md-3">
+            <!-- Selection Criteria Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>Selection Criteria</h5>
+                </div>
+                <div class="card-body">
+                    <form id="bulk-criteria-form" method="GET">
+                        <div class="mb-3">
+                            <label class="form-label">Bulk Selection</label>
+                            <select name="bulk_criteria" class="form-select" id="bulk-criteria">
+                                {% for value, label in bulk_criteria_options %}
+                                <option value="{{ value }}" {% if bulk_criteria == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Status Filter</label>
+                            <select name="status" class="form-select">
+                                <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Statuses</option>
+                                {% for value, label in status_choices %}
+                                <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">University</label>
+                            <select name="university" class="form-select">
+                                <option value="">All Universities</option>
+                                {% for uni in universities %}
+                                <option value="{{ uni.title }}" {% if university_filter == uni.title %}selected{% endif %}>
+                                    {{ uni.title }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">From Date</label>
+                                    <input type="date" name="date_from" class="form-control" 
+                                           value="{{ date_from }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">To Date</label>
+                                    <input type="date" name="date_to" class="form-control" 
+                                           value="{{ date_to }}">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Search</label>
+                            <input type="text" name="q" class="form-control" 
+                                   value="{{ search_query }}" placeholder="Search applications...">
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-filter me-1"></i>Apply Filters
+                        </button>
+                    </form>
+                    
+                    <hr>
+                    
+                    <div class="mt-3">
+                        <button class="btn btn-outline-danger w-100 mb-2" onclick="previewBulkDelete()">
+                            <i class="fas fa-eye me-1"></i>Preview Selection
+                        </button>
+                        
+                        <button class="btn btn-danger w-100" onclick="confirmBulkDelete()" 
+                                {% if not page_obj.object_list %}disabled{% endif %}>
+                            <i class="fas fa-trash me-1"></i>Delete Selected
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Statistics Card -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5>Your Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <small>Total Applications</small>
+                        <h5>{{ total_applications }}</h5>
+                    </div>
+                    <div class="mb-2">
+                        <small>Draft Applications</small>
+                        <h5>{{ draft_applications }}</h5>
+                    </div>
+                    <div class="mb-2">
+                        <small>Old Drafts (>30 days)</small>
+                        <h5 class="text-warning">{{ old_draft_applications }}</h5>
+                    </div>
+                    <div>
+                        <small>Failed Automations</small>
+                        <h5 class="text-danger">{{ failed_automations }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <!-- Applications List -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Applications</h5>
+                    <div>
+                        <span class="badge bg-secondary" id="selected-count">0 selected</span>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    {% if page_obj.object_list %}
+                    <form id="bulk-delete-form" method="POST" action="{% url 'bulk_delete_applications' %}">
+                        {% csrf_token %}
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th width="30">
+                                            <input type="checkbox" id="select-all" onclick="toggleSelectAll()">
+                                        </th>
+                                        <th>Student</th>
+                                        <th>University</th>
+                                        <th>Status</th>
+                                        <th>Automation</th>
+                                        <th>Created</th>
+                                        <th>Progress</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for application in page_obj %}
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" name="selected_applications" 
+                                                   value="{{ application.id }}" class="application-checkbox"
+                                                   onchange="updateSelectedCount()">
+                                        </td>
+                                        <td>
+                                            <strong>{{ application.student }}</strong>
+                                            {% if application.email %}
+                                            <br><small class="text-muted">{{ application.email }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {{ application.university_name|truncatechars:30 }}
+                                        </td>
+                                        <td>
+                                            <span class="badge 
+                                                {% if application.status == 'submitted' %}bg-success
+                                                {% elif application.status == 'draft' %}bg-warning
+                                                {% else %}bg-info{% endif %}">
+                                                {{ application.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge 
+                                                {% if application.automation_status == 'completed' %}bg-success
+                                                {% elif application.automation_status == 'failed' %}bg-danger
+                                                {% elif application.automation_status == 'analyzing' %}bg-info
+                                                {% else %}bg-secondary{% endif %}">
+                                                {{ application.get_automation_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {{ application.created_at|date:"Y-m-d" }}
+                                        </td>
+                                        <td>
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar {% if application.progress_percentage < 50 %}bg-warning{% endif %}" 
+                                                     role="progressbar" 
+                                                     style="width: {{ application.progress_percentage }}%;"
+                                                     aria-valuenow="{{ application.progress_percentage }}" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="100">
+                                                    {{ application.progress_percentage }}%
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a href="{% url 'viewApplication' application.id %}" 
+                                                   class="btn btn-outline-info" title="View">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{% url 'edit_application' application.id %}" 
+                                                   class="btn btn-outline-primary" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-outline-danger" 
+                                                        onclick="deleteSingle({{ application.id }}, '{{ application.student|escapejs }}')"
+                                                        title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        {% if page_obj.has_other_pages %}
+                        <nav aria-label="Page navigation" class="mt-3">
+                            <ul class="pagination justify-content-center">
+                                {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" 
+                                       href="?page={{ page_obj.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                        Previous
+                                    </a>
+                                </li>
+                                {% endif %}
+                                
+                                {% for num in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == num %}
+                                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" 
+                                           href="?page={{ num }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                            {{ num }}
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" 
+                                       href="?page={{ page_obj.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                        Next
+                                    </a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                    </form>
+                    
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <h5>No applications found</h5>
+                        <p class="text-muted">Try adjusting your filters or selection criteria</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Danger Zone -->
+            <div class="card border-danger mt-3">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">Danger Zone</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Delete All Drafts</h6>
+                            <p class="text-muted small">Delete all draft applications older than 30 days.</p>
+                            <button class="btn btn-outline-danger btn-sm" onclick="deleteAllDrafts()">
+                                Delete Old Drafts
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Delete Failed Automations</h6>
+                            <p class="text-muted small">Delete all applications with failed automation status.</p>
+                            <button class="btn btn-outline-danger btn-sm" onclick="deleteAllFailed()">
+                                Delete Failed
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="delete-message">
+                    Are you sure you want to delete the selected applications?
+                </div>
+                <div id="delete-details" class="mt-3 small text-muted"></div>
+                <div id="delete-warning" class="mt-3 alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    This action cannot be undone. All associated files and logs will be permanently deleted.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirm-delete-btn">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Bulk Delete Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="preview-content">
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading preview...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="execute-delete-btn" style="display: none;">
+                    Execute Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Update selected count
+function updateSelectedCount() {
+    const checkboxes = document.querySelectorAll('.application-checkbox:checked');
+    const count = checkboxes.length;
+    document.getElementById('selected-count').textContent = count + ' selected';
+    document.getElementById('selected-count').className = count > 0 ? 
+        'badge bg-danger' : 'badge bg-secondary';
+}
+
+// Toggle select all
+function toggleSelectAll() {
+    const selectAll = document.getElementById('select-all');
+    const checkboxes = document.querySelectorAll('.application-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+    });
+    
+    updateSelectedCount();
+}
+
+// Delete single application
+function deleteSingle(appId, studentName) {
+    document.getElementById('delete-message').innerHTML = `
+        Are you sure you want to delete the application for <strong>${studentName}</strong>?
+    `;
+    document.getElementById('delete-details').innerHTML = `
+        <p>Application ID: ${appId}</p>
+        <p>This will permanently delete the application and all associated data.</p>
+    `;
+    
+    const confirmBtn = document.getElementById('confirm-delete-btn');
+    confirmBtn.onclick = function() {
+        // Create a form and submit
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = window.location.href;
+        
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = getCookie('csrftoken');
+        form.appendChild(csrfInput);
+        
+        const appInput = document.createElement('input');
+        appInput.type = 'hidden';
+        appInput.name = 'selected_applications';
+        appInput.value = appId;
+        form.appendChild(appInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    };
+    
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    modal.show();
+}
+
+// Confirm bulk delete
+function confirmBulkDelete() {
+    const checkboxes = document.querySelectorAll('.application-checkbox:checked');
+    const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+    
+    if (selectedIds.length === 0) {
+        showToast('Please select applications to delete', 'warning');
+        return;
+    }
+    
+    document.getElementById('delete-message').innerHTML = `
+        Are you sure you want to delete <strong>${selectedIds.length}</strong> selected applications?
+    `;
+    document.getElementById('delete-details').innerHTML = `
+        <p>Selected applications: ${selectedIds.length}</p>
+        <p>All associated files, screenshots, and automation logs will be permanently deleted.</p>
+    `;
+    
+    const confirmBtn = document.getElementById('confirm-delete-btn');
+    confirmBtn.onclick = function() {
+        // Submit the form
+        document.getElementById('bulk-delete-form').submit();
+    };
+    
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    modal.show();
+}
+
+// Preview bulk delete
+function previewBulkDelete() {
+    const bulkCriteria = document.getElementById('bulk-criteria').value;
+    const formData = new FormData(document.getElementById('bulk-criteria-form'));
+    const filters = {};
+    
+    for (let [key, value] of formData.entries()) {
+        if (key !== 'bulk_criteria') {
+            filters[key] = value;
+        }
+    }
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+    modal.show();
+    
+    // Fetch preview
+    fetch('/api/bulk-delete-preview/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            criteria: bulkCriteria,
+            filters: filters
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const previewContent = document.getElementById('preview-content');
+        
+        if (data.success) {
+            let html = `
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Based on your criteria, <strong>${data.total_matching}</strong> applications will be deleted.
+                </div>
+            `;
+            
+            if (data.sample_applications && data.sample_applications.length > 0) {
+                html += `
+                    <h6>Sample Applications (first 5):</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Student</th>
+                                    <th>University</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                data.sample_applications.forEach(app => {
+                    html += `
+                        <tr>
+                            <td>${app.id}</td>
+                            <td>${app.student}</td>
+                            <td>${app.university_name || '-'}</td>
+                            <td><span class="badge bg-secondary">${app.status}</span></td>
+                            <td>${app.created_at}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+            
+            if (data.total_matching > 0) {
+                html += `
+                    <div class="mt-3 alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        This action will permanently delete ${data.total_matching} applications.
+                    </div>
+                `;
+                
+                // Show execute button
+                document.getElementById('execute-delete-btn').style.display = 'block';
+                document.getElementById('execute-delete-btn').onclick = function() {
+                    executeBulkDelete(bulkCriteria, filters, data.total_matching);
+                };
+            } else {
+                html += `
+                    <div class="mt-3 alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        No applications match your criteria. Nothing to delete.
+                    </div>
+                `;
+                document.getElementById('execute-delete-btn').style.display = 'none';
+            }
+            
+            previewContent.innerHTML = html;
+        } else {
+            previewContent.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    Error: ${data.error}
+                </div>
+            `;
+            document.getElementById('execute-delete-btn').style.display = 'none';
+        }
+    })
+    .catch(error => {
+        document.getElementById('preview-content').innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                Network error: ${error}
+            </div>
+        `;
+        document.getElementById('execute-delete-btn').style.display = 'none';
+    });
+}
+
+// Execute bulk delete via API
+function executeBulkDelete(criteria, filters, totalCount) {
+    if (!confirm(`Are you absolutely sure you want to delete ${totalCount} applications? This cannot be undone!`)) {
+        return;
+    }
+    
+    // Get application IDs based on criteria
+    fetch('/api/bulk-delete-preview/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            criteria: criteria,
+            filters: filters
+        })
+    })
+    .then(response => response.json())
+    .then(previewData => {
+        if (!previewData.success || previewData.total_matching === 0) {
+            showToast('No applications to delete', 'warning');
+            return;
+        }
+        
+        // Now get all IDs (not just sample)
+        return fetch('/api/bulk-delete-preview/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                criteria: criteria,
+                filters: filters,
+                get_all_ids: true
+            })
+        });
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.application_ids) {
+            // Execute the delete
+            return fetch('/api/bulk-delete-execute/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    application_ids: data.application_ids
+                })
+            });
+        }
+        throw new Error('Failed to get application IDs');
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            showToast(`Successfully deleted ${result.deleted_count} applications`, 'success');
+            
+            // Close modal and reload page
+            bootstrap.Modal.getInstance(document.getElementById('previewModal')).hide();
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        } else {
+            showToast('Error: ' + result.error, 'error');
+        }
+    })
+    .catch(error => {
+        showToast('Error: ' + error.message, 'error');
+    });
+}
+
+// Delete all drafts
+function deleteAllDrafts() {
+    if (!confirm('Delete ALL draft applications older than 30 days? This cannot be undone!')) {
+        return;
+    }
+    
+    document.getElementById('bulk-criteria').value = 'draft_old';
+    document.getElementById('bulk-criteria-form').submit();
+}
+
+// Delete all failed automations
+function deleteAllFailed() {
+    if (!confirm('Delete ALL applications with failed automation status? This cannot be undone!')) {
+        return;
+    }
+    
+    document.getElementById('bulk-criteria').value = 'failed_automation';
+    document.getElementById('bulk-criteria-form').submit();
+}
+
+// Show toast notification
+function showToast(message, type = 'info') {
+    // Create toast container if it doesn't exist
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+        document.body.appendChild(toastContainer);
+    }
+    
+    // Create toast
+    const toastId = 'toast-' + Date.now();
+    const toast = document.createElement('div');
+    toast.id = toastId;
+    toast.className = `toast align-items-center text-bg-${type} border-0`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">
+                ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
+    // Show toast
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    
+    // Remove toast after it's hidden
+    toast.addEventListener('hidden.bs.toast', function () {
+        toast.remove();
+    });
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateSelectedCount();
+});
+</script>
+
+<style>
+.progress {
+    min-width: 100px;
+}
+
+.application-checkbox {
+    cursor: pointer;
+}
+
+#select-all {
+    cursor: pointer;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Danger zone styling */
+.border-danger {
+    border-width: 2px !important;
+}
+</style>
+{% endblock %}

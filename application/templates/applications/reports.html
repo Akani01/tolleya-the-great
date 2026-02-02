@@ -1,0 +1,1001 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Reports & Analytics</h2>
+        <button class="btn btn-outline-primary" onclick="exportReport()">
+            <i class="fas fa-download me-1"></i>Export Report
+        </button>
+    </div>
+    
+    <!-- Report Controls -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" id="report-form">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="form-label">Report Type</label>
+                        <select name="type" class="form-select" onchange="this.form.submit()">
+                            {% for value, label in report_types %}
+                            <option value="{{ value }}" {% if report_type == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" name="start_date" class="form-control" 
+                               value="{{ start_date }}" onchange="this.form.submit()">
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label class="form-label">End Date</label>
+                        <input type="date" name="end_date" class="form-control" 
+                               value="{{ end_date }}" onchange="this.form.submit()">
+                    </div>
+                    
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-filter me-1"></i>Apply Filters
+                        </button>
+                    </div>
+                </div>
+            </form>
+            
+            <div class="mt-3">
+                <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-outline-secondary" onclick="setDateRange('today')">Today</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="setDateRange('week')">This Week</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="setDateRange('month')">This Month</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="setDateRange('quarter')">Last 3 Months</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="setDateRange('year')">This Year</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Overview Report -->
+    {% if report_type == 'overview' %}
+    <div class="row mb-4">
+        <!-- Key Metrics -->
+        <div class="col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <h1 class="display-4 text-primary">{{ stats.total }}</h1>
+                    <p class="text-muted">Total Applications</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <h1 class="display-4 text-success">{{ stats.success_rate }}%</h1>
+                    <p class="text-muted">Automation Success Rate</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <h1 class="display-4 text-info">
+                        {{ stats.by_status.submitted|default:0 }}
+                    </h1>
+                    <p class="text-muted">Submitted Applications</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <h1 class="display-4 text-warning">
+                        {{ stats.by_status.draft|default:0 }}
+                    </h1>
+                    <p class="text-muted">Draft Applications</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Applications by Status</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="statusChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Automation Status</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="automationChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Detailed Stats -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Status Breakdown</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Count</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for status, count in stats.by_status.items %}
+                                <tr>
+                                    <td>
+                                        <span class="badge 
+                                            {% if status == 'submitted' %}bg-success
+                                            {% elif status == 'draft' %}bg-warning
+                                            {% else %}bg-info{% endif %}">
+                                            {% for value, label in view.status_choices %}
+                                                {% if value == status %}{{ label }}{% endif %}
+                                            {% endfor %}
+                                        </span>
+                                    </td>
+                                    <td>{{ count }}</td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar" 
+                                                 style="width: {% widthratio count stats.total 100 %}%;">
+                                                {% widthratio count stats.total 100 %}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">No data available</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Automation Breakdown</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Count</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for status, count in stats.by_automation_status.items %}
+                                <tr>
+                                    <td>
+                                        <span class="badge 
+                                            {% if status == 'completed' %}bg-success
+                                            {% elif status == 'failed' %}bg-danger
+                                            {% elif status == 'analyzing' %}bg-info
+                                            {% else %}bg-secondary{% endif %}">
+                                            {% for value, label in view.status_choices %}
+                                                {% if value == status %}{{ label }}{% endif %}
+                                            {% endfor %}
+                                        </span>
+                                    </td>
+                                    <td>{{ count }}</td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar" 
+                                                 style="width: {% widthratio count stats.total 100 %}%;">
+                                                {% widthratio count stats.total 100 %}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">No data available</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- University Report -->
+    {% elif report_type == 'university' %}
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Applications by University</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="universityChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">University Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>University</th>
+                                    <th>Total</th>
+                                    <th>Submitted</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in stats.university_stats|slice:":5" %}
+                                <tr>
+                                    <td>
+                                        <small>{{ stat.selected_university__title|default:stat.university_manual|default:"Unknown"|truncatechars:20 }}</small>
+                                    </td>
+                                    <td><span class="badge bg-primary">{{ stat.count }}</span></td>
+                                    <td><span class="badge bg-success">{{ stat.submitted }}</span></td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">No university data</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    {% if stats.university_stats|length > 5 %}
+                    <div class="text-center mt-2">
+                        <small class="text-muted">
+                            Showing top 5 of {{ stats.university_stats|length }} universities
+                        </small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Detailed University Report</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>University</th>
+                            <th>Total Applications</th>
+                            <th>Submitted</th>
+                            <th>Automated</th>
+                            <th>Submission Rate</th>
+                            <th>Automation Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in stats.university_stats %}
+                        <tr>
+                            <td>
+                                <strong>{{ stat.selected_university__title|default:stat.university_manual|default:"Unknown" }}</strong>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">{{ stat.count }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-success">{{ stat.submitted }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ stat.automated }}</span>
+                            </td>
+                            <td>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-success" 
+                                         style="width: {% widthratio stat.submitted stat.count 100 %}%;">
+                                        {% widthratio stat.submitted stat.count 100 %}%
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-info" 
+                                         style="width: {% widthratio stat.automated stat.count 100 %}%;">
+                                        {% widthratio stat.automated stat.count 100 %}%
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No university data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Timeline Report -->
+    {% elif report_type == 'timeline' %}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Application Timeline</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="timelineChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Monthly Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Month</th>
+                                    <th>Total</th>
+                                    <th>Submitted</th>
+                                    <th>Submission Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for month in stats.monthly_data %}
+                                <tr>
+                                    <td>{{ month.month }}</td>
+                                    <td><span class="badge bg-primary">{{ month.count }}</span></td>
+                                    <td><span class="badge bg-success">{{ month.submitted }}</span></td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar bg-success" 
+                                                 style="width: {% widthratio month.submitted month.count 100 %}%;">
+                                                {% widthratio month.submitted month.count 100 %}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No timeline data available</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Trend Analysis</h5>
+                </div>
+                <div class="card-body">
+                    {% if stats.monthly_data %}
+                    <div class="text-center">
+                        <h1 class="display-4 text-primary">
+                            {{ stats.monthly_data|last.count|default:0 }}
+                        </h1>
+                        <p class="text-muted">Applications this month</p>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h4>{{ stats.monthly_data|length }}</h4>
+                            <small class="text-muted">Months tracked</small>
+                        </div>
+                        <div class="col-6">
+                            <h4>
+                                {% with total=stats.monthly_data|length %}
+                                {% if total > 1 %}
+                                    {% with first=stats.monthly_data.0.count last=stats.monthly_data|last.count %}
+                                    {% if first > 0 %}
+                                        {% widthratio last first 100 as growth %}
+                                        {{ growth|add:"-100" }}%
+                                    {% else %}
+                                        100%
+                                    {% endif %}
+                                    {% endwith %}
+                                {% else %}
+                                    0%
+                                {% endif %}
+                                {% endwith %}
+                            </h4>
+                            <small class="text-muted">Growth</small>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No timeline data available</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- AI Usage Report -->
+    {% elif report_type == 'ai_usage' %}
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">AI Service Usage</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="aiUsageChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <h1 class="display-4 text-info">{{ stats.total_tokens|floatformat:0 }}</h1>
+                        <p class="text-muted">Total Tokens Used</p>
+                    </div>
+                    
+                    <div class="text-center mb-4">
+                        <h1 class="display-4 text-success">${{ stats.estimated_cost }}</h1>
+                        <p class="text-muted">Estimated Cost</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <h1 class="display-4 text-warning">{{ stats.ai_stats|length }}</h1>
+                        <p class="text-muted">Active AI Services</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">AI Service Details</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>AI Service</th>
+                            <th>Applications</th>
+                            <th>Total Requests</th>
+                            <th>Tokens Used</th>
+                            <th>Last Used</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ai_stat in stats.ai_stats %}
+                        <tr>
+                            <td>
+                                <strong>{{ ai_stat.service.name }}</strong>
+                                <br>
+                                <small class="text-muted">{{ ai_stat.service.model_name }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">{{ ai_stat.applications_count }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ ai_stat.requests }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-warning">{{ ai_stat.tokens }}</span>
+                            </td>
+                            <td>
+                                {% if ai_stat.last_used %}
+                                <small>{{ ai_stat.last_used|date:"Y-m-d H:i" }}</small>
+                                {% else %}
+                                <span class="badge bg-secondary">Never</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge {% if ai_stat.service.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                    {% if ai_stat.service.is_active %}Active{% else %}Inactive{% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No AI service data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Set date range shortcuts
+function setDateRange(range) {
+    const today = new Date();
+    let start = new Date();
+    let end = new Date();
+    
+    switch(range) {
+        case 'today':
+            start.setHours(0, 0, 0, 0);
+            end.setHours(23, 59, 59, 999);
+            break;
+        case 'week':
+            start.setDate(today.getDate() - 7);
+            break;
+        case 'month':
+            start.setMonth(today.getMonth() - 1);
+            break;
+        case 'quarter':
+            start.setMonth(today.getMonth() - 3);
+            break;
+        case 'year':
+            start.setFullYear(today.getFullYear() - 1);
+            break;
+    }
+    
+    // Format dates as YYYY-MM-DD
+    const formatDate = (date) => date.toISOString().split('T')[0];
+    
+    document.querySelector('input[name="start_date"]').value = formatDate(start);
+    document.querySelector('input[name="end_date"]').value = formatDate(end);
+    document.getElementById('report-form').submit();
+}
+
+// Export report as PDF/Excel
+function exportReport() {
+    const reportType = document.querySelector('select[name="type"]').value;
+    const startDate = document.querySelector('input[name="start_date"]').value;
+    const endDate = document.querySelector('input[name="end_date"]').value;
+    
+    const url = `/export-applications/?type=${reportType}&start_date=${startDate}&end_date=${endDate}&format=pdf`;
+    window.open(url, '_blank');
+}
+
+// Initialize charts based on report type
+document.addEventListener('DOMContentLoaded', function() {
+    {% if report_type == 'overview' %}
+    // Status Chart
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    const statusChart = new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: [
+                {% for status, count in stats.by_status.items %}
+                '{{ status|title }}',
+                {% endfor %}
+            ],
+            datasets: [{
+                data: [
+                    {% for status, count in stats.by_status.items %}
+                    {{ count }},
+                    {% endfor %}
+                ],
+                backgroundColor: [
+                    '#28a745', // Submitted - Green
+                    '#ffc107', // Draft - Yellow
+                    '#17a2b8', // Other - Blue
+                    '#6c757d', // Unknown - Gray
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Automation Chart
+    const automationCtx = document.getElementById('automationChart').getContext('2d');
+    const automationChart = new Chart(automationCtx, {
+        type: 'bar',
+        data: {
+            labels: [
+                {% for status, count in stats.by_automation_status.items %}
+                '{{ status|title }}',
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'Applications',
+                data: [
+                    {% for status, count in stats.by_automation_status.items %}
+                    {{ count }},
+                    {% endfor %}
+                ],
+                backgroundColor: [
+                    '#28a745', // Completed - Green
+                    '#dc3545', // Failed - Red
+                    '#17a2b8', // Analyzing - Blue
+                    '#6c757d', // Other - Gray
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Applications'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Automation Status'
+                    }
+                }
+            }
+        }
+    });
+    
+    {% elif report_type == 'university' and chart_data %}
+    // University Chart
+    const chartData = {{ chart_data|safe }};
+    const uniCtx = document.getElementById('universityChart').getContext('2d');
+    const uniChart = new Chart(uniCtx, {
+        type: 'bar',
+        data: {
+            labels: chartData.labels,
+            datasets: [{
+                label: 'Applications per University',
+                data: chartData.data,
+                backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                borderColor: 'rgba(13, 110, 253, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Applications'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Universities'
+                    }
+                }
+            }
+        }
+    });
+    
+    {% elif report_type == 'timeline' and chart_data %}
+    // Timeline Chart
+    const timelineData = {{ chart_data|safe }};
+    const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+    const timelineChart = new Chart(timelineCtx, {
+        type: 'line',
+        data: {
+            labels: timelineData.labels,
+            datasets: [
+                {
+                    label: 'Total Applications',
+                    data: timelineData.data,
+                    borderColor: 'rgba(13, 110, 253, 1)',
+                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Submitted',
+                    data: timelineData.submitted,
+                    borderColor: 'rgba(40, 167, 69, 1)',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Applications'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Month'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
+                }
+            }
+        }
+    });
+    
+    {% elif report_type == 'ai_usage' and stats.ai_stats %}
+    // AI Usage Chart
+    const aiCtx = document.getElementById('aiUsageChart').getContext('2d');
+    const aiChart = new Chart(aiCtx, {
+        type: 'polarArea',
+        data: {
+            labels: [
+                {% for ai_stat in stats.ai_stats %}
+                '{{ ai_stat.service.name }}',
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'Requests',
+                data: [
+                    {% for ai_stat in stats.ai_stats %}
+                    {{ ai_stat.requests }},
+                    {% endfor %}
+                ],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'right',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const service = stats.ai_stats[context.dataIndex];
+                            return [
+                                `Service: ${service.service.name}`,
+                                `Requests: ${service.requests}`,
+                                `Tokens: ${service.tokens}`,
+                                `Applications: ${service.applications_count}`
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+    
+    // Print functionality
+    const printBtn = document.createElement('button');
+    printBtn.className = 'btn btn-outline-secondary btn-sm ms-2';
+    printBtn.innerHTML = '<i class="fas fa-print me-1"></i>Print';
+    printBtn.onclick = function() {
+        window.print();
+    };
+    
+    document.querySelector('.d-flex.justify-content-between').appendChild(printBtn);
+    
+    // Auto-refresh data every 5 minutes
+    setTimeout(function() {
+        window.location.reload();
+    }, 300000); // 5 minutes
+});
+
+// Add keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Ctrl + R to refresh
+    if (e.ctrlKey && e.key === 'r') {
+        e.preventDefault();
+        window.location.reload();
+    }
+    
+    // Ctrl + P to print
+    if (e.ctrlKey && e.key === 'p') {
+        e.preventDefault();
+        window.print();
+    }
+    
+    // Ctrl + E to export
+    if (e.ctrlKey && e.key === 'e') {
+        e.preventDefault();
+        exportReport();
+    }
+});
+</script>
+
+<style>
+/* Custom styles for reports */
+.card {
+    margin-bottom: 1rem;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+    font-weight: 600;
+}
+
+.display-4 {
+    font-weight: 300;
+}
+
+/* Progress bar in tables */
+.table .progress {
+    min-width: 100px;
+    margin-bottom: 0;
+}
+
+/* Badge enhancements */
+.badge {
+    font-weight: 500;
+    padding: 5px 10px;
+}
+
+/* Chart containers */
+canvas {
+    max-width: 100%;
+}
+
+/* Date range buttons */
+.btn-group .btn {
+    font-size: 0.875rem;
+}
+
+/* Responsive table */
+.table-responsive {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Print styles */
+@media print {
+    .btn, .btn-group, form, .d-flex.justify-content-between {
+        display: none !important;
+    }
+    
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #dee2e6 !important;
+    }
+    
+    .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+}
+
+/* Animation for cards */
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+/* Custom scrollbar */
+.table-responsive::-webkit-scrollbar {
+    height: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Stats highlight */
+.text-primary {
+    color: #0d6efd !important;
+}
+
+.text-success {
+    color: #28a745 !important;
+}
+
+.text-info {
+    color: #17a2b8 !important;
+}
+
+.text-warning {
+    color: #ffc107 !important;
+}
+
+/* Loading animation */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.card {
+    animation: fadeIn 0.5s ease-in;
+}
+</style>
+{% endblock %}

@@ -6,6 +6,8 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import (HttpResponse, HttpResponseRedirect,
                               get_object_or_404, redirect, render)
 from django.templatetags.static import static
+from django.db import transaction
+
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import UpdateView
@@ -237,240 +239,94 @@ def add_student(request):
     if request.method == 'POST':
         if student_form.is_valid():
             try:
-                # ========== 1. ADAPTIVE DATA EXTRACTION ==========
-                # Get form data
-                first_name = student_form.cleaned_data.get('first_name')
-                last_name = student_form.cleaned_data.get('last_name')
-                address = student_form.cleaned_data.get('address')
-                email = student_form.cleaned_data.get('email')
-                gender = student_form.cleaned_data.get('gender')
-                password = student_form.cleaned_data.get('password')
+                print("✅ Form is valid")
                 
-                # ========== 2. FLEXIBLE OBJECT FINDING ==========
-                grade = None
-                school = None
-                course = None
+                data = student_form.cleaned_data
                 
-                # Try multiple ways to find GRADE
-                grade_input = request.POST.get('grade')
-                if grade_input:
-                    # Try as ID first
-                    if grade_input.isdigit():
-                        try:
-                            grade = Grade.objects.get(id=int(grade_input))
-                        except Grade.DoesNotExist:
-                            pass
-                    
-                    # If ID failed or not a number, try as name (with variations)
-                    if not grade:
-                        # Clean and normalize the grade name
-                        grade_name = str(grade_input).strip()
-                        
-                        # Try different naming patterns (Excel variations)
-                        search_patterns = [
-                            grade_name,
-                            grade_name.title(),
-                            f"Grade {grade_name}",
-                            grade_name.replace("Gr ", "Grade "),
-                            grade_name.replace("GR ", "Grade "),
-                            grade_name.replace("Grd ", "Grade "),
-                        ]
-                        
-                        for pattern in search_patterns:
-                            grade = Grade.objects.filter(name__iexact=pattern).first()
-                            if grade:
-                                break
-                        
-                        # Try partial match as last resort
-                        if not grade:
-                            grade = Grade.objects.filter(name__icontains=grade_name).first()
-                
-                # Try multiple ways to find SCHOOL
-                school_input = request.POST.get('school')
-                if school_input:
-                    # Try as ID
-                    if school_input.isdigit():
-                        try:
-                            school = School.objects.get(id=int(school_input))
-                        except School.DoesNotExist:
-                            pass
-                    
-                    # Try as name
-                    if not school:
-                        school_name = str(school_input).strip()
-                        school = School.objects.filter(name__iexact=school_name).first()
-                        
-                        # Try partial match
-                        if not school:
-                            school = School.objects.filter(name__icontains=school_name).first()
-                
-                # Try multiple ways to find COURSE (optional for young grades)
-                course_input = request.POST.get('course')
-                if course_input:
-                    # Try as ID
-                    if course_input.isdigit():
-                        try:
-                            course = Course.objects.get(id=int(course_input))
-                        except Course.DoesNotExist:
-                            pass
-                    
-                    # Try as name
-                    if not course:
-                        course_name = str(course_input).strip()
-                        course = Course.objects.filter(name__iexact=course_name).first()
-                        
-                        # Try partial match
-                        if not course:
-                            course = Course.objects.filter(name__icontains=course_name).first()
-                
-                # ========== 3. DEBUG OUTPUT ==========
-                print(f"🔍 DEBUG - Grade input: '{request.POST.get('grade')}' -> Found: {grade}")
-                print(f"🔍 DEBUG - School input: '{request.POST.get('school')}' -> Found: {school}")
-                print(f"🔍 DEBUG - Course input: '{request.POST.get('course')}' -> Found: {course}")
-                
-                # ========== 4. VALIDATION WITH HELPFUL ERRORS ==========
-                validation_errors = []
-                
-                if not grade:
-                    available_grades = list(Grade.objects.values_list('name', flat=True))
-                    validation_errors.append(
-                        f"Grade not found. Available grades: {', '.join(available_grades)}"
-                    )
-                
-                if not school:
-                    available_schools = list(School.objects.values_list('name', flat=True)[:10])  # First 10
-                    validation_errors.append(
-                        f"School not found. Available schools (first 10): {', '.join(available_schools)}"
-                    )
-                
-                # Check email
-                if CustomUser.objects.filter(email=email).exists():
-                    validation_errors.append(f"Email '{email}' is already registered")
-                
-                if validation_errors:
-                    for error in validation_errors:
-                        messages.error(request, error)
-                    # Refresh form with available options
+                # Validate email
+                if CustomUser.objects.filter(email=data['email']).exists():
+                    messages.error(request, f"Email '{data['email']}' is already registered")
                     return render(request, 'hod_template/add_student_template.html', context)
                 
-                # ========== 5. GET/CREATE CIRCUIT (Auto-handle missing) ==========
+                # Get circuit
+                school = data['school']
                 circuit = None
-                if hasattr(school, 'circuit') and school.circuit:
+                if school.circuit:
                     circuit = school.circuit
                 else:
-                    # Auto-create circuit if missing (common with Excel imports)
                     circuit_name = f"{school.name} Circuit"
                     circuit, created = Circuit.objects.get_or_create(
                         name=circuit_name,
-                        defaults={
-                            'code': school.name[:10].upper(),
-                            'district': None  # You can add district logic if needed
-                        }
+                        defaults={'code': school.name[:10].upper()}
                     )
-                    # Link circuit to school
                     school.circuit = circuit
                     school.save()
-                    print(f"🔄 Auto-created circuit: {circuit_name}")
                 
-                # ========== 6. SMART GRADE-COURSE LOGIC ==========
-                # Normalize grade name for comparison
-                grade_name = grade.name.strip().title()
-                
-                # Clean common variations
-                grade_name = grade_name.replace("Gr ", "Grade ")
-                grade_name = grade_name.replace("Grd ", "Grade ")
-                grade_name = grade_name.replace("GR ", "Grade ")
-                
-                # Young grades (with variations)
-                young_grade_patterns = [
-                    'Grade R', 'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 
-                    'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9',
-                    'Gr R', 'Gr 1', 'Gr 2', 'Gr 3', 'Gr 4', 'Gr 5', 'Gr 6', 'Gr 7', 'Gr 8', 'Gr 9',
-                    'Grd R', 'Grd 1', 'Grd 2', 'Grd 3', 'Grd 4', 'Grd 5', 'Grd 6', 'Grd 7', 'Grd 8', 'Grd 9',
-                    'R', '1', '2', '3', '4', '5', '6', '7', '8', '9'  # Just numbers
-                ]
-                
-                is_young_grade = False
-                for pattern in young_grade_patterns:
-                    if grade_name == pattern or f"Grade {grade_name}" == pattern or grade_name.endswith(pattern):
-                        is_young_grade = True
-                        break
-                
-                if is_young_grade:
-                    course = None  # No course for young grades
-                    print(f"🎯 Detected young grade: {grade_name} -> No course required")
-                else:
-                    # For older grades, course is required
-                    if not course:
-                        available_courses = list(Course.objects.values_list('name', flat=True)[:10])
-                        messages.error(
-                            request, 
-                            f"Course is required for {grade_name}. "
-                            f"Available courses: {', '.join(available_courses)}"
-                        )
-                        return render(request, 'hod_template/add_student_template.html', context)
-                
-                # ========== 7. PROFILE PICTURE ==========
-                passport = request.FILES.get('profile_pic')
-                fs = FileSystemStorage()
+                # Profile picture
                 passport_url = None
-                if passport:
-                    filename = fs.save(passport.name, passport)
+                if 'profile_pic' in request.FILES:
+                    fs = FileSystemStorage()
+                    filename = fs.save(request.FILES['profile_pic'].name, request.FILES['profile_pic'])
                     passport_url = fs.url(filename)
                 
-                # ========== 8. CREATE IN TRANSACTION ==========
+                # ========== CREATE WITHOUT SIGNAL ==========
                 from django.db import transaction
+                from django.db.models.signals import post_save
                 
                 with transaction.atomic():
-                    # Create user
-                    user = CustomUser.objects.create_user(
-                        email=email,
-                        password=password,
-                        user_type=3,
-                        first_name=first_name,
-                        last_name=last_name,
-                        profile_pic=passport_url
-                    )
-                    user.gender = gender
-                    user.address = address
-                    user.save()
+                    # Temporarily disconnect the signal
+                    try:
+                        from main_app.models import create_user_profile
+                        post_save.disconnect(create_user_profile, sender=CustomUser)
+                        signal_disconnected = True
+                    except:
+                        signal_disconnected = False
                     
-                    # Create student - ALL fields guaranteed
-                    student = Student.objects.create(
-                        admin=user,
-                        grade=grade,
-                        school=school,
-                        circuit=circuit,
-                        course=course  # Can be None for young grades
-                    )
-                    
-                    print(f"✅ SUCCESS: Student created with Grade='{grade.name}', School='{school.name}'")
+                    try:
+                        # Create user
+                        user = CustomUser.objects.create_user(
+                            email=data['email'],
+                            password=data['password'],
+                            user_type=3,
+                            first_name=data['first_name'],
+                            last_name=data['last_name'],
+                            gender=data['gender'],
+                            address=data['address'],
+                            profile_pic=passport_url
+                        )
+                        
+                        # Create student with ALL fields
+                        student = Student.objects.create(
+                            admin=user,
+                            grade=data['grade'],
+                            school=school,
+                            circuit=circuit,
+                            course=data.get('course')
+                        )
+                        
+                        print(f"✅ Created user {user.email} and student {student.id}")
+                        
+                    finally:
+                        # Reconnect signal if we disconnected it
+                        if signal_disconnected:
+                            post_save.connect(create_user_profile, sender=CustomUser)
                 
-                # ========== 9. SUCCESS MESSAGE ==========
-                if is_young_grade:
-                    messages.success(request, 
-                        f"✅ {first_name} {last_name} added to {grade.name} (Primary School)"
-                    )
-                else:
-                    messages.success(request, 
-                        f"✅ {first_name} {last_name} added to {grade.name} - {course.name}"
-                    )
+                messages.success(request, 
+                    f"✅ {data['first_name']} {data['last_name']} successfully registered!"
+                )
                 
-                # Clear form
                 student_form = StudentForm()
                 context['form'] = student_form
-                
                 return redirect(reverse('login_page'))
                 
             except Exception as e:
-                messages.error(request, f"Registration error: {str(e)}")
-                print(f"❌ FULL ERROR: {e}")
+                messages.error(request, f"Error: {str(e)}")
+                print(f"❌ Error: {e}")
                 import traceback
                 traceback.print_exc()
-                
         else:
-            messages.error(request, "Please fix the form errors")
-            print("Form errors:", student_form.errors)
+            messages.error(request, "Form has errors")
+            print("Errors:", student_form.errors)
 
     return render(request, 'hod_template/add_student_template.html', context)
 

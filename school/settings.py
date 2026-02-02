@@ -104,6 +104,9 @@ INSTALLED_APPS = [
     'main_app.apps.MainAppConfig',
     #aws database
     'storages',
+    #pwa
+    'pwa',
+   
 
     # ... include the providers you want to enable:
     'allauth.socialaccount.providers.google',
@@ -135,7 +138,56 @@ MIDDLEWARE = [
 ]
 
 
-#react cors
+#PWA APPLICATION
+# PWA Settings
+PWA_APP_NAME = 'Tolleya The Great'
+PWA_APP_DESCRIPTION = 'Educational Platform'
+PWA_APP_THEME_COLOR = '#4A90E2'  # You can change this
+PWA_APP_BACKGROUND_COLOR = '#ffffff'
+PWA_APP_DISPLAY = 'standalone'
+PWA_APP_SCOPE = '/'
+PWA_APP_ORIENTATION = 'portrait'
+PWA_APP_START_URL = '/'
+PWA_APP_STATUS_BAR_COLOR = 'default'
+PWA_APP_ICONS = [
+    {
+        'src': '/static/icons/icon-72x72.png',
+        'sizes': '72x72',
+        'type': 'image/png'
+    },
+    {
+        'src': '/static/icons/icon-96x96.png',
+        'sizes': '96x96'
+    },
+    {
+        'src': '/static/icons/icon-128x128.png',
+        'sizes': '128x128'
+    },
+    {
+        'src': '/static/icons/icon-144x144.png',
+        'sizes': '144x144'
+    },
+    {
+        'src': '/static/icons/icon-152x152.png',
+        'sizes': '152x152'
+    },
+    {
+        'src': '/static/icons/icon-192x192.png',
+        'sizes': '192x192'
+    },
+    {
+        'src': '/static/icons/icon-384x384.png',
+        'sizes': '384x384'
+    },
+    {
+        'src': '/static/icons/icon-512x512.png',
+        'sizes': '512x512'
+    }
+]
+
+# Service Worker Path (relative to your static files)
+PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'assets', 'js', 'serviceworker.js')
+
 
 # CORS settings for React frontend
 ALLOWED_HOSTS = [
@@ -176,12 +228,12 @@ SIMPLE_JWT = {
 }
 
 # Channels + Redis
-ASGI_APPLICATION = 'your_project.asgi.application'
+ASGI_APPLICATION = 'school.asgi.application'
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
+            "hosts": [('thecms.co.z', 6379)],
         },
     },
 }
@@ -326,7 +378,11 @@ TIME_ZONE = 'Africa/Johannesburg'
 STUDENT_ID_PREFIX = os.getenv("STUDENT_ID_PREFIX", "ugr")
 EDUCATOR_ID_PREFIX = os.getenv("EDUCATOR_ID_PREFIX", "lec")
 
+# AI ENVIRONMENT VARIABLES
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 
+#END
 STATIC_URL = 'static/'
 #django databse settings
 django_heroku.settings(locals())

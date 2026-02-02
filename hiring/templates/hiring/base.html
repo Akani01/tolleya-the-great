@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:100,300,400,500,700,900" rel="stylesheet">
+
+    <title>JobPortal - Find Your Dream Job</title>
+
+    <!-- Additional CSS Files -->
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/font-awesome.css">
+    <link rel="stylesheet" href="/static/css/templatemo-softy-pinko.css">
+    
+    <!-- Custom CSS for dynamic features -->
+    <style>
+        .profile-dropdown {
+            position: relative;
+        }
+        .profile-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            min-width: 200px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 10px 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        .profile-dropdown.active .profile-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .profile-menu a {
+            display: block;
+            padding: 8px 20px;
+            color: #2a2a2a;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        .profile-menu a:hover {
+            background-color: rgba(255, 88, 158, 0.1);
+            color: #ff589e;
+        }
+        .profile-divider {
+            height: 1px;
+            background-color: #eee;
+            margin: 5px 0;
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+    
+<body>
+<!-- ***** Preloader Start ***** -->
+<div id="preloader">
+    <div class="jumper">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+</div>  
+<!-- ***** Preloader End ***** -->
+
+<!-- ***** Header Area Start ***** -->
+<header class="header-area header-sticky">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <nav class="main-nav">
+                    <!-- ***** Logo Start ***** -->
+                    <a href="{% url 'home' %}" class="logo">
+                        <img src="/static/images/logo.png" alt="JobPortal"/>
+                    </a>
+                    <!-- ***** Logo End ***** -->
+                    <!-- ***** Menu Start ***** -->
+                    <ul class="nav">
+                        <li><a href="{% url 'home' %}" class="active">Home</a></li>
+                        <li><a href="#job-listings">Browse Jobs</a></li>
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url 'dashboard_page' %}">Dashboard</a></li>
+                            <li class="profile-dropdown">
+                                <a href="#" class="profile-toggle">
+                                    <i class="fa fa-user"></i> {{ user.username }}
+                                    <i class="fa fa-chevron-down"></i>
+                                </a>
+                                <div class="profile-menu">
+                                    <a href="{% url 'profile_page' %}"><i class="fa fa-user me-2"></i>My Profile</a>
+                                    <a href="{% url 'applications_page' %}"><i class="fa fa-file-alt me-2"></i>My Applications</a>
+                                    <div class="profile-divider"></div>
+                                    <a href="/api/profile/skills/"><i class="fa fa-cogs me-2"></i>Skills</a>
+                                    <a href="/api/profile/employment/"><i class="fa fa-briefcase me-2"></i>Employment</a>
+                                    <a href="/api/profile/education/"><i class="fa fa-graduation-cap me-2"></i>Education</a>
+                                    <a href="/api/profile/documents/"><i class="fa fa-file-upload me-2"></i>Documents</a>
+                                    <div class="profile-divider"></div>
+                                    <a href="/logout/"><i class="fa fa-sign-out me-2"></i>Logout</a>
+                                </div>
+                            </li>
+                        {% else %}
+                            <li><a href="#" onclick="showLogin()">Login</a></li>
+                            <li><a href="#" onclick="showSignup()">Sign Up</a></li>
+                        {% endif %}
+                    </ul>
+                    <a class='menu-trigger'>
+                        <span>Menu</span>
+                    </a>
+                    <!-- ***** Menu End ***** -->
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+<!-- ***** Header Area End ***** -->
+
+{% block content %}{% endblock %}
+
+<!-- ***** Footer Start ***** -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <ul class="social">
+                    <li><a href="#"><i class="fa fa-facebook"></i></a></li>
+                    <li><a href="#"><i class="fa fa-twitter"></i></a></li>
+                    <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
+                    <li><a href="#"><i class="fa fa-rss"></i></a></li>
+                    <li><a href="#"><i class="fa fa-dribbble"></i></a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <p class="copyright">Copyright &copy; 2024 JobPortal - Find Your Dream Job</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/static/js/jquery-2.1.0.min.js"></script>
+<script src="/static/js/popper.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+<script src="/static/js/scrollreveal.min.js"></script>
+<script src="/static/js/waypoints.min.js"></script>
+<script src="/static/js/jquery.counterup.min.js"></script>
+<script src="/static/js/imgfix.min.js"></script> 
+<script src="/static/js/custom.js"></script>
+
+<!-- Profile Dropdown Script -->
+<script>
+    // Profile dropdown functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const profileDropdowns = document.querySelectorAll('.profile-dropdown');
+        
+        profileDropdowns.forEach(dropdown => {
+            const toggle = dropdown.querySelector('.profile-toggle');
+            
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                dropdown.classList.toggle('active');
+            });
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.profile-dropdown')) {
+                document.querySelectorAll('.profile-dropdown').forEach(dropdown => {
+                    dropdown.classList.remove('active');
+                });
+            }
+        });
+    });
+
+    function showLogin() {
+        // You can implement modal login here
+        window.location.href = "/api/auth/login/";
+    }
+
+    function showSignup() {
+        // You can implement modal signup here
+        window.location.href = "/api/auth/signup/";
+    }
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

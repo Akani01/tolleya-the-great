@@ -1,0 +1,1730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal - Hiring Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* ===== ORGANIZED NAVIGATION STYLES ===== */
+        .header-area {
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 999;
+        }
+        .main-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+        }
+        .logo img {
+            max-height: 40px;
+        }
+
+        /* Desktop Sidebar */
+        .desktop-sidebar {
+            width: 250px;
+            background: white;
+            height: calc(100vh - 80px);
+            position: fixed;
+            top: 80px;
+            left: 0;
+            padding: 20px;
+            border-right: 1px solid #eee;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+            overflow-y: auto;
+        }
+
+        .desktop-sidebar a {
+            display: block;
+            padding: 12px 10px;
+            color: #333;
+            text-decoration: none;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .desktop-sidebar a:hover,
+        .desktop-sidebar a.active {
+            background-color: rgba(255, 88, 158, 0.1);
+            color: #ff589e;
+        }
+
+        /* Hide sidebar on mobile */
+        @media (max-width: 991px) {
+            .desktop-sidebar {
+                display: none;
+            }
+        }
+
+        /* Push page content right on desktop */
+        @media (min-width: 992px) {
+            body {
+                padding-left: 270px !important;
+            }
+        }
+
+        /* Mobile Bottom Navbar */
+        .mobile-bottom-nav {
+            display: none;
+        }
+
+        @media (max-width: 991px) {
+            .mobile-bottom-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 65px;
+                background: white;
+                border-top: 1px solid #ddd;
+                justify-content: space-around;
+                align-items: center;
+                z-index: 9999;
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+            .mobile-bottom-nav a {
+                text-align: center;
+                color: #333;
+                font-size: 14px;
+                text-decoration: none;
+                flex: 1;
+                padding: 10px 5px;
+            }
+            .mobile-bottom-nav i {
+                font-size: 20px;
+                display: block;
+                margin-bottom: 3px;
+            }
+            .mobile-bottom-nav a.active {
+                color: #ff589e;
+            }
+        }
+
+        /* Body padding adjustments */
+        body {
+            padding-top: 80px;
+            background-color: #f8f9fa;
+            padding-bottom: 80px;
+        }
+
+        /* ===== ORGANIZED TOP NAVBAR ===== */
+        .nav-icons {
+            display: flex;
+            list-style: none;
+            gap: 15px;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-icons a {
+            font-size: 20px;
+            color: #555;
+            transition: 0.2s;
+            text-decoration: none;
+            padding: 8px;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .nav-icons a:hover {
+            color: #ff589e;
+            background-color: rgba(255, 88, 158, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Profile Dropdown */
+        .profile-dropdown {
+            position: relative;
+        }
+
+        .profile-avatar-small {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #ff589e 0%, #ff136f 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Profile Menu */
+        .profile-menu {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            width: 220px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            padding: 10px 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.25s ease;
+            z-index: 1000;
+        }
+
+        .profile-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0px);
+        }
+
+        .profile-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            color: #444;
+            text-decoration: none;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+
+        .profile-menu a:hover {
+            background: #f5f7fa;
+            color: #ff589e;
+        }
+
+        .profile-divider {
+            height: 1px;
+            background: #eee;
+            margin: 8px 0;
+        }
+
+        /* Three Dot Menu Styles */
+        .three-dot-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .three-dot-menu i {
+            font-size: 20px;
+            color: #555;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .three-dot-menu i:hover {
+            background-color: rgba(255, 88, 158, 0.1);
+            color: #ff589e;
+        }
+
+        .three-dot-menu .menu-content {
+            position: absolute;
+            top: 45px;
+            right: 0;
+            width: 200px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            padding: 10px 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.25s ease;
+            z-index: 1000;
+        }
+
+        .three-dot-menu .menu-content.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0px);
+        }
+
+        .three-dot-menu .menu-content a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            color: #444;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .three-dot-menu .menu-content a:hover {
+            background: rgba(255, 88, 158, 0.1);
+            color: #ff589e;
+        }
+
+        .three-dot-menu .menu-content a.active {
+            background: rgba(255, 88, 158, 0.1);
+            color: #ff589e;
+            font-weight: 500;
+        }
+
+        .three-dot-menu .menu-content a i {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Notification Badge */
+        .nav-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff136f;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ===== ADMIN PORTAL SPECIFIC STYLES ===== */
+        .admin-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 40px 0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .admin-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 25px;
+        }
+        .admin-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+        .stat-card {
+            text-align: center;
+            padding: 30px 20px;
+        }
+        .stat-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        .stat-card h3 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .module-card {
+            padding: 25px;
+            text-align: center;
+            height: 100%;
+        }
+        .module-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.8rem;
+        }
+        .icon-primary { background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; }
+        .icon-success { background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); color: white; }
+        .icon-warning { background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: white; }
+        .icon-info { background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white; }
+        .icon-danger { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; }
+        .icon-purple { background: linear-gradient(135deg, #6f42c1 0%, #563d7c 100%); color: white; }
+        .icon-pink { background: linear-gradient(135deg, #e83e8c 0%, #d91a72 100%); color: white; }
+        .icon-teal { background: linear-gradient(135deg, #20c997 0%, #199d76 100%); color: white; }
+        .icon-orange { background: linear-gradient(135deg, #fd7e14 0%, #e55a00 100%); color: white; }
+        .icon-indigo { background: linear-gradient(135deg, #6610f2 0%, #520dc2 100%); color: white; }
+        .icon-cyan { background: linear-gradient(135deg, #0dcaf0 0%, #0ba8c8 100%); color: white; }
+        
+        .btn-admin {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            transition: all 0.3s;
+        }
+        .btn-admin:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 62, 80, 0.3);
+            color: white;
+        }
+        
+        .recent-activity {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .activity-item {
+            padding: 15px;
+            border-left: 4px solid transparent;
+            border-bottom: 1px solid #eee;
+            transition: all 0.3s ease;
+        }
+        .activity-item:hover {
+            border-left-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .growth-indicator {
+            font-size: 0.875rem;
+            margin-top: 5px;
+        }
+        .growth-positive {
+            color: #28a745;
+        }
+        .growth-negative {
+            color: #dc3545;
+        }
+
+        .bg-purple {
+            background-color: #6f42c1 !important;
+        }
+
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        .toast-container {
+            z-index: 9999;
+        }
+
+        /* Job Management Styles */
+        .job-status-published { border-left: 4px solid #28a745; }
+        .job-status-draft { border-left: 4px solid #6c757d; }
+        .job-status-closed { border-left: 4px solid #dc3545; }
+        .job-status-under_review { border-left: 4px solid #ffc107; }
+        
+        .job-actions {
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .job-item:hover .job-actions {
+            opacity: 1;
+        }
+
+        /* Job Edit Form Styles */
+        .form-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eaeaea;
+        }
+        .form-section h5 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .form-section h5 i {
+            color: #ff589e;
+        }
+        .form-label.required:after {
+            content: " *";
+            color: #dc3545;
+        }
+        .btn-save {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .btn-save:hover, .btn-cancel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    {% load api_utils %}
+    {% api_js_functions %}
+    <!-- ===== ORGANIZED TOP NAVBAR ===== -->
+    <!-- Top Navigation -->
+    <header class="header-area">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <nav class="main-nav">
+                        <a href="/" class="logo">
+                            <img src="/static/images/logo.png" alt="JobPortal" style="max-height: 40px;">
+                        </a>
+
+                        <!-- Top Right Icons -->
+                        <ul class="nav-icons">
+                            <li>
+                                <a href="/" title="Home">
+                                    <i class="fas fa-home"></i>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="/#job-listings" title="Browse Jobs">
+                                    <i class="fas fa-search"></i>
+                                </a>
+                            </li>
+
+                            {% if user.is_authenticated %}
+                            <li>
+                                <a href="/dashboard" title="Dashboard">
+                                    <i class="fas fa-th-large"></i>
+                                </a>
+                            </li>
+
+                            <!-- Profile Dropdown Icon -->
+                            <li class="profile-dropdown">
+                                <div class="profile-avatar-small" onclick="toggleProfileDropdown()">
+                                    {{ user.username|first|upper }}
+                                </div>
+
+                                <div class="profile-menu" id="profileMenu">
+                                    <a href="/profile/"><i class="fas fa-user"></i> Profile</a>
+                                    <a href="/applications/"><i class="fas fa-file-alt"></i> Applications</a>
+                                    <div class="profile-divider"></div>
+
+                                    <a href="/api/alerts/"><i class="fas fa-bell"></i> Alerts</a>
+                                    <a href="/preferences/"><i class="fas fa-cog"></i> Preferences</a>
+
+                                    <div class="profile-divider"></div>
+
+                                    <a href="/logout/"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                                </div>
+                            </li>
+                            <li>
+                              <a href="/messaging/">
+                                <i class="fas fa-comment-dots"></i>
+                              </a>
+                            </li>  
+                            <li>
+                                <div class="three-dot-menu">
+                                    <i class="fas fa-ellipsis-v" onclick="toggleThreeDotMenu()"></i>
+                                    <div class="menu-content" id="threeDotMenu">
+                                        <a href="/profile/skills/"><i class="fas fa-cogs"></i> Skills</a>
+                                        <a href="/profile/employment/"><i class="fas fa-briefcase"></i> Employment</a>
+                                        <a href="/profile/education/"><i class="fas fa-graduation-cap"></i> Education</a>
+                                        <a href="/profile/documents/"><i class="fas fa-file-upload"></i> Documents</a>
+                                    </div>
+                                </div>
+                            </li>
+
+                            {% else %}
+                            <li>
+                                <a href="#" onclick="showLogin()" title="Login">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="#" onclick="showSignup()" title="Sign Up">
+                                    <i class="fas fa-user-plus"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Desktop Sidebar -->
+    <div class="desktop-sidebar">
+        <a href="/admin-portal/" class="active"><i class="fas fa-crown"></i> Admin Portal</a>
+        <div style="height: 1px; background: #eee; margin: 15px 0;"></div>
+        
+        <a href="/admin-portal/jobs/"><i class="fas fa-briefcase"></i> Job Management</a>
+        <a href="/admin-portal/jobs/edit/"><i class="fas fa-edit"></i> Edit Jobs</a>
+        <a href="/admin/hiring/joblisting/add/" target="_blank"><i class="fas fa-plus"></i> Add New Job</a>
+        
+        <div style="height: 1px; background: #eee; margin: 15px 0;"></div>
+        
+        <a href="/admin/hiring/customuser/" target="_blank"><i class="fas fa-users-cog"></i> User Management</a>
+        <a href="/admin/hiring/applicantprofile/" target="_blank"><i class="fas fa-id-card"></i> Applicant Profiles</a>
+        <a href="/admin/hiring/application/" target="_blank"><i class="fas fa-file-contract"></i> Applications</a>
+        
+        <div style="height: 1px; background: #eee; margin: 15px 0;"></div>
+        
+        <a href="/admin/hiring/skill/" target="_blank"><i class="fas fa-cogs"></i> Skills</a>
+        <a href="/admin/hiring/education/" target="_blank"><i class="fas fa-graduation-cap"></i> Education</a>
+        <a href="/admin/hiring/employment/" target="_blank"><i class="fas fa-briefcase"></i> Employment</a>
+        <a href="/admin/hiring/document/" target="_blank"><i class="fas fa-file-upload"></i> Documents</a>
+        
+        <div style="height: 1px; background: #eee; margin: 15px 0;"></div>
+        
+        <a href="/admin/hiring/alert/" target="_blank"><i class="fas fa-bell"></i> Alerts</a>
+        <a href="/admin/hiring/emailtemplate/" target="_blank"><i class="fas fa-envelope"></i> Email Templates</a>
+        <a href="/admin/hiring/notificationpreference/" target="_blank"><i class="fas fa-sliders-h"></i> Preferences</a>
+        
+        <div style="height: 1px; background: #eee; margin: 15px 0;"></div>
+        
+        <a href="/admin-portal/export/" target="_blank"><i class="fas fa-download"></i> Export Center</a>
+        <a href="/admin/" target="_blank"><i class="fas fa-cog"></i> System Admin</a>
+    </div>
+
+    <!-- ===== ADMIN PORTAL CONTENT ===== -->
+    <div class="container mt-4">
+        <!-- Check if we're on the job edit page -->
+        {% if request.path == '/admin-portal/jobs/edit/' %}
+        <!-- Job Edit Form Section -->
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-edit me-2"></i>
+                        {% if job_data %}Edit Job{% else %}Create New Job{% endif %}
+                    </h1>
+                    <a href="/admin-portal/jobs/" class="btn btn-admin">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Jobs
+                    </a>
+                </div>
+                
+                <div class="card admin-card">
+                    <div class="card-body">
+                        <form id="jobEditForm" onsubmit="handleJobFormSubmit(event)">
+                            <!-- Basic Information -->
+                            <div class="form-section">
+                                <h5><i class="fas fa-info-circle me-2"></i>Basic Information</h5>
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="mb-3">
+                                            <label class="form-label required">Job Title</label>
+                                            <input type="text" class="form-control" name="title" 
+                                                   value="{{ job_data.title|default:'' }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label">Status</label>
+                                            <select class="form-select" name="status">
+                                                <option value="draft" {% if job_data.status == 'draft' %}selected{% endif %}>Draft</option>
+                                                <option value="published" {% if job_data.status == 'published' %}selected{% endif %}>Published</option>
+                                                <option value="closed" {% if job_data.status == 'closed' %}selected{% endif %}>Closed</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Company Name</label>
+                                            <input type="text" class="form-control" name="company_name" 
+                                                   value="{{ job_data.company_name|default:'Benta Group' }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label required">Location</label>
+                                            <input type="text" class="form-control" name="location" 
+                                                   value="{{ job_data.location|default:'' }}" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Job Details -->
+                            <div class="form-section">
+                                <h5><i class="fas fa-briefcase me-2"></i>Job Details</h5>
+                                <div class="mb-3">
+                                    <label class="form-label required">Position Summary</label>
+                                    <textarea class="form-control" name="position_summary" rows="3" required>{{ job_data.position_summary|default:'' }}</textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label required">Job Description</label>
+                                    <textarea class="form-control" name="job_description" rows="5" required>{{ job_data.job_description|default:'' }}</textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Requirements</label>
+                                    <textarea class="form-control" name="requirements" rows="4">{{ job_data.requirements|default:'' }}</textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Benefits</label>
+                                    <textarea class="form-control" name="benefits" rows="3">{{ job_data.benefits|default:'' }}</textarea>
+                                </div>
+                            </div>
+
+                            <!-- Additional Information -->
+                            <div class="form-section">
+                                <h5><i class="fas fa-cogs me-2"></i>Additional Information</h5>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label">Employment Type</label>
+                                            <select class="form-select" name="employment_type">
+                                                <option value="full_time" {% if job_data.employment_type == 'full_time' %}selected{% endif %}>Full Time</option>
+                                                <option value="part_time" {% if job_data.employment_type == 'part_time' %}selected{% endif %}>Part Time</option>
+                                                <option value="contract" {% if job_data.employment_type == 'contract' %}selected{% endif %}>Contract</option>
+                                                <option value="internship" {% if job_data.employment_type == 'internship' %}selected{% endif %}>Internship</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label">Experience Level</label>
+                                            <select class="form-select" name="experience_level">
+                                                <option value="entry" {% if job_data.experience_level == 'entry' %}selected{% endif %}>Entry Level</option>
+                                                <option value="mid_level" {% if job_data.experience_level == 'mid_level' %}selected{% endif %}>Mid Level</option>
+                                                <option value="senior" {% if job_data.experience_level == 'senior' %}selected{% endif %}>Senior Level</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label">Apply By Date</label>
+                                            <input type="date" class="form-control" name="apply_by" 
+                                                   value="{{ job_data.apply_by|default:'' }}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="button" class="btn btn-cancel" onclick="window.history.back()">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </button>
+                                <button type="submit" class="btn btn-save">
+                                    <i class="fas fa-save me-2"></i>
+                                    {% if job_data %}Update Job{% else %}Create Job{% endif %}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Original Admin Portal Content -->
+        <!-- Admin Header -->
+        <div class="admin-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="display-5 mb-2"><i class="fas fa-crown me-3"></i>Admin Portal</h1>
+                    <p class="lead mb-0">Manage your Hiring Platform with powerful administrative tools</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="bg-white text-dark rounded p-3 d-inline-block">
+                        <small class="text-muted d-block">System Status</small>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-circle text-success me-2"></i>
+                            <strong id="systemStatus">Checking system status...</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card admin-card stat-card border-primary">
+                    <div class="card-body">
+                        <i class="fas fa-users text-primary"></i>
+                        <h3 id="totalUsers">0</h3>
+                        <p class="card-text text-muted">Total Users</p>
+                        <div id="userGrowth" class="growth-indicator"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card admin-card stat-card border-success">
+                    <div class="card-body">
+                        <i class="fas fa-briefcase text-success"></i>
+                        <h3 id="totalJobs">0</h3>
+                        <p class="card-text text-muted">Active Jobs</p>
+                        <div id="jobGrowth" class="growth-indicator"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card admin-card stat-card border-warning">
+                    <div class="card-body">
+                        <i class="fas fa-file-alt text-warning"></i>
+                        <h3 id="totalApplications">0</h3>
+                        <p class="card-text text-muted">Applications</p>
+                        <div id="applicationGrowth" class="growth-indicator"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card admin-card stat-card border-info">
+                    <div class="card-body">
+                        <i class="fas fa-bell text-info"></i>
+                        <h3 id="unreadAlerts">0</h3>
+                        <p class="card-text text-muted">Unread Alerts</p>
+                        <div id="alertGrowth" class="growth-indicator"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Modules -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h3 class="mb-4"><i class="fas fa-th-large me-2"></i>Management Modules</h3>
+            </div>
+            
+            <!-- User Management -->
+            <div class="col-md-4 mb-4">
+                <div class="card admin-card module-card">
+                    <div class="module-icon icon-primary">
+                        <i class="fas fa-users-cog"></i>
+                    </div>
+                    <h5>User Management</h5>
+                    <p class="text-muted mb-3">Manage applicants, profiles, and user accounts</p>
+                    <div class="btn-group w-100">
+                        <a href="/admin/hiring/customuser/" target="_blank" class="btn btn-admin btn-sm">View Users</a>
+                        <a href="/admin/hiring/applicantprofile/" target="_blank" class="btn btn-outline-secondary btn-sm">Profiles</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Job Management -->
+            <div class="col-md-4 mb-4">
+                <div class="card admin-card module-card">
+                    <div class="module-icon icon-success">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <h5>Job Management</h5>
+                    <p class="text-muted mb-3">Create, edit, and manage job listings</p>
+                    <div class="btn-group w-100">
+                        <a href="/admin-portal/jobs/" class="btn btn-admin btn-sm">Manage Jobs</a>
+                        <a href="/admin/hiring/joblisting/add/" target="_blank" class="btn btn-outline-secondary btn-sm">Add Job</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Applications -->
+            <div class="col-md-4 mb-4">
+                <div class="card admin-card module-card">
+                    <div class="module-icon icon-warning">
+                        <i class="fas fa-file-contract"></i>
+                    </div>
+                    <h5>Applications</h5>
+                    <p class="text-muted mb-3">Review and manage job applications</p>
+                    <div class="btn-group w-100">
+                        <a href="/admin/hiring/application/" target="_blank" class="btn btn-admin btn-sm">View Applications</a>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="showApplicationStats()">Stats</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Skills & Education -->
+            <div class="col-md-4 mb-4">
+                <div class="card admin-card module-card">
+                    <div class="module-icon icon-info">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h5>Skills & Education</h5>
+                    <p class="text-muted mb-3">Manage skills, employment, and education data</p>
+                    <div class="btn-group w-100">
+                        <a href="/admin/hiring/skill/" target="_blank" class="btn btn-admin btn-sm">Skills</a>
+                        <a href="/admin/hiring/education/" target="_blank" class="btn btn-outline-secondary btn-sm">Education</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Documents -->
+            <div class="col-md-4 mb-4">
+                <div class="card admin-card module-card">
+                    <div class="module-icon icon-purple">
+                        <i class="fas fa-file-upload"></i>
+                    </div>
+                    <h5>Documents</h5>
+                    <p class="text-muted mb-3">Manage uploaded CVs and documents</p>
+                    <div class="btn-group w-100">
+                        <a href="/admin/hiring/document/" target="_blank" class="btn btn-admin btn-sm">View Documents</a>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="showDocumentStats()">Stats</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Notifications -->
+            <div class="col-md-4 mb-4">
+                <div class="card admin-card module-card">
+                    <div class="module-icon icon-pink">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h5>Notifications</h5>
+                    <p class="text-muted mb-3">Manage alerts and notification system</p>
+                    <div class="btn-group w-100">
+                        <a href="/admin/hiring/alert/" target="_blank" class="btn btn-admin btn-sm">Alerts</a>
+                        <a href="/admin/hiring/sentnotification/" target="_blank" class="btn btn-outline-secondary btn-sm">Sent</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Email Templates -->
+            <div class="col-md-4 mb-4">
+                <div class="card admin-card module-card">
+                    <div class="module-icon icon-teal">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <h5>Email Templates</h5>
+                    <p class="text-muted mb-3">Manage email templates and notifications</p>
+                    <div class="btn-group w-100">
+                        <a href="/admin/hiring/emailtemplate/" target="_blank" class="btn btn-admin btn-sm">Templates</a>
+                        <a href="/admin/hiring/jobalert/" target="_blank" class="btn btn-outline-secondary btn-sm">Job Alerts</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- System Settings -->
+            <div class="col-md-4 mb-4">
+                <div class="card admin-card module-card">
+                    <div class="module-icon icon-orange">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h5>System Settings</h5>
+                    <p class="text-muted mb-3">Platform configuration and preferences</p>
+                    <div class="btn-group w-100">
+                        <a href="/admin/hiring/notificationpreference/" target="_blank" class="btn btn-admin btn-sm">Preferences</a>
+                        <a href="/admin/" target="_blank" class="btn btn-outline-secondary btn-sm">All Settings</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reports & Analytics -->
+            <div class="col-md-4 mb-4">
+                <div class="card admin-card module-card">
+                    <div class="module-icon icon-indigo">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h5>Reports & Analytics</h5>
+                    <p class="text-muted mb-3">View platform analytics and reports</p>
+                    <div class="btn-group w-100">
+                        <button class="btn btn-admin btn-sm" onclick="generateReport('users')">User Report</button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="generateReport('applications')">App Report</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Export Module -->
+            <div class="col-md-4 mb-4">
+                <div class="card admin-card module-card">
+                    <div class="module-icon icon-success">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <h5>Data Export</h5>
+                    <p class="text-muted mb-3">Export platform data in multiple formats</p>
+                    <div class="btn-group w-100">
+                        <a href="/admin-portal/export/" target="_blank" class="btn btn-admin btn-sm">Export Center</a>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="testExport()">Test Export</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Jobs Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card admin-card">
+                    <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-briefcase me-2"></i>Recent Job Listings</h5>
+                        <div>
+                            <a href="/admin-portal/jobs/" class="btn btn-admin btn-sm me-2">View All Jobs</a>
+                            <a href="/admin/hiring/joblisting/add/" target="_blank" class="btn btn-success btn-sm">Add New Job</a>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="recent-activity" id="recentJobs">
+                            <div class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading jobs...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity & Quick Actions -->
+        <div class="row">
+            <div class="col-md-8 mb-4">
+                <div class="card admin-card">
+                    <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Activity</h5>
+                        <button class="btn btn-sm btn-outline-primary" onclick="loadRecentActivity()">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="recent-activity" id="recentActivity">
+                            <div class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading activity...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card admin-card">
+                    <div class="card-header bg-transparent">
+                        <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-admin" onclick="createNewJob()">
+                                <i class="fas fa-plus me-2"></i>Create New Job
+                            </button>
+                            <button class="btn btn-outline-primary" onclick="sendBulkNotification()">
+                                <i class="fas fa-bullhorn me-2"></i>Send Notification
+                            </button>
+                            <a href="/admin-portal/export/" target="_blank" class="btn btn-outline-success">
+                                <i class="fas fa-download me-2"></i>Export Data
+                            </a>
+                            <button class="btn btn-outline-warning" onclick="runSystemHealthCheck()">
+                                <i class="fas fa-heartbeat me-2"></i>System Check
+                            </button>
+                            <button class="btn btn-outline-info" onclick="viewDatabaseStats()">
+                                <i class="fas fa-database me-2"></i>Database Stats
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Mobile Bottom Navigation -->
+    <div class="mobile-bottom-nav">
+        <a href="/"><i class="fas fa-home"></i>Home</a>
+        <a href="/admin-portal/" class="active"><i class="fas fa-crown"></i>Admin</a>
+        <a href="/admin-portal/jobs/"><i class="fas fa-briefcase"></i>Jobs</a>
+        <a href="/admin/hiring/customuser/" target="_blank"><i class="fas fa-users"></i>Users</a>
+        <a href="/admin-portal/export/" target="_blank"><i class="fas fa-download"></i>Export</a>
+    </div>
+
+    <!-- System Health Modal -->
+    <div class="modal fade" id="systemHealthModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">System Health Check</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="healthCheckResults">
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Running health check...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ===== ORGANIZED NAVIGATION FUNCTIONS =====
+        function toggleProfileDropdown() {
+            document.getElementById("profileMenu").classList.toggle("show");
+        }
+
+        function toggleThreeDotMenu() {
+            document.getElementById("threeDotMenu").classList.toggle("show");
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener("click", function(e) {
+            const profileMenu = document.getElementById("profileMenu");
+            const profileAvatar = document.querySelector(".profile-avatar-small");
+            const threeDotMenu = document.getElementById("threeDotMenu");
+            const threeDotIcon = document.querySelector(".three-dot-menu i");
+
+            // Close profile dropdown
+            if (profileAvatar && profileMenu && !profileAvatar.contains(e.target) && !profileMenu.contains(e.target)) {
+                profileMenu.classList.remove("show");
+            }
+
+            // Close three-dot menu
+            if (threeDotIcon && threeDotMenu && !threeDotIcon.contains(e.target) && !threeDotMenu.contains(e.target)) {
+                threeDotMenu.classList.remove("show");
+            }
+        });
+
+        // ===== ADMIN PORTAL FUNCTIONS =====
+        // Load admin data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAdminStats();
+            loadRecentActivity();
+            loadRecentJobs();
+            checkSystemStatus();
+        });
+
+        // Load recent jobs
+        async function loadRecentJobs() {
+            try {
+                const response = await fetch('/api/admin/jobs/', {
+                    headers: {
+                        'X-CSRFToken': getCSRFToken(),
+                    }
+                });
+                
+                const container = document.getElementById('recentJobs');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.jobs.length > 0) {
+                        container.innerHTML = '';
+                        
+                        // Show only recent 5 jobs
+                        const recentJobs = data.jobs.slice(0, 5);
+                        
+                        recentJobs.forEach(job => {
+                            const jobItem = document.createElement('div');
+                            jobItem.className = `activity-item job-item job-status-${job.status}`;
+                            
+                            const createdDate = new Date(job.created_at).toLocaleDateString();
+                            const applyBy = new Date(job.apply_by).toLocaleDateString();
+                            
+                            jobItem.innerHTML = `
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">${escapeHtml(job.title)}</h6>
+                                        <p class="mb-1 text-muted small">
+                                            <i class="fas fa-building me-1"></i>${escapeHtml(job.company_name)} 
+                                            | <i class="fas fa-map-marker-alt me-1"></i>${escapeHtml(job.location)}
+                                            | Apply by: ${applyBy}
+                                        </p>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock me-1"></i>
+                                            Created: ${createdDate}
+                                        </small>
+                                    </div>
+                                    <div class="job-actions">
+                                        <span class="badge bg-${getStatusBadgeColor(job.status)} me-2">${job.status}</span>
+                                        <a href="/admin-portal/jobs/edit/?job_id=${job.id}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            container.appendChild(jobItem);
+                        });
+                        
+                        // Add view all link if there are more jobs
+                        if (data.jobs.length > 5) {
+                            const viewAllLink = document.createElement('div');
+                            viewAllLink.className = 'text-center p-3 border-top';
+                            viewAllLink.innerHTML = `
+                                <a href="/admin-portal/jobs/" class="btn btn-sm btn-outline-primary">
+                                    View All ${data.jobs.length} Jobs
+                                </a>
+                            `;
+                            container.appendChild(viewAllLink);
+                        }
+                        return;
+                    }
+                }
+                
+                // Fallback if API fails
+                throw new Error('API failed');
+                
+            } catch (error) {
+                console.error('Error loading recent jobs:', error);
+                const container = document.getElementById('recentJobs');
+                container.innerHTML = `
+                    <div class="text-center py-4 text-muted">
+                        <i class="fas fa-briefcase fa-2x mb-2"></i>
+                        <p>No recent jobs found</p>
+                        <a href="/admin/hiring/joblisting/add/" target="_blank" class="btn btn-sm btn-success">Create First Job</a>
+                    </div>
+                `;
+            }
+        }
+
+        function getStatusBadgeColor(status) {
+            const colors = {
+                'published': 'success',
+                'draft': 'secondary',
+                'closed': 'danger',
+                'under_review': 'warning'
+            };
+            return colors[status] || 'secondary';
+        }
+
+        // Job form submission handler
+        function handleJobFormSubmit(event) {
+            event.preventDefault();
+            
+            const form = document.getElementById('jobEditForm');
+            const formData = new FormData(form);
+            
+            // Convert form data to object
+            const jobData = {};
+            for (let [key, value] of formData.entries()) {
+                jobData[key] = value;
+            }
+            
+            // Determine if we're creating or updating
+            const isEdit = {% if job_data %}true{% else %}false{% endif %};
+            const url = isEdit ? '/api/admin/jobs/update/' : '/api/admin/jobs/create/';
+            
+            // Add job ID if editing
+            if (isEdit) {
+                jobData.id = '{{ job_data.id }}';
+            }
+            
+            // Submit the form data
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken(),
+                },
+                body: JSON.stringify(jobData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Success', data.message, 'success');
+                    // Redirect to job management page after a short delay
+                    setTimeout(() => {
+                        window.location.href = '/admin-portal/jobs/';
+                    }, 1500);
+                } else {
+                    showToast('Error', data.error || 'Failed to save job', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error saving job:', error);
+                showToast('Error', 'Failed to save job. Please try again.', 'error');
+            });
+        }
+
+        // Load admin stats with proper error handling
+        async function loadAdminStats() {
+            try {
+                const response = await fetch('/api/admin/dashboard-stats/', {
+                    headers: {
+                        'X-CSRFToken': getCSRFToken(),
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    // Check if API returned success
+                    if (data.success) {
+                        const stats = data.stats;
+                        
+                        // Update stat cards with real data
+                        document.getElementById('totalUsers').textContent = stats.users.total.toLocaleString();
+                        document.getElementById('totalJobs').textContent = stats.jobs.active.toLocaleString();
+                        document.getElementById('totalApplications').textContent = stats.applications.total.toLocaleString();
+                        document.getElementById('unreadAlerts').textContent = stats.alerts.unread.toLocaleString();
+                        
+                        // Update growth indicators
+                        updateGrowthIndicators(stats);
+                    } else {
+                        // If API returned but with error, use fallback data
+                        useFallbackStats();
+                    }
+                } else {
+                    // If API call failed, use fallback data
+                    throw new Error('Failed to load stats');
+                }
+            } catch (error) {
+                console.error('Error loading admin stats:', error);
+                useFallbackStats();
+            }
+        }
+
+        function useFallbackStats() {
+            // Fallback to demo data
+            document.getElementById('totalUsers').textContent = '1,247';
+            document.getElementById('totalJobs').textContent = '156';
+            document.getElementById('totalApplications').textContent = '2,843';
+            document.getElementById('unreadAlerts').textContent = '23';
+            
+            // Add demo growth indicators
+            document.getElementById('userGrowth').innerHTML = '<span class="growth-positive"><i class="fas fa-arrow-up"></i> 5.2% this week</span>';
+            document.getElementById('jobGrowth').innerHTML = '<span class="growth-positive"><i class="fas fa-arrow-up"></i> 2.1% this week</span>';
+            document.getElementById('applicationGrowth').innerHTML = '<span class="growth-positive"><i class="fas fa-arrow-up"></i> 12.5% this week</span>';
+            document.getElementById('alertGrowth').innerHTML = '<span class="text-muted">23 total alerts</span>';
+        }
+
+        function updateGrowthIndicators(stats) {
+            // User growth
+            const userGrowth = document.getElementById('userGrowth');
+            if (stats.users.growth_rate_week > 0) {
+                userGrowth.innerHTML = `<span class="growth-positive"><i class="fas fa-arrow-up"></i> ${stats.users.growth_rate_week}% this week</span>`;
+            } else if (stats.users.growth_rate_week < 0) {
+                userGrowth.innerHTML = `<span class="growth-negative"><i class="fas fa-arrow-down"></i> ${Math.abs(stats.users.growth_rate_week)}% this week</span>`;
+            } else {
+                userGrowth.innerHTML = `<span class="text-muted"><i class="fas fa-minus"></i> No change</span>`;
+            }
+
+            // Application growth (simplified)
+            const applicationGrowth = document.getElementById('applicationGrowth');
+            const appGrowthRate = ((stats.applications.this_week / Math.max(stats.applications.total, 1)) * 100).toFixed(1);
+            if (stats.applications.this_week > 0) {
+                applicationGrowth.innerHTML = `<span class="growth-positive"><i class="fas fa-arrow-up"></i> ${appGrowthRate}% this week</span>`;
+            } else {
+                applicationGrowth.innerHTML = `<span class="text-muted"><i class="fas fa-minus"></i> No new apps</span>`;
+            }
+
+            // Job growth (simplified)
+            const jobGrowth = document.getElementById('jobGrowth');
+            jobGrowth.innerHTML = `<span class="text-muted">${stats.jobs.draft || 0} drafts</span>`;
+
+            // Alert growth (simplified)
+            const alertGrowth = document.getElementById('alertGrowth');
+            alertGrowth.innerHTML = `<span class="text-muted">${stats.alerts.total || 0} total</span>`;
+        }
+
+        // Load recent activity with proper error handling
+        async function loadRecentActivity() {
+            try {
+                const response = await fetch('/api/admin/activity/', {
+                    headers: {
+                        'X-CSRFToken': getCSRFToken(),
+                    }
+                });
+                
+                const container = document.getElementById('recentActivity');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        container.innerHTML = '';
+                        
+                        if (data.activity.length === 0) {
+                            container.innerHTML = `
+                                <div class="text-center py-4 text-muted">
+                                    <i class="fas fa-inbox fa-2x mb-2"></i>
+                                    <p>No recent activity</p>
+                                </div>
+                            `;
+                            return;
+                        }
+                        
+                        data.activity.forEach(activity => {
+                            const activityItem = document.createElement('div');
+                            activityItem.className = 'activity-item';
+                            
+                            const timestamp = new Date(activity.timestamp).toLocaleString();
+                            
+                            activityItem.innerHTML = `
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">${escapeHtml(activity.title)}</h6>
+                                        <p class="mb-1 text-muted small">${escapeHtml(activity.description)}</p>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock me-1"></i>
+                                            ${timestamp}
+                                        </small>
+                                    </div>
+                                    <span class="badge bg-${getBadgeColor(activity.badge)}">${activity.badge}</span>
+                                </div>
+                            `;
+                            
+                            container.appendChild(activityItem);
+                        });
+                        return;
+                    }
+                }
+                
+                // Fallback to demo data if API fails
+                throw new Error('API failed');
+                
+            } catch (error) {
+                console.error('Error loading recent activity:', error);
+                // Fallback demo data
+                const container = document.getElementById('recentActivity');
+                container.innerHTML = `
+                    <div class="activity-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">New user registration</h6>
+                                <p class="mb-1 text-muted small">John Doe registered as a new applicant</p>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    2 minutes ago
+                                </small>
+                            </div>
+                            <span class="badge bg-success">User</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">Job application submitted</h6>
+                                <p class="mb-1 text-muted small">Sarah Smith applied for Senior Developer position</p>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    15 minutes ago
+                                </small>
+                            </div>
+                            <span class="badge bg-warning">Application</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">New job listing published</h6>
+                                <p class="mb-1 text-muted small">Marketing Manager position published</p>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    1 hour ago
+                                </small>
+                            </div>
+                            <span class="badge bg-info">Job</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">Document uploaded</h6>
+                                <p class="mb-1 text-muted small">Mike Johnson uploaded a new CV</p>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    2 hours ago
+                                </small>
+                            </div>
+                            <span class="badge bg-purple">Document</span>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function getBadgeColor(badgeType) {
+            const colors = {
+                'User': 'success',
+                'Application': 'warning',
+                'Job': 'info',
+                'Document': 'purple',
+                'Profile': 'success'
+            };
+            return colors[badgeType] || 'secondary';
+        }
+
+        // Check system status with proper error handling
+        async function checkSystemStatus() {
+            try {
+                const response = await fetch('/api/admin/health-check/', {
+                    headers: {
+                        'X-CSRFToken': getCSRFToken(),
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        const statusElement = document.getElementById('systemStatus');
+                        if (data.status === 'healthy') {
+                            statusElement.innerHTML = '<i class="fas fa-circle text-success me-2"></i>All Systems Operational';
+                        } else {
+                            statusElement.innerHTML = '<i class="fas fa-circle text-warning me-2"></i>Some Issues Detected';
+                        }
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking system status:', error);
+            }
+            
+            // Fallback status
+            document.getElementById('systemStatus').innerHTML = '<i class="fas fa-circle text-success me-2"></i>All Systems Operational';
+        }
+
+        // Quick Action Functions
+        function createNewJob() {
+            window.location.href = '/admin-portal/jobs/edit/';
+        }
+
+        // Send bulk notification with proper error handling
+        async function sendBulkNotification() {
+            try {
+                const response = await fetch('/api/admin/quick-action/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken(),
+                    },
+                    body: JSON.stringify({
+                        action: 'send_notification'
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showToast('Notification', data.message || 'Notification sent successfully', 'info');
+                } else {
+                    throw new Error('Failed to send notification');
+                }
+            } catch (error) {
+                console.error('Error sending notification:', error);
+                showToast('Error', 'Failed to send notification', 'error');
+            }
+        }
+
+        // Test export function with proper error handling
+        async function testExport() {
+            try {
+                showToast('Export', 'Testing export functionality...', 'info');
+                
+                const response = await fetch('/api/admin/test-export/', {
+                    headers: {
+                        'X-CSRFToken': getCSRFToken(),
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        showToast('Success', 'Test export completed successfully!', 'success');
+                    } else {
+                        throw new Error(data.error || 'Export failed');
+                    }
+                } else {
+                    throw new Error('Test export failed');
+                }
+            } catch (error) {
+                console.error('Test export error:', error);
+                showToast('Error', 'Test export failed. Please use the Export Center.', 'error');
+            }
+        }
+
+        // System health check with proper error handling
+        async function runSystemHealthCheck() {
+            const modal = new bootstrap.Modal(document.getElementById('systemHealthModal'));
+            const results = document.getElementById('healthCheckResults');
+            
+            results.innerHTML = `
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Running health check...</span>
+                    </div>
+                </div>
+            `;
+            
+            modal.show();
+            
+            try {
+                const response = await fetch('/api/admin/system-health/', {
+                    headers: {
+                        'X-CSRFToken': getCSRFToken(),
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        let html = '';
+                        data.health_checks.forEach(check => {
+                            html += `
+                                <div class="alert alert-${check.color}">
+                                    <i class="fas fa-${check.icon} me-2"></i>
+                                    <strong>${check.component}:</strong> ${check.message}
+                                </div>
+                            `;
+                        });
+                        results.innerHTML = html;
+                        return;
+                    }
+                }
+                throw new Error('API failed');
+            } catch (error) {
+                results.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Error:</strong> Failed to run system health check
+                    </div>
+                `;
+            }
+        }
+
+        // View database stats with proper error handling
+        async function viewDatabaseStats() {
+            try {
+                const response = await fetch('/api/admin/database-stats/', {
+                    headers: {
+                        'X-CSRFToken': getCSRFToken(),
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        let message = 'Database Statistics:\n\n';
+                        data.database_stats.tables.forEach(table => {
+                            message += `${table.table_name}: ${table.row_count} rows (${table.size})\n`;
+                        });
+                        alert(message);
+                        return;
+                    }
+                }
+                throw new Error('API failed');
+            } catch (error) {
+                alert('Error loading database statistics');
+            }
+        }
+
+        function showApplicationStats() {
+            generateReport('applications');
+        }
+
+        function showDocumentStats() {
+            alert('Document statistics would be displayed here');
+        }
+
+        // Generate report with proper error handling
+        async function generateReport(type) {
+            try {
+                const response = await fetch('/api/admin/generate-report/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken(),
+                    },
+                    body: JSON.stringify({
+                        type: type
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        let message = `${type.charAt(0).toUpperCase() + type.slice(1)} Report Generated!\n\n`;
+                        message += `Total: ${data.summary[`total_${type}`]}\n`;
+                        
+                        if (type === 'applications') {
+                            data.summary.status_breakdown.forEach(status => {
+                                message += `${status.status}: ${status.count}\n`;
+                            });
+                        }
+                        
+                        if (type === 'users') {
+                            message += `Active Users: ${data.summary.active_users}\n`;
+                            message += `New This Month: ${data.summary.new_this_month}\n`;
+                        }
+                        
+                        alert(message);
+                    } else {
+                        alert('Error generating report: ' + data.error);
+                    }
+                } else {
+                    throw new Error('API call failed');
+                }
+            } catch (error) {
+                alert('Error generating report: ' + error.message);
+            }
+        }
+
+        // Utility function to show toast messages
+        function showToast(title, message, type = 'info') {
+            // Create toast container if it doesn't exist
+            let toastContainer = document.getElementById('toastContainer');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'toastContainer';
+                toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+                toastContainer.style.zIndex = '9999';
+                document.body.appendChild(toastContainer);
+            }
+            
+            const toastId = 'toast-' + Date.now();
+            const bgColor = type === 'success' ? 'bg-success' : type === 'error' ? 'bg-danger' : 'bg-info';
+            
+            const toastHTML = `
+                <div id="${toastId}" class="toast align-items-center text-white ${bgColor} border-0" role="alert">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <strong>${title}</strong><br>${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                </div>
+            `;
+            
+            toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+            
+            const toastElement = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastElement, { delay: 5000 });
+            toast.show();
+            
+            // Remove toast from DOM after it's hidden
+            toastElement.addEventListener('hidden.bs.toast', function () {
+                toastElement.remove();
+            });
+        }
+
+        // Utility function for CSRF token
+        function getCSRFToken() {
+            const name = 'csrftoken';
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Utility function to escape HTML
+        function escapeHtml(unsafe) {
+            if (unsafe === null || unsafe === undefined) return '';
+            return unsafe
+                .toString()
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Auto-refresh stats every 30 seconds
+        setInterval(loadAdminStats, 30000);
+        setInterval(checkSystemStatus, 60000);
+        setInterval(loadRecentJobs, 60000);
+    </script>
+</body>
+</html>

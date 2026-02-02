@@ -49,6 +49,26 @@ from django.conf import settings
 import os
 
 
+
+def manifest_view(request):
+    """Serve the manifest.json file"""
+    context = {
+        'static_url': '/static/'
+    }
+    manifest_content = render_to_string('manifest.json', context, request=request)
+    return HttpResponse(manifest_content, content_type='application/json')
+
+def service_worker_view(request):
+    """Serve the service worker file"""
+    sw_content = render_to_string('serviceworker.js', {}, request=request)
+    return HttpResponse(sw_content, content_type='application/javascript')
+
+def offline_view(request):
+    """Offline page"""
+    return render(request, 'offline.html')
+
+
+
 def favicon(request):
     # Adjust the path if your static folder is somewhere else
     path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logo.png')
