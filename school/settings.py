@@ -106,6 +106,7 @@ INSTALLED_APPS = [
     'storages',
     #pwa
     'pwa',
+    'hiring',
    
 
     # ... include the providers you want to enable:

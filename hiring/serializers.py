@@ -2,6 +2,8 @@
 from rest_framework import serializers
 from .models import *
 import os
+from main_app.models import Industry, CompanySize, BusinessProfile, Post, JobListing, CustomUser , Comment
+
 
 # Define the choices that are missing
 SKILL_PROFICIENCY_LEVELS = [

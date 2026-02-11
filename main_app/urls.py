@@ -53,7 +53,7 @@ urlpatterns = [
     path('', views.index_view, name='index'),
     #APPLICATION SITEMAP
     # PWA URLs
-    # Manifest URL
+    # Manifest URL 
     # PWA URLs
     path('manifest.json', views.manifest_view, name='manifest'),
     path('serviceworker.js', views.service_worker_view, name='serviceworker'),

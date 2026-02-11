@@ -49,6 +49,8 @@ urlpatterns = [
     path("application", include('application.urls')),
     path("photo", include('photo.urls')),
     path("college", include('college.urls')),
+    path("hiring/", include('hiring.urls')),
+    path('api/', include('hiring.urls')),
     path("bursary", include('bursary.urls')),
     path("accounts/", include("django.contrib.auth.urls")),
     path('admin/', admin.site.urls),

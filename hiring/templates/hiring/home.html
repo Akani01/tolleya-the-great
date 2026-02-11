@@ -2762,7 +2762,7 @@
             const container = document.getElementById('jobsContainer');
             container.innerHTML = '';
             
-            fetch('/api/jobs/')
+            fetch('/hiring/api/jobs/')
                 .then(response => response.json())
                 .then(data => {
                     if (data.success && data.jobs && data.jobs.length > 0) {
@@ -3200,7 +3200,7 @@
             button.innerHTML = '<span class="loading-spinner"></span>';
             button.disabled = true;
             
-            fetch(`/api/jobs/${jobId}/apply/`, {
+            fetch(`/hiring/api/jobs/${jobId}/apply/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -3385,7 +3385,7 @@
         
         function loadBusinessFormData() {
             // Load industries
-            fetch('/api/industries/')
+            fetch('/hiring/api/industries/')
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -3404,7 +3404,7 @@
                 });
         
             // Load company sizes
-            fetch('/api/company-sizes/')
+            fetch('/hiring/api/company-sizes/')
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -3434,7 +3434,7 @@
             submitBtn.innerHTML = '<span class="loading-spinner"></span> Logging in...';
             submitBtn.disabled = true;
     
-            fetch('/api/auth/login/', {
+            fetch('/hiring/api/auth/login/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

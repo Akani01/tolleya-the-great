@@ -15,6 +15,8 @@ from django.contrib.auth.models import BaseUserManager
 from django.conf import settings
 from django.core.files import File
 from io import BytesIO
+from django.core.validators import FileExtensionValidator
+from .validators import validate_file_size, validate_video_file_extension, validate_image_file_extension
 from PIL import Image, ImageDraw
 from django.core.validators import MaxValueValidator
 from django.utils import timezone
@@ -144,55 +146,112 @@ class Session(models.Model):
 
 #Custom UserSettings
 class CustomUser(AbstractUser):
-    USER_TYPE = ((1, "HOD"), (2, "Staff"), (3, "Student"), (4,"Principal"), (5,"Educator"), (6,"Circuit_Manager"), (7, "Parent"), (8, "Member"), (9, "CWA_Admin"))
-    GENDER = [("M", "Male"), ("F", "Female")]
-    username = None  # Removed username, using email instead
+    USER_TYPE = (
+        (1, "HOD"),
+        (2, "Staff"),
+        (3, "Student"),
+        (4, "Principal"),
+        (5, "Educator"),
+        (6, "Circuit_Manager"),
+        (7, "Parent"),
+        (8, "Member"),
+        (9, "CWA_Admin"),
+        (10, "Applicant"),  # hiring applicant
+    )
+
+    GENDER = (
+        ("M", "Male"),
+        ("F", "Female"),
+    )
+
+    username = None
     email = models.EmailField(unique=True)
-    user_type = models.CharField(default=1, choices=USER_TYPE, max_length=1)
+
+    # ⚠️ keep as-is (production)
+    user_type = models.CharField(
+        default=1,
+        choices=USER_TYPE,
+        max_length=1
+    )
+
+    mobile_phone = models.CharField(max_length=15, blank=True, null=True)
     gender = models.CharField(max_length=1, choices=GENDER)
-    profile_pic = models.ImageField()
-    address = models.TextField()
-    fcm_token = models.TextField(default="")  # For firebase notifications
+    profile_pic = models.ImageField(upload_to="profile_pics/", blank=True, null=True)
+    address = models.TextField(blank=True)
+
+    fcm_token = models.TextField(default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
+
     objects = CustomUserManager()
 
     def __str__(self):
-        return self.last_name + ", " + self.first_name
+        return f"{self.last_name}, {self.first_name}"
+
+    # ===============================
+    # SCHOOL SYSTEM ACCESS
+    # ===============================
 
     @property
     def student(self):
-        """Easy access to student profile if user is a student"""
         try:
-            if self.user_type == 3:
+            if self.user_type == "3":
                 return Student.objects.get(admin=self)
         except Student.DoesNotExist:
             return None
         return None
-    
+
     @property
     def staff(self):
-        """Easy access to staff profile if user is staff"""
         try:
-            if self.user_type == 2:
+            if self.user_type == "2":
                 return Staff.objects.get(admin=self)
         except Staff.DoesNotExist:
             return None
         return None
-    
+
     @property
     def adminhod(self):
-        """Easy access to HOD profile if user is HOD"""
         try:
-            if self.user_type == 1:
+            if self.user_type == "1":
                 return AdminHOD.objects.get(admin=self)
         except AdminHOD.DoesNotExist:
             return None
         return None
 
+    # ===============================
+    # 🔥 HIRING SYSTEM ACCESS (FIXED)
+    # ===============================
 
+    @property
+    def is_applicant(self):
+        return self.user_type == "10"
+
+    @property
+    def applicant_profile(self):
+        """
+        Uses existing ApplicantProfile OneToOne
+        """
+        if not self.is_applicant:
+            return None
+        return getattr(self, "applicantprofile", None)
+
+    @property
+    def is_business(self):
+        """
+        Business user = has BusinessProfile
+        """
+        return hasattr(self, "businessprofile")
+
+    @property
+    def business_profile(self):
+        """
+        Uses existing BusinessProfile OneToOne
+        """
+        return getattr(self, "businessprofile", None)
 
 #grade
 class Grade(models.Model):
@@ -834,27 +893,290 @@ class Prospectors(models.Model):
         return self.institution
 
 #models
-class Comment(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # Best practice
-    # OR explicitly (if you prefer):
-    # user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    content = models.TextField()
+
+class Industry(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='replies')
-    likes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='comment_likes', blank=True)
+    
+    class Meta:
+        app_label = 'hiring'
+        verbose_name_plural = 'Industries'
+        ordering = ['name']
     
     def __str__(self):
-        return f"Comment by {self.user.username}"
+        return self.name
+
+
+
+class CompanySize(models.Model):
+    size_range = models.CharField(max_length=50, unique=True)
+    description = models.CharField(max_length=200, blank=True)
+    min_employees = models.IntegerField()
+    max_employees = models.IntegerField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     
-    @property
-    def like_count(self):
-        return self.likes.count()
+    class Meta:
+        app_label = 'hiring'
+        verbose_name_plural = 'Company Sizes'
+        ordering = ['min_employees']
     
-    @property
-    def reply_count(self):
-        return self.replies.count()
+    def __str__(self):
+        return self.size_range
+
+
+class BusinessProfile(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='business_profile')
+    company_name = models.CharField(max_length=200)
+    company_description = models.TextField(blank=True)
+    company_size = models.ForeignKey(CompanySize, on_delete=models.SET_NULL, null=True, blank=True)
+    industry = models.ForeignKey(Industry, on_delete=models.SET_NULL, null=True, blank=True)
+    website = models.URLField(blank=True)
+    phone_number = models.CharField(max_length=20, blank=True)
+    address = models.TextField(blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    country = models.CharField(max_length=100, blank=True)
+    postal_code = models.CharField(max_length=20, blank=True)
     
+    # Company Logo
+    company_logo = models.ImageField(
+        upload_to='company_logos/%Y/%m/%d/', 
+        blank=True, 
+        null=True, 
+        validators=[FileExtensionValidator(['jpg', 'jpeg', 'png', 'svg', 'webp'])]
+    )
+    
+    # Business verification
+    is_verified = models.BooleanField(default=False)
+    verification_document = models.FileField(upload_to='verification_docs/%Y/%m/%d/', blank=True, null=True)
+    
+    # Preferences
+    receive_applicant_notifications = models.BooleanField(default=True)
+    receive_newsletter = models.BooleanField(default=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        app_label = 'hiring'
+    
+    def __str__(self):
+        return f"{self.company_name} - {self.user.username}"
+    
+    def get_company_logo_url(self):
+        """Get company logo URL or return default logo"""
+        if self.company_logo:
+            return self.company_logo.url
+        return '/static/hiring/images/default-company-logo.png'
+
+
+class JobListing(models.Model):
+    LISTING_STATUS = (
+        ('draft', 'Draft'), 
+        ('under_review', 'Under Review'), 
+        ('published', 'Published'), 
+        ('closed', 'Closed')
+    )
+    
+    listing_reference = models.CharField(max_length=50, unique=True)
+    title = models.CharField(max_length=200)
+    status = models.CharField(max_length=20, choices=LISTING_STATUS, default='draft')
+    apply_by = models.DateField()
+    position_summary = models.TextField()
+    industry = models.CharField(max_length=100)
+    job_category = models.CharField(max_length=100)
+    location = models.CharField(max_length=100)
+    contract_type = models.CharField(max_length=50)
+    ee_position = models.BooleanField(default=True)
+    company_name = models.CharField(max_length=200, default='Admin')
+    company_logo = models.ImageField(
+        upload_to='company_logos/%Y/%m/%d/', 
+        blank=True, 
+        null=True, 
+        validators=[FileExtensionValidator(['jpg', 'jpeg', 'png', 'svg', 'webp'])]
+    )
+    company_description = models.TextField()
+    job_description = models.TextField()
+    knowledge_requirements = models.TextField()
+    skills_requirements = models.TextField()
+    competencies_requirements = models.TextField()
+    experience_requirements = models.TextField()
+    education_requirements = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        app_label = 'hiring'
+    
+    def __str__(self):
+        return f"{self.title} - {self.listing_reference}"
+    
+    def get_company_logo_url(self):
+        if self.company_logo:
+            return self.company_logo.url
+        return '/static/hiring/images/default-company-logo.png'
+
+
+class Post(models.Model):
+    POST_TYPES = [
+        ('job', 'Job Post'),
+        ('update', 'Company Update'),
+        ('news', 'Industry News'),
+        ('general', 'General Post'),
+        ('question', 'Question'),
+        ('achievement', 'Achievement'),
+        ('advice', 'Career Advice'),
+    ]
+    
+    VISIBILITY_CHOICES = [
+        ('public', 'Public - Everyone'),
+        ('connections', 'Connections Only'),
+        ('company', 'Company Only'),
+        ('private', 'Private - Just Me'),
+    ]
+    
+    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    company = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE, null=True, blank=True)
+    post_type = models.CharField(max_length=20, choices=POST_TYPES, default='general')
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    image = models.ImageField(
+        upload_to='posts/images/%Y/%m/%d/', 
+        null=True, 
+        blank=True,
+        validators=[validate_file_size, validate_image_file_extension]
+    )
+    video = models.FileField(
+        upload_to='posts/videos/%Y/%m/%d/', 
+        null=True, 
+        blank=True,
+        validators=[validate_file_size, validate_video_file_extension]
+    )
+    video_url = models.URLField(blank=True)  # For YouTube/Vimeo links
+    tags = models.CharField(max_length=500, blank=True, help_text="Comma-separated tags")
+    
+    # Engagement metrics
+    views = models.PositiveIntegerField(default=0)
+    likes = models.ManyToManyField(CustomUser, related_name='post_likes', blank=True)
+    dislikes = models.ManyToManyField(CustomUser, related_name='post_dislikes', blank=True)
+    shares = models.PositiveIntegerField(default=0)
+    comment_count = models.PositiveIntegerField(default=0)  # Comment count field
+    
+    # Ratings
+    average_rating = models.FloatField(default=0)
+    rating_count = models.PositiveIntegerField(default=0)
+    
+    # Post visibility
+    visibility = models.CharField(max_length=20, choices=VISIBILITY_CHOICES, default='public')
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    edited_at = models.DateTimeField(null=True, blank=True)
+    
+    # Status flags
+    is_published = models.BooleanField(default=True)
+    is_edited = models.BooleanField(default=False)
+    
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['-created_at']),
+            models.Index(fields=['post_type']),
+            models.Index(fields=['author']),
+            models.Index(fields=['is_published']),
+        ]
+    
+    def __str__(self):
+        return f"{self.title} by {self.author.username}"
+    
+    def total_engagement(self):
+        """Calculate total engagement score"""
+        return self.likes.count() + self.comment_count + self.shares
+    
+    def update_comment_count(self):
+        """Update comment count from related comments"""
+        count = self.comments.count()
+        if self.comment_count != count:
+            self.comment_count = count
+            self.save(update_fields=['comment_count'])
+        return count
+
+    def get_tags_list(self):
+        """Convert comma-separated tags string to list"""
+        if not self.tags:
+            return []
+        # Split by comma and clean up whitespace
+        tag_list = [tag.strip() for tag in self.tags.split(',') if tag.strip()]
+        return tag_list
+    
+    # You might also want to add a setter method
+    def set_tags_list(self, tag_list):
+        """Convert list to comma-separated string"""
+        if tag_list:
+            self.tags = ', '.join([str(tag).strip() for tag in tag_list])
+        else:
+            self.tags = ''
+
+    def get_tags_list(self, obj):
+        # Safe version that handles missing method
+        try:
+            return obj.get_tags_list()
+        except AttributeError:
+            # Fallback if method doesn't exist
+            if obj.tags:
+                return [tag.strip() for tag in obj.tags.split(',') if tag.strip()]
+            return []
+        
+
+class Comment(models.Model):
+    # Foreign keys to content types
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments', null=True, blank=True)
+    job_listing = models.ForeignKey(JobListing, on_delete=models.CASCADE, related_name='comments', null=True, blank=True)
+    
+    # Comment content and author
+    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    content = models.TextField()
+    parent_comment = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
+    
+    # Engagement
+    likes = models.ManyToManyField(CustomUser, related_name='comment_likes', blank=True)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    # Status flags
+    is_edited = models.BooleanField(default=False)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        if self.post:
+            return f"Comment by {self.author.username} on post: {self.post.title}"
+        elif self.job_listing:
+            return f"Comment by {self.author.username} on job: {self.job_listing.title}"
+        return f"Comment by {self.author.username}"
+    
+    def clean(self):
+        """
+        Ensure comment is attached to either a post OR a job listing, not both.
+        Raises ValidationError if constraints are violated.
+        """
+        if not self.post and not self.job_listing:
+            raise ValidationError("Comment must be attached to either a post or a job listing")
+        if self.post and self.job_listing:
+            raise ValidationError("Comment cannot be attached to both a post and a job listing")
+    
+    def save(self, *args, **kwargs):
+        """Override save to run validation before saving"""
+        self.clean()
+        super().save(*args, **kwargs)
+
+ 
 
 class Document(models.Model):
     title = models.CharField(max_length=200)

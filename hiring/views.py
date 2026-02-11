@@ -47,8 +47,9 @@ from .models import (
     CustomUser, ApplicantProfile, JobListing, Application, Alert, 
     Skill, EmploymentHistory, Education, Document, 
     NotificationPreference, SentNotification, JobAlert, BusinessProfile,
-    Industry, CompanySize, JobCategory
+    Industry, JobCategory
 )
+from main_app.models import Industry, CompanySize, BusinessProfile, Post, JobListing, CustomUser
 
 # Import serializers
 from .serializers import *
@@ -191,11 +192,28 @@ class NotificationService:
 # HTML PAGE VIEWS
 def home_page(request):
     """Render home page with feed"""
+    
+    # Get user initials for avatar
+    display_initials = None
+    if request.user.is_authenticated:
+        user = request.user
+        # Get initials based on available fields
+        if user.username:
+            display_initials = user.username[0].upper()
+        elif user.email:
+            display_initials = user.email[0].upper()
+        elif hasattr(user, 'first_name') and user.first_name:
+            display_initials = user.first_name[0].upper()
+        else:
+            display_initials = 'U'
+    
     context = {
         'page_title': 'Home - JobPortal',
         'show_feed': True,
         'user_authenticated': request.user.is_authenticated,
-        'user_type': request.user.user_type if request.user.is_authenticated else None
+        'user_type': request.user.user_type if request.user.is_authenticated else None,
+        'user': request.user,  # Pass the user object
+        'display_initials': display_initials,  # Pass computed initials
     }
     return render(request, 'hiring/home.html', context)
 

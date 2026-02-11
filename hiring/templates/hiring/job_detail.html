@@ -617,7 +617,7 @@
                 return;
             }
 
-            fetch(`/api/jobs/${jobId}/`)
+            fetch(`/hiring/api/jobs/${jobId}/`)
                 .then(response => {
                     console.log('Response status:', response.status);
                     if (!response.ok) {
@@ -893,7 +893,7 @@
             applyBtn.disabled = true;
             applyBtn.innerHTML = '<div class="loading-spinner"></div> Applying...';
 
-            fetch(`/api/jobs/${jobId}/apply/`, {
+            fetch(`/hiring/api/jobs/${jobId}/apply/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1032,7 +1032,7 @@
                 const formData = new FormData(this);
                 const data = Object.fromEntries(formData);
 
-                fetch('/api/auth/login/', {
+                fetch('/hiring/api/auth/login/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

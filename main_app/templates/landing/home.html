@@ -1867,7 +1867,7 @@
                         <!-- Start Single Feature -->
                         <div class="col-6 col-sm-4 col-md-3 text-center mb-4">
                             <div class="single-features shortcuts-feature">
-                                <div onclick="window.location='https://tolleya.com';" style="cursor: pointer;">
+                                <div onclick="window.location='{% url 'home' %}';" style="cursor: pointer;">
                                     <div class="single-icon position-relative">
                                         <i class="icofont icofont-briefcase"></i>
                                         <span class="badge badge-danger position-absolute top-0 end-0">{{ jobs_count }}</span>
@@ -2691,7 +2691,7 @@
                                         <a href="{% url 'jobgallery' %}">All</a>
                                     </li>
                                     <li class="list-group-item">
-                                        <a href="https://tolleya.com" target="_blank" class="btn btn-dark btn-block btn-sm m-1 text-white">View All Jobs</a>
+                                        <a href="{% url 'home' %}" target="_blank" class="btn btn-dark btn-block btn-sm m-1 text-white">View All Jobs</a>
                                     </li>
                                     {% if user.is_authenticated %}
                                     <li class="list-group-item">
@@ -2763,7 +2763,7 @@
                                                         {% endif %}
                                                     </div>
 
-                                                    <a href="https://tolleya.com" target="_blank" class="btn btn-primary mt-3" onclick="event.stopPropagation();" style="color: white !important;">Apply Now</a>
+                                                    <a href="{% url 'home' %}" target="_blank" class="btn btn-primary mt-3" onclick="event.stopPropagation();" style="color: white !important;">Apply Now</a>
                                                 </div>
                                             </div>
                                         </div>
