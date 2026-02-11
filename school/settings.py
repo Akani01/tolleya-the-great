@@ -385,7 +385,6 @@ ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 #END
 STATIC_URL = 'static/'
 #django databse settings
-django_heroku.settings(locals())
 
 # ADD THESE 3 LINES RIGHT HERE:
 if 'default' in DATABASES and 'ENGINE' not in DATABASES['default']:

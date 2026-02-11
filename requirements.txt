@@ -42,7 +42,6 @@ django-crispy-forms==2.4
 django-extensions==4.1
 django-filter==25.1
 django-health-check==3.23.5
-django-heroku==0.3.1
 django-hosts==6.0
 django-js-asset==2.1.0
 django-jsonresponse==0.10.0
