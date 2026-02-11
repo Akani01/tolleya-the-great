@@ -105,7 +105,6 @@ INSTALLED_APPS = [
     #aws database
     'storages',
     #pwa
-    'pwa',
     'hiring',
    
 

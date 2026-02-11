@@ -2,7 +2,6 @@
 import asyncio
 from django.utils import timezone
 from .models import AutomationSession
-from .automation.browser_runner import run_browser_automation
 
 def start_automation_task(session_id, structured_data):
     """Start automation in background"""
