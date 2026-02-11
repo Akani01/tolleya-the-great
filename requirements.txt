@@ -93,7 +93,7 @@ pillow==11.2.1
 platformdirs==3.8.0
 proglog==0.1.10
 protobuf==4.21.12
-psycopg[binary]>=3.1
+psycopg2-binary>=2.9.9
 pyasn1>=0.6.0,<0.7.0
 pyasn1-modules>=0.3.0,<0.7.0
 pycodestyle==2.10.0
