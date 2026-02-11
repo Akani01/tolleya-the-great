@@ -13,11 +13,12 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-import django_heroku
 import dj_database_url
 from decouple import config
+from datetime import timedelta
 
 load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -26,10 +27,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'SECRET_KEY'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
 # Allow all hosts during development
 ALLOWED_HOSTS = [
@@ -41,9 +42,7 @@ ALLOWED_HOSTS = [
     ".herokuapp.com",
     "localhost",
     "127.0.0.1",
-] 
-
-
+]
 
 # CSRF Settings
 CSRF_TRUSTED_ORIGINS = [
@@ -59,16 +58,12 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:5173",
 ]
 
-CSRF_COOKIE_HTTPONLY = False  # must be readable by JS
+CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SECURE = True
-
 CSRF_COOKIE_SAMESITE = "Lax"
-
-
 SESSION_COOKIE_SECURE = True
 
 # Application definition
-
 INSTALLED_APPS = [
     "django_extensions",
     'django.contrib.admin',
@@ -81,14 +76,14 @@ INSTALLED_APPS = [
     "crispy_bootstrap5",
     "rest_framework",
     "django_filters",
-    #allauthentication
+    # allauthentication
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'django.contrib.sites',
-    #SEO optimized
+    # SEO optimized
     'django.contrib.sitemaps',
-    #advance integrations
+    # advance integrations
     'rest_framework_simplejwt',
     'channels',
     'corsheaders',
@@ -102,13 +97,11 @@ INSTALLED_APPS = [
     'application',
     'job',
     'main_app.apps.MainAppConfig',
-    #aws database
+    # aws database
     'storages',
-    #pwa
+    # pwa
     'hiring',
-   
-
-    # ... include the providers you want to enable:
+    # social providers
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.facebook',
@@ -116,13 +109,12 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.apple',
     'allauth.socialaccount.providers.amazon',
     'allauth.socialaccount.providers.twitter',
-    # ...End
 ]
 
 MIDDLEWARE = [
-    #cors to read the react
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -130,19 +122,13 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # Third Part Middleware
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-
-    # My Middleware
     'main_app.middleware.LoginCheckMiddleWare',
 ]
 
-
-#PWA APPLICATION
 # PWA Settings
 PWA_APP_NAME = 'Tolleya The Great'
 PWA_APP_DESCRIPTION = 'Educational Platform'
-PWA_APP_THEME_COLOR = '#4A90E2'  # You can change this
+PWA_APP_THEME_COLOR = '#4A90E2'
 PWA_APP_BACKGROUND_COLOR = '#ffffff'
 PWA_APP_DISPLAY = 'standalone'
 PWA_APP_SCOPE = '/'
@@ -150,70 +136,30 @@ PWA_APP_ORIENTATION = 'portrait'
 PWA_APP_START_URL = '/'
 PWA_APP_STATUS_BAR_COLOR = 'default'
 PWA_APP_ICONS = [
-    {
-        'src': '/static/icons/icon-72x72.png',
-        'sizes': '72x72',
-        'type': 'image/png'
-    },
-    {
-        'src': '/static/icons/icon-96x96.png',
-        'sizes': '96x96'
-    },
-    {
-        'src': '/static/icons/icon-128x128.png',
-        'sizes': '128x128'
-    },
-    {
-        'src': '/static/icons/icon-144x144.png',
-        'sizes': '144x144'
-    },
-    {
-        'src': '/static/icons/icon-152x152.png',
-        'sizes': '152x152'
-    },
-    {
-        'src': '/static/icons/icon-192x192.png',
-        'sizes': '192x192'
-    },
-    {
-        'src': '/static/icons/icon-384x384.png',
-        'sizes': '384x384'
-    },
-    {
-        'src': '/static/icons/icon-512x512.png',
-        'sizes': '512x512'
-    }
+    {'src': '/static/icons/icon-72x72.png', 'sizes': '72x72', 'type': 'image/png'},
+    {'src': '/static/icons/icon-96x96.png', 'sizes': '96x96'},
+    {'src': '/static/icons/icon-128x128.png', 'sizes': '128x128'},
+    {'src': '/static/icons/icon-144x144.png', 'sizes': '144x144'},
+    {'src': '/static/icons/icon-152x152.png', 'sizes': '152x152'},
+    {'src': '/static/icons/icon-192x192.png', 'sizes': '192x192'},
+    {'src': '/static/icons/icon-384x384.png', 'sizes': '384x384'},
+    {'src': '/static/icons/icon-512x512.png', 'sizes': '512x512'}
 ]
-
-# Service Worker Path (relative to your static files)
 PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'assets', 'js', 'serviceworker.js')
 
-
-# CORS settings for React frontend
-ALLOWED_HOSTS = [
-    "thecms.co.za",
-    "www.thecms.co.za",
-    "elimcircuit.com",
-    "www.elimcircuit.com",
-    ".railway.app",
-    ".herokuapp.com",
-    "localhost",
-    "127.0.0.1",
-]
-
-
+# CORS settings
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "https://elimcircuit.com",
     "https://www.elimcircuit.com",
 ]
 
-
-
 # Django REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -221,7 +167,6 @@ REST_FRAMEWORK = {
 }
 
 # JWT Settings
-from datetime import timedelta
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
@@ -233,14 +178,12 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('thecms.co.z', 6379)],
+            "hosts": [('thecms.co.za', 6379)],
         },
     },
 }
 
-
 ROOT_URLCONF = 'school.urls'
-
 
 TEMPLATES = [
     {
@@ -258,55 +201,44 @@ TEMPLATES = [
     },
 ]
 
-
 CART_SESSION_ID = 'cart'
 SESSION_COOKIE_AGE = 86400
-
-
 SITE_ID = 1
 
+# ============================================================================
+# DATABASE CONFIGURATION - Works on Railway, Heroku, and Local
+# ============================================================================
+# Get the primary database URL from the platform that's hosting the app
+DATABASE_URL = os.environ.get('DATABASE_URL')  # Heroku sets this
+if not DATABASE_URL:
+    DATABASE_URL = os.environ.get('RAILWAY_DATABASE_URL')  # Railway sets this
 
-
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
-
-
-# Detect local environment
-is_local = os.environ.get("DJANGO_LOCAL", "false").lower() == "true"
-
-
+# Configure the default database
 DATABASES = {
-    "default": dj_database_url.config(
-        default=os.environ.get("DATABASE_URL"),
+    'default': dj_database_url.config(
+        default=DATABASE_URL,
         conn_max_age=600,
-        ssl_require=True,
+        ssl_require=True
     )
 }
 
-# Add optional Railway DB only if it exists
-RAILWAY_DB_URL = os.environ.get(
-    "RAILWAY_DATABASE_URL_PUBLIC" if is_local else "RAILWAY_DATABASE_URL"
-)
-
-if RAILWAY_DB_URL:
-    DATABASES["railway"] = dj_database_url.parse(
-        RAILWAY_DB_URL,
+# OPTIONAL: Only add a secondary database if you explicitly created one
+# Set RAILWAY_SECONDARY_DB in your Railway environment if you added a second DB
+RAILWAY_SECONDARY_DB = os.environ.get('RAILWAY_SECONDARY_DB')
+if RAILWAY_SECONDARY_DB:
+    DATABASES['railway_secondary'] = dj_database_url.parse(
+        RAILWAY_SECONDARY_DB,
         conn_max_age=600,
-        ssl_require=True,
+        ssl_require=True
     )
-else:
-    print("⚠️  No Railway DB detected — skipping additional database")
+# ============================================================================
 
-#aws database
-
+# AWS S3 Configuration
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
 AWS_S3_REGION_NAME = "af-south-1"
 AWS_S3_FILE_OVERWRITE = False
-
-# Force the correct endpoint
 AWS_S3_ENDPOINT_URL = "https://s3.af-south-1.amazonaws.com"
 
 STORAGES = {
@@ -328,121 +260,63 @@ STORAGES = {
 MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/media/"
 
 # Password validation
-# https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
 # Internationalization
-# https://docs.djangoproject.com/en/5.0/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
+TIME_ZONE = 'Africa/Johannesburg'
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
+# Static files
+STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
-# WhiteNoise configuration
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# Auth settings
 AUTH_USER_MODEL = 'main_app.CustomUser'
-
 AUTHENTICATION_BACKENDS = [
     'main_app.EmailBackend.EmailBackend',
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
-    
 ]
 
-TIME_ZONE = 'Africa/Johannesburg'
-
-
+# ID Prefixes
 STUDENT_ID_PREFIX = os.getenv("STUDENT_ID_PREFIX", "ugr")
 EDUCATOR_ID_PREFIX = os.getenv("EDUCATOR_ID_PREFIX", "lec")
 
-# AI ENVIRONMENT VARIABLES
+# AI API Keys
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 
-#END
-STATIC_URL = 'static/'
-#django databse settings
-
-# ADD THESE 3 LINES RIGHT HERE:
-if 'default' in DATABASES and 'ENGINE' not in DATABASES['default']:
-    DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql'
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-
-#MEDIA_URL = '/mediafiles/'
-#MEDIA_ROOT = os.path.join(BASE_DIR, 'static/mediafiles')
-
-STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage" 
-
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static')
-]
-
+# Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
+# Login/Logout Redirects
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
+# Django Allauth
 ACCOUNT_EMAIL_REQUIRED = True
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-#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
-
-DEBUG = True
-#SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-#SECURE_SSL_REDIRECT = True
-# DRF setup
-REST_FRAMEWORK = {
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
-    ],
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.SessionAuthentication",
-        "rest_framework.authentication.BasicAuthentication",
-    ],
-}
-
-# LOGGING
-# ------------------------------------------------------------------------------
-# https://docs.djangoproject.com/en/dev/ref/settings/#logging
-# See https://docs.djangoproject.com/en/dev/topics/logging for
-# more details on how to customize your logging configuration.
+# Logging
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
         "verbose": {
-            "format": "%(levelname)s %(asctime)s %(module)s "
-            "%(process)d %(thread)d %(message)s"
+            "format": "%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s"
         }
     },
     "handlers": {
