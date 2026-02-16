@@ -36,6 +36,8 @@ DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 ALLOWED_HOSTS = [
     "thecms.co.za",
     "www.thecms.co.za",
+    "elimcircuit.co.za",
+    "www.elimcircuit.co.za",
     "elimcircuit.com",
     "www.elimcircuit.com",
     ".railway.app",
@@ -48,6 +50,8 @@ ALLOWED_HOSTS = [
 CSRF_TRUSTED_ORIGINS = [
     "https://thecms.co.za",
     "https://www.thecms.co.za",
+    "https://elimcircuit.co.za",
+    "https://www.elimcircuit.co.za",
     "https://elimcircuit.com",
     "https://www.elimcircuit.com",
     "https://*.railway.app",
@@ -150,6 +154,8 @@ PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'assets', 'js', 'serviceworker.
 # CORS settings
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "https://elimcircuit.co.za",
+    "https://www.elimcircuit.co.za",
     "https://elimcircuit.com",
     "https://www.elimcircuit.com",
 ]
