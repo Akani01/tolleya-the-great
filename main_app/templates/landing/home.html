@@ -17,12 +17,12 @@
 			  "@context": "https://schema.org",
 			  "@type": "Organization",
 			  "name": "Tolleya",
-			  "url": "https://elimcircuit.co.za",
-			  "logo": "https://elimcircuit.co.za/favicon.ico"
+			  "url": "https://tolleya.co.za",
+			  "logo": "https://tolleya.co.za/favicon.ico"
 			}
 		</script>
 		<!-- Title -->
-        <title>Elim</title>
+        <title>Tolleya</title>
 
         <!-- Favicon -->
         <link rel="icon" type="image/png" href="{% url 'favicon' %}">
@@ -505,13 +505,192 @@
                 50% { box-shadow: 0 0 25px rgba(196, 0, 0, 0.6); }
                 100% { box-shadow: 0 0 0 rgba(196, 0, 0, 0.4); }
             }
+
+            /* ========== NEW SHOP LOGO STYLES ========== */
+            /* Shop Logo Styles */
+            .shop-logo-container {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+            }
+
+            .shop-logo {
+                width: 24px;
+                height: 24px;
+                object-fit: contain;
+                transition: transform 0.3s ease;
+            }
+
+            .shop-logo:hover {
+                transform: scale(1.1);
+            }
+
+            .shop-logo-badge {
+                position: absolute;
+                top: -8px;
+                right: -8px;
+                background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%);
+                color: white;
+                font-size: 9px;
+                padding: 2px 5px;
+                border-radius: 10px;
+                font-weight: bold;
+                box-shadow: 0 2px 5px rgba(255, 71, 87, 0.3);
+                animation: pulse-new 2s infinite;
+                line-height: 1;
+                white-space: nowrap;
+            }
+
+            .shop-logo-large {
+                width: 32px;
+                height: 32px;
+            }
+
+            .shop-logo-text {
+                font-size: 12px;
+                margin-top: 4px;
+                color: #666;
+            }
+
+            /* Desktop Side Navbar Shop Logo */
+            .side-nav-shop-logo {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 10px 15px;
+                background: linear-gradient(135deg, #fff9f9 0%, #fff0f0 100%);
+                border-radius: 8px;
+                margin: 5px 15px 15px 15px;
+                border: 1px solid #ffd7d7;
+                transition: all 0.3s ease;
+                position: relative;
+            }
+
+            .side-nav-shop-logo:hover {
+                background: linear-gradient(135deg, #fff0f0 0%, #ffe6e6 100%);
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(255, 71, 87, 0.2);
+            }
+
+            .side-nav-shop-logo img {
+                width: 40px;
+                height: 40px;
+                object-fit: contain;
+            }
+
+            .side-nav-shop-info {
+                flex: 1;
+            }
+
+            .side-nav-shop-title {
+                font-weight: 700;
+                color: #ff4757;
+                font-size: 16px;
+                margin-bottom: 2px;
+            }
+
+            .side-nav-shop-subtitle {
+                font-size: 11px;
+                color: #888;
+            }
+
+            .side-nav-shop-logo .stretched-link {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 1;
+                pointer-events: auto;
+            }
+
+            /* Mobile Bottom Navbar Shop Logo */
+            .mobile-shop-logo-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                position: relative;
+            }
+
+            .mobile-shop-logo {
+                width: 28px;
+                height: 28px;
+                object-fit: contain;
+                margin-bottom: 4px;
+            }
+
+            .mobile-shop-badge {
+                position: absolute;
+                top: -5px;
+                right: -5px;
+                background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%);
+                color: white;
+                font-size: 8px;
+                padding: 2px 4px;
+                border-radius: 8px;
+                animation: pulse-new 2s infinite;
+            }
+
+            /* Dropdown Menu Shop Logo */
+            .dropdown-shop-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px 15px !important;
+                color: #ff4757 !important;
+                font-weight: 600;
+            }
+
+            .dropdown-shop-item:hover {
+                background: #fff0f0 !important;
+            }
+
+            .dropdown-shop-logo {
+                width: 24px;
+                height: 24px;
+                object-fit: contain;
+            }
+
+            .dropdown-shop-text {
+                font-weight: 600;
+                color: #ff4757;
+            }
+
+            /* Pulsing animation for NEW badge */
+            @keyframes pulse-new {
+                0% {
+                    box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.4);
+                }
+                70% {
+                    box-shadow: 0 0 0 6px rgba(255, 71, 87, 0);
+                }
+                100% {
+                    box-shadow: 0 0 0 0 rgba(255, 71, 87, 0);
+                }
+            }
         </style>
     </head>
     <body>
-        <!-- Desktop Side Navbar -->
+        <!-- ========== DESKTOP SIDE NAVBAR - UPDATED WITH SHOP LOGO ========== -->
         <nav class="desktop-side-navbar">
             <hr>
+            
+            <!-- SHOP LOGO SECTION - NEWLY ADDED -->
+            <div class="side-nav-shop-logo">
+                <div class="shop-logo-container">
+                    <img src="{% static 'images/shop-logo.png' %}" alt="Tolleya Shop" class="shop-logo-large">
+                    <span class="shop-logo-badge">NEW</span>
+                </div>
+                <div class="side-nav-shop-info">
+                    <div class="side-nav-shop-title">Tolleya Shop</div>
+                    <div class="side-nav-shop-subtitle">Shop Now →</div>
+                </div>
+                <a href="https://tolleya.com" target="_blank" class="stretched-link"></a>
+            </div>
+            
             <ul class="side-nav-items">
+                <!-- REGULAR NAVIGATION ITEMS (Shop link removed from here since we added logo above) -->
                 <li class="side-nav-item">
                     <a href="{% url 'index' %}" class="side-nav-link active">
                         <i class="icofont icofont-home"></i>
@@ -624,7 +803,7 @@
                 </li>
                 
                 <li class="side-nav-item">
-                    <a href="https://elimcircuit.co.za" target="_blank" class="side-nav-link">
+                    <a href="https://tolleya.com" target="_blank" class="side-nav-link">
                         <i class="icofont icofont-briefcase"></i>
                         Apply for Jobs
                     </a>
@@ -667,7 +846,7 @@
                 
                 <!-- External Action Buttons -->
                 <div class="button">
-                    <a href="https://elimcircuit.co.za" target="_blank" class="btn">
+                    <a href="https://tolleya.com" target="_blank" class="btn">
                         Apply for Jobs
                     </a>
                     {% for paper in question_papers %}
@@ -699,7 +878,7 @@
                                 <!-- Top Contact -->
                                 <ul class="top-contact">
                                     <li><i class="fa fa-phone"></i>+27 68 477 1271</li>
-                                    <li><i class="fa fa-envelope"></i> <a href="mailto:support@elimcircuit.vhembe.co.za">support@elimcircuit.vhembe.co.za</a></li>
+                                    <li><i class="fa fa-envelope"></i> <a href="mailto:madenet@proton.me">madenet@proton.me</a></li>
                                 </ul>
                                 <!-- End Top Contact -->
                             </div>
@@ -872,9 +1051,17 @@
                                                     </svg>
                                                 </button>
                                             
-                                                <!-- Dropdown Menu -->
-                                                <ul class="dropdown-menu  dropdown-menu-left" id="dropdownMenu">
+                                                <!-- ========== DROPDOWN MENU - UPDATED WITH SHOP LOGO ========== -->
+                                                <ul class="dropdown-menu dropdown-menu-left" id="dropdownMenu">
                                                     <li><a href="{% url 'index' %}">Home</a></li>
+                                                    <!-- NEW SHOP LINK WITH LOGO -->
+                                                    <li>
+                                                        <a href="https://tolleya.com" target="_blank" class="dropdown-shop-item">
+                                                            <img src="{% static 'images/shop-logo.png' %}" alt="Shop" class="dropdown-shop-logo">
+                                                            <span class="dropdown-shop-text">Shop</span>
+                                                            <span class="badge-new ms-2" style="font-size: 8px;">NEW</span>
+                                                        </a>
+                                                    </li>
                                                     <li><a href="{% url 'help' %}">Help</a></li>
                                                     <li><a href="{% url 'services' %}">Services</a></li>
                                                     <li><a href="{% url 'college_list' %}">College & Universities</a></li>
@@ -1032,10 +1219,10 @@
                         "position":"left"
                     },
                     "brandSetting":{
-                        "brandName":"Elim Circuit Manager",
+                        "brandName":"Tolleya Manager",
                         "brandSubTitle":"Typically replies during office hours",
                         "brandImg":"https://cdn.clare.ai/wati/images/WATI_logo_square_2.png",
-                        "welcomeText":"Thank you for contacting Us, Welcome to Elim CIrcuit Office.",
+                        "welcomeText":"Thank you for contacting Us, Welcome to Tolleya Office.",
                         "messageText":"{{page_link}}Hello, I have a question about",
                         "backgroundColor":"#0a5f54",
                         "ctaText":"Start Chat",
@@ -2299,7 +2486,7 @@
                                     <div class="news-image-container">
                                         <div class="news-image">
                                             <img src="{{ item.get_image }}" class="img-fluid" alt="{{ item.title }}">
-                                            <div class="watermark">elimcircuit.co.za</div>
+                                            <div class="watermark">tolleya.com</div>
                                         </div>
                                     </div>
                                     {% endif %}
@@ -3128,7 +3315,7 @@
                                         <i class="icofont icofont-ui-call h4 me-3 text-primary"></i>
                                         <div>
                                             <h6 class="mb-1">+27 68 477 1271</h6>
-                                            <p class="mb-0 small">support@elimcircuit.vhembe.co.za</p>
+                                            <p class="mb-0 small">support@tolleya.vhembe.co.za</p>
                                         </div>
                                     </div>
                                 </div>
@@ -3278,7 +3465,7 @@
         </div>
         <!-- End Main Content -->
 
-        <!-- Mobile Bottom Navbar -->
+        <!-- ========== MOBILE BOTTOM NAVBAR - UPDATED WITH SHOP LOGO ========== -->
         <nav class="mobile-bottom-navbar">
             <ul class="mobile-nav-items">
                 <li class="mobile-nav-item">
@@ -3291,6 +3478,16 @@
                     <a href="{% url 'help' %}" class="mobile-nav-link">
                         <i class="icofont icofont-question-circle"></i>
                         <span class="mobile-nav-text">Help</span>
+                    </a>
+                </li>
+                <!-- NEW SHOP ITEM WITH LOGO -->
+                <li class="mobile-nav-item">
+                    <a href="https://tolleya.com" target="_blank" class="mobile-nav-link">
+                        <div class="mobile-shop-logo-container">
+                            <img src="{% static 'images/shop-logo.png' %}" alt="Shop" class="mobile-shop-logo">
+                            <span class="mobile-shop-badge">NEW</span>
+                        </div>
+                        <span class="mobile-nav-text">Shop</span>
                     </a>
                 </li>
                 <li class="mobile-nav-item">

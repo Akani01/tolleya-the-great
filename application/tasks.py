@@ -15,3 +15,4 @@ def start_automation_task(session_id, structured_data):
     except Exception as e:
         print(f"Task error: {e}")
         return False
+
