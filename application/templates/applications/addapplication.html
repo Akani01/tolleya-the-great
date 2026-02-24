@@ -2,1355 +2,1418 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
-{% block extra_css %}
-<!-- Font Awesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<!-- Bootstrap CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<!-- Additional styling -->
-<style>
-    .application-form-container {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        padding: 15px 8px;
-    }
-    
-    @media (max-width: 576px) {
+{% if user.is_authenticated %}
+    <!-- Show the application form for authenticated users -->
+    {% block extra_css %}
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Additional styling -->
+    <style>
         .application-form-container {
-            padding: 10px 5px;
-        }
-    }
-    
-    .form-card {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        border: none;
-        overflow: hidden;
-        margin: 0 auto;
-    }
-    
-    .form-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 20px 15px;
-        text-align: center;
-    }
-    
-    .form-header h1 {
-        font-size: 1.4rem;
-        margin-bottom: 8px;
-    }
-    
-    .form-header p {
-        font-size: 0.85rem;
-        opacity: 0.9;
-        margin-bottom: 0;
-    }
-    
-    .form-body {
-        padding: 20px;
-    }
-    
-    @media (max-width: 768px) {
-        .form-body {
-            padding: 15px;
-        }
-    }
-    
-    @media (max-width: 576px) {
-        .form-body {
-            padding: 12px;
-        }
-    }
-    
-    /* Form Sections */
-    .form-section {
-        margin-bottom: 25px;
-        padding: 20px;
-        background: white;
-        border-radius: 12px;
-        border: 2px solid #f3f4f6;
-        transition: all 0.3s;
-    }
-    
-    .form-section:hover {
-        border-color: #e0e7ff;
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
-    }
-    
-    .section-title {
-        display: flex;
-        align-items: center;
-        margin-bottom: 20px;
-        padding-bottom: 12px;
-        border-bottom: 2px solid #e5e7eb;
-    }
-    
-    .section-icon {
-        width: 50px;
-        height: 50px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 15px;
-        color: white;
-        font-size: 20px;
-        flex-shrink: 0;
-    }
-    
-    .section-content {
-        flex: 1;
-    }
-    
-    .section-content h3 {
-        color: #1f2937;
-        font-size: 1.2rem;
-        margin-bottom: 4px;
-        font-weight: 700;
-    }
-    
-    .section-content p {
-        color: #6b7280;
-        font-size: 0.9rem;
-        margin-bottom: 0;
-    }
-    
-    /* Form Controls - Kid Friendly */
-    .form-group {
-        margin-bottom: 20px;
-        position: relative;
-    }
-    
-    .form-label {
-        display: flex;
-        align-items: center;
-        font-weight: 600;
-        color: #374151;
-        margin-bottom: 8px;
-        font-size: 0.95rem;
-    }
-    
-    .form-label .example-text {
-        font-size: 0.8rem;
-        color: #6b7280;
-        margin-left: 8px;
-        font-weight: normal;
-        font-style: italic;
-    }
-    
-    .required-star {
-        color: #ef4444;
-        margin-left: 4px;
-        font-size: 1.2em;
-    }
-    
-    .form-control {
-        width: 100%;
-        padding: 12px 15px;
-        border: 2px solid #d1d5db;
-        border-radius: 8px;
-        font-size: 0.95rem;
-        transition: all 0.3s;
-        background: #f9fafb;
-    }
-    
-    .form-control:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        background: white;
-        outline: none;
-    }
-    
-    /* SIMPLE UNIVERSITY SELECTION - Like Bursary Selection */
-    .selection-container {
-        margin: 15px 0;
-        max-height: 300px;
-        overflow-y: auto;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        padding: 10px;
-        background: white;
-    }
-    
-    .vertical-list {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-    
-    .selection-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 12px 15px;
-        background: white;
-        border-radius: 8px;
-        border: 2px solid #e5e7eb;
-        transition: all 0.2s;
-        cursor: pointer;
-        margin: 0;
-    }
-    
-    .selection-item:hover {
-        background: #f8fafc;
-        border-color: #cbd5e1;
-        transform: translateY(-1px);
-    }
-    
-    .selection-item.selected {
-        background: #eff6ff;
-        border-color: #3b82f6;
-        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
-    }
-    
-    .selection-item input[type="checkbox"] {
-        margin: 0;
-        width: 18px;
-        height: 18px;
-        cursor: pointer;
-    }
-    
-    .selection-item-text {
-        font-size: 0.95rem;
-        color: #374151;
-        font-weight: 500;
-    }
-    
-    .selection-item.selected .selection-item-text {
-        color: #1e40af;
-        font-weight: 600;
-    }
-    
-    .selection-counter {
-        font-size: 0.85rem;
-        color: #6b7280;
-        margin-top: 10px;
-        text-align: center;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 5px;
-        padding: 8px;
-        background: #f9fafb;
-        border-radius: 6px;
-    }
-    
-    /* Form Actions */
-    .form-actions {
-        background: #f8fafc;
-        padding: 20px;
-        border-top: 2px solid #e5e7eb;
-        border-radius: 0 0 12px 12px;
-        margin-top: 20px;
-    }
-    
-    .action-buttons {
-        display: flex;
-        gap: 15px;
-        flex-wrap: wrap;
-    }
-    
-    @media (max-width: 576px) {
-        .action-buttons {
-            flex-direction: column;
-            gap: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 15px 8px;
         }
         
-        .action-buttons .btn {
-            width: 100%;
-            margin: 0 !important;
+        @media (max-width: 576px) {
+            .application-form-container {
+                padding: 10px 5px;
+            }
         }
-    }
-    
-    .btn {
-        padding: 12px 24px;
-        font-weight: 600;
-        border-radius: 8px;
-        font-size: 0.95rem;
-        transition: all 0.3s;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-    }
-    
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-        color: white;
-    }
-    
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-        color: white;
-    }
-    
-    .btn-outline {
-        background: white;
-        border: 2px solid #d1d5db;
-        color: #374151;
-    }
-    
-    .btn-outline:hover {
-        border-color: #667eea;
-        color: #667eea;
-        background: white;
-    }
-    
-    /* Validation States */
-    .is-invalid {
-        border-color: #ef4444 !important;
-        background: #fef2f2 !important;
-    }
-    
-    .invalid-feedback {
-        display: block;
-        color: #ef4444;
-        font-size: 0.8rem;
-        margin-top: 5px;
-    }
-    
-    /* Help Text for Kids */
-    .kid-help-text {
-        display: flex;
-        align-items: flex-start;
-        color: #6b7280;
-        font-size: 0.85rem;
-        margin-top: 6px;
-        padding: 8px 12px;
-        background: #f0f9ff;
-        border-radius: 6px;
-        border-left: 3px solid #3b82f6;
-    }
-    
-    .kid-help-text i {
-        margin-right: 8px;
-        color: #3b82f6;
-        font-size: 0.9rem;
-        margin-top: 2px;
-    }
-    
-    /* Messages Alerts */
-    .alert {
-        border-radius: 8px;
-        border: none;
-        margin-bottom: 20px;
-    }
-    
-    /* Loading spinner */
-    .spinner-container {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(255, 255, 255, 0.8);
-        z-index: 9999;
-        justify-content: center;
-        align-items: center;
-    }
-    
-    .spinner {
-        width: 50px;
-        height: 50px;
-        border: 5px solid #f3f3f3;
-        border-top: 5px solid #667eea;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-</style>
-{% endblock %}
+        
+        .form-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: none;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+        
+        .form-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 15px;
+            text-align: center;
+        }
+        
+        .form-header h1 {
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+        }
+        
+        .form-header p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-bottom: 0;
+        }
+        
+        .form-body {
+            padding: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .form-body {
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .form-body {
+                padding: 12px;
+            }
+        }
+        
+        /* Form Sections */
+        .form-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            border: 2px solid #f3f4f6;
+            transition: all 0.3s;
+        }
+        
+        .form-section:hover {
+            border-color: #e0e7ff;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .section-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: white;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        
+        .section-content {
+            flex: 1;
+        }
+        
+        .section-content h3 {
+            color: #1f2937;
+            font-size: 1.2rem;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+        
+        .section-content p {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+        
+        /* Form Controls - Kid Friendly */
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .form-label {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        
+        .form-label .example-text {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-left: 8px;
+            font-weight: normal;
+            font-style: italic;
+        }
+        
+        .required-star {
+            color: #ef4444;
+            margin-left: 4px;
+            font-size: 1.2em;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            background: #f9fafb;
+        }
+        
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: white;
+            outline: none;
+        }
+        
+        /* SIMPLE UNIVERSITY SELECTION - Like Bursary Selection */
+        .selection-container {
+            margin: 15px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 10px;
+            background: white;
+        }
+        
+        .vertical-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .selection-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.2s;
+            cursor: pointer;
+            margin: 0;
+        }
+        
+        .selection-item:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+        
+        .selection-item.selected {
+            background: #eff6ff;
+            border-color: #3b82f6;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+        }
+        
+        .selection-item input[type="checkbox"] {
+            margin: 0;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .selection-item-text {
+            font-size: 0.95rem;
+            color: #374151;
+            font-weight: 500;
+        }
+        
+        .selection-item.selected .selection-item-text {
+            color: #1e40af;
+            font-weight: 600;
+        }
+        
+        .selection-counter {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 10px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 8px;
+            background: #f9fafb;
+            border-radius: 6px;
+        }
+        
+        /* Form Actions */
+        .form-actions {
+            background: #f8fafc;
+            padding: 20px;
+            border-top: 2px solid #e5e7eb;
+            border-radius: 0 0 12px 12px;
+            margin-top: 20px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        @media (max-width: 576px) {
+            .action-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .action-buttons .btn {
+                width: 100%;
+                margin: 0 !important;
+            }
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            font-weight: 600;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+        
+        .btn-outline {
+            background: white;
+            border: 2px solid #d1d5db;
+            color: #374151;
+        }
+        
+        .btn-outline:hover {
+            border-color: #667eea;
+            color: #667eea;
+            background: white;
+        }
+        
+        /* Validation States */
+        .is-invalid {
+            border-color: #ef4444 !important;
+            background: #fef2f2 !important;
+        }
+        
+        .invalid-feedback {
+            display: block;
+            color: #ef4444;
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+        
+        /* Help Text for Kids */
+        .kid-help-text {
+            display: flex;
+            align-items: flex-start;
+            color: #6b7280;
+            font-size: 0.85rem;
+            margin-top: 6px;
+            padding: 8px 12px;
+            background: #f0f9ff;
+            border-radius: 6px;
+            border-left: 3px solid #3b82f6;
+        }
+        
+        .kid-help-text i {
+            margin-right: 8px;
+            color: #3b82f6;
+            font-size: 0.9rem;
+            margin-top: 2px;
+        }
+        
+        /* Messages Alerts */
+        .alert {
+            border-radius: 8px;
+            border: none;
+            margin-bottom: 20px;
+        }
+        
+        /* Loading spinner */
+        .spinner-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    {% endblock %}
 
-{% block content %}
-<div class="application-form-container">
-    <!-- Loading Spinner -->
-    <div class="spinner-container" id="loadingSpinner">
-        <div class="spinner"></div>
-    </div>
-    
-    <div class="container-fluid">
-        <div class="row justify-content-center">
-            <div class="col-12 col-lg-10 col-xl-8">
-                <div class="form-card">
-                    <!-- Header -->
-                    <div class="form-header">
-                        <h1>
-                            <i class="fas fa-graduation-cap me-2"></i>University Application Form
-                        </h1>
-                        <p>Fill out your details once, apply to multiple universities</p>
-                    </div>
-                    
-                    {% if messages %}
-                    <div class="container mt-3">
-                        {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                            <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %} me-2"></i>
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    {% block content %}
+    <div class="application-form-container">
+        <!-- Loading Spinner -->
+        <div class="spinner-container" id="loadingSpinner">
+            <div class="spinner"></div>
+        </div>
+        
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12 col-lg-10 col-xl-8">
+                    <div class="form-card">
+                        <!-- Header -->
+                        <div class="form-header">
+                            <h1>
+                                <i class="fas fa-graduation-cap me-2"></i>University Application Form
+                            </h1>
+                            <p>Fill out your details once, apply to multiple universities</p>
                         </div>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                    
-                    <!-- Form Body -->
-                    <form method="POST" action="{% url 'addapplication' %}" id="applicationForm" enctype="multipart/form-data" novalidate>
-                        {% csrf_token %}
                         
-                        <div class="form-body">
-                            <!-- Step 1: Personal Information -->
-                            <div class="form-section">
-                                <div class="section-title">
-                                    <div class="section-icon">
-                                        <i class="fas fa-user"></i>
+                        {% if messages %}
+                        <div class="container mt-3">
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %} me-2"></i>
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Form Body -->
+                        <form method="POST" action="{% url 'addapplication' %}" id="applicationForm" enctype="multipart/form-data" novalidate>
+                            {% csrf_token %}
+                            
+                            <div class="form-body">
+                                <!-- Step 1: Personal Information -->
+                                <div class="form-section">
+                                    <div class="section-title">
+                                        <div class="section-icon">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="section-content">
+                                            <h3>Personal Information</h3>
+                                            <p>Tell us about yourself - This is required for all applications</p>
+                                        </div>
                                     </div>
-                                    <div class="section-content">
-                                        <h3>Personal Information</h3>
-                                        <p>Tell us about yourself - This is required for all applications</p>
+                                    
+                                    <div class="row">
+                                        <!-- Full Name -->
+                                        <div class="col-12 col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label" for="student">
+                                                    Full Name <span class="required-star">*</span>
+                                                    <span class="example-text">(Example: John Smith)</span>
+                                                </label>
+                                                <input type="text" 
+                                                       class="form-control {% if form.student.errors %}is-invalid{% endif %}" 
+                                                       id="student" 
+                                                       name="student" 
+                                                       required
+                                                       placeholder="Enter your full name"
+                                                       value="{{ form.student.value|default:'' }}">
+                                                <div class="kid-help-text">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    <span>Write your name exactly as it appears on your ID document</span>
+                                                </div>
+                                                {% if form.student.errors %}
+                                                <div class="invalid-feedback">
+                                                    {{ form.student.errors.0 }}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- ID Number -->
+                                        <div class="col-12 col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label" for="id_number">
+                                                    ID Number
+                                                    <span class="example-text">(13 digits)</span>
+                                                </label>
+                                                <input type="text" 
+                                                       class="form-control {% if form.id_number.errors %}is-invalid{% endif %}" 
+                                                       id="id_number" 
+                                                       name="id_number"
+                                                       placeholder="000101 0000 000"
+                                                       value="{{ form.id_number.value|default:'' }}">
+                                                <div class="kid-help-text">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    <span>If you enter your ID number, we can help fill in your date of birth and gender</span>
+                                                </div>
+                                                {% if form.id_number.errors %}
+                                                <div class="invalid-feedback">
+                                                    {{ form.id_number.errors.0 }}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Date of Birth -->
+                                        <div class="col-12 col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label" for="date_of_birth">
+                                                    Date of Birth
+                                                    <span class="example-text">(When were you born?)</span>
+                                                </label>
+                                                <input type="date" 
+                                                       class="form-control {% if form.date_of_birth.errors %}is-invalid{% endif %}" 
+                                                       id="date_of_birth" 
+                                                       name="date_of_birth"
+                                                       value="{{ form.date_of_birth.value|default:'' }}">
+                                                <div class="kid-help-text">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    <span>Click the calendar icon or type your birth date</span>
+                                                </div>
+                                                {% if form.date_of_birth.errors %}
+                                                <div class="invalid-feedback">
+                                                    {{ form.date_of_birth.errors.0 }}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Gender -->
+                                        <div class="col-12 col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label" for="gender">
+                                                    Gender
+                                                    <span class="example-text">(Are you male or female?)</span>
+                                                </label>
+                                                <select class="form-control {% if form.gender.errors %}is-invalid{% endif %}" id="gender" name="gender">
+                                                    <option value="">-- Please select your gender --</option>
+                                                    <option value="male" {% if form.gender.value == 'male' %}selected{% endif %}>Male</option>
+                                                    <option value="female" {% if form.gender.value == 'female' %}selected{% endif %}>Female</option>
+                                                    <option value="other" {% if form.gender.value == 'other' %}selected{% endif %}>Other</option>
+                                                    <option value="prefer_not_to_say" {% if form.gender.value == 'prefer_not_to_say' %}selected{% endif %}>Prefer not to say</option>
+                                                </select>
+                                                <div class="kid-help-text">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    <span>Select the option that best describes you</span>
+                                                </div>
+                                                {% if form.gender.errors %}
+                                                <div class="invalid-feedback">
+                                                    {{ form.gender.errors.0 }}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Email -->
+                                        <div class="col-12 col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label" for="email">
+                                                    Email Address <span class="required-star">*</span>
+                                                    <span class="example-text">(Where can we email you?)</span>
+                                                </label>
+                                                <input type="email" 
+                                                       class="form-control {% if form.email.errors %}is-invalid{% endif %}" 
+                                                       id="email" 
+                                                       name="email" 
+                                                       required
+                                                       placeholder="your.name@example.com"
+                                                       value="{{ form.email.value|default:'' }}">
+                                                <div class="kid-help-text">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    <span>Universities will send important information to this email</span>
+                                                </div>
+                                                {% if form.email.errors %}
+                                                <div class="invalid-feedback">
+                                                    {{ form.email.errors.0 }}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Phone -->
+                                        <div class="col-12 col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label" for="phone">
+                                                    Phone Number
+                                                    <span class="example-text">(Your mobile number)</span>
+                                                </label>
+                                                <input type="tel" 
+                                                       class="form-control {% if form.phone.errors %}is-invalid{% endif %}" 
+                                                       id="phone" 
+                                                       name="phone"
+                                                       placeholder="071 234 5678"
+                                                       value="{{ form.phone.value|default:'' }}">
+                                                <div class="kid-help-text">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    <span>Start with 0 then your 9-digit number</span>
+                                                </div>
+                                                {% if form.phone.errors %}
+                                                <div class="invalid-feedback">
+                                                    {{ form.phone.errors.0 }}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Address -->
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label class="form-label" for="address">
+                                                    Full Address <span class="required-star">*</span>
+                                                    <span class="example-text">(Where do you live?)</span>
+                                                </label>
+                                                <textarea class="form-control {% if form.address.errors %}is-invalid{% endif %}" 
+                                                          id="address" 
+                                                          name="address" 
+                                                          rows="3"
+                                                          required
+                                                          placeholder="123 Main Street, Soweto, Johannesburg, 2001">{{ form.address.value|default:'' }}</textarea>
+                                                <div class="kid-help-text">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    <span>Include your street, town/city, and postal code</span>
+                                                </div>
+                                                {% if form.address.errors %}
+                                                <div class="invalid-feedback">
+                                                    {{ form.address.errors.0 }}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 
-                                <div class="row">
-                                    <!-- Full Name -->
-                                    <div class="col-12 col-md-6">
-                                        <div class="form-group">
-                                            <label class="form-label" for="student">
-                                                Full Name <span class="required-star">*</span>
-                                                <span class="example-text">(Example: John Smith)</span>
-                                            </label>
-                                            <input type="text" 
-                                                   class="form-control {% if form.student.errors %}is-invalid{% endif %}" 
-                                                   id="student" 
-                                                   name="student" 
-                                                   required
-                                                   placeholder="Enter your full name"
-                                                   value="{{ form.student.value|default:'' }}">
-                                            <div class="kid-help-text">
-                                                <i class="fas fa-info-circle"></i>
-                                                <span>Write your name exactly as it appears on your ID document</span>
-                                            </div>
-                                            {% if form.student.errors %}
-                                            <div class="invalid-feedback">
-                                                {{ form.student.errors.0 }}
-                                            </div>
-                                            {% endif %}
+                                <!-- Step 2: University Selection - SIMPLIFIED -->
+                                <div class="form-section">
+                                    <div class="section-title">
+                                        <div class="section-icon">
+                                            <i class="fas fa-university"></i>
+                                        </div>
+                                        <div class="section-content">
+                                            <h3>University Selection</h3>
+                                            <p>Choose where you want to study - Click to select multiple universities</p>
                                         </div>
                                     </div>
                                     
-                                    <!-- ID Number -->
-                                    <div class="col-12 col-md-6">
-                                        <div class="form-group">
-                                            <label class="form-label" for="id_number">
-                                                ID Number
-                                                <span class="example-text">(13 digits)</span>
-                                            </label>
-                                            <input type="text" 
-                                                   class="form-control {% if form.id_number.errors %}is-invalid{% endif %}" 
-                                                   id="id_number" 
-                                                   name="id_number"
-                                                   placeholder="000101 0000 000"
-                                                   value="{{ form.id_number.value|default:'' }}">
-                                            <div class="kid-help-text">
-                                                <i class="fas fa-info-circle"></i>
-                                                <span>If you enter your ID number, we can help fill in your date of birth and gender</span>
-                                            </div>
-                                            {% if form.id_number.errors %}
-                                            <div class="invalid-feedback">
-                                                {{ form.id_number.errors.0 }}
-                                            </div>
-                                            {% endif %}
+                                    <div class="kid-help-text mb-3">
+                                        <i class="fas fa-lightbulb"></i>
+                                        <div>
+                                            <strong>How to select:</strong> Click on any university name to select it. 
+                                            You can click on multiple universities. Selected universities turn blue.
                                         </div>
                                     </div>
                                     
-                                    <!-- Date of Birth -->
-                                    <div class="col-12 col-md-6">
-                                        <div class="form-group">
-                                            <label class="form-label" for="date_of_birth">
-                                                Date of Birth
-                                                <span class="example-text">(When were you born?)</span>
+                                    <!-- SIMPLE University Selection - Just like Bursary -->
+                                    {% if universities %}
+                                    <div class="selection-container">
+                                        <div class="vertical-list" id="universityList">
+                                            {% for uni in universities %}
+                                            <label class="selection-item {% if uni.id in form.selected_universities.value or uni.id|stringformat:'s' in selected_universities %}selected{% endif %}"
+                                                   data-university-id="{{ uni.id }}">
+                                                <input type="checkbox" 
+                                                       name="selected_universities" 
+                                                       value="{{ uni.id }}" 
+                                                       id="university{{ uni.id }}"
+                                                       {% if uni.id in form.selected_universities.value or uni.id|stringformat:'s' in selected_universities %}checked{% endif %}>
+                                                <span class="selection-item-text">{{ uni.title }}</span>
                                             </label>
-                                            <input type="date" 
-                                                   class="form-control {% if form.date_of_birth.errors %}is-invalid{% endif %}" 
-                                                   id="date_of_birth" 
-                                                   name="date_of_birth"
-                                                   value="{{ form.date_of_birth.value|default:'' }}">
-                                            <div class="kid-help-text">
-                                                <i class="fas fa-info-circle"></i>
-                                                <span>Click the calendar icon or type your birth date</span>
-                                            </div>
-                                            {% if form.date_of_birth.errors %}
-                                            <div class="invalid-feedback">
-                                                {{ form.date_of_birth.errors.0 }}
-                                            </div>
-                                            {% endif %}
+                                            {% endfor %}
                                         </div>
                                     </div>
                                     
-                                    <!-- Gender -->
-                                    <div class="col-12 col-md-6">
-                                        <div class="form-group">
-                                            <label class="form-label" for="gender">
-                                                Gender
-                                                <span class="example-text">(Are you male or female?)</span>
-                                            </label>
-                                            <select class="form-control {% if form.gender.errors %}is-invalid{% endif %}" id="gender" name="gender">
-                                                <option value="">-- Please select your gender --</option>
-                                                <option value="male" {% if form.gender.value == 'male' %}selected{% endif %}>Male</option>
-                                                <option value="female" {% if form.gender.value == 'female' %}selected{% endif %}>Female</option>
-                                                <option value="other" {% if form.gender.value == 'other' %}selected{% endif %}>Other</option>
-                                                <option value="prefer_not_to_say" {% if form.gender.value == 'prefer_not_to_say' %}selected{% endif %}>Prefer not to say</option>
-                                            </select>
-                                            <div class="kid-help-text">
-                                                <i class="fas fa-info-circle"></i>
-                                                <span>Select the option that best describes you</span>
+                                    <div class="selection-counter">
+                                        <i class="fas fa-check-circle text-primary"></i>
+                                        <span id="selectedUniversityCount">0</span> universities selected
+                                    </div>
+                                    {% else %}
+                                    <div class="text-center py-3">
+                                        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; color: white;">
+                                            <i class="fas fa-university"></i>
+                                        </div>
+                                        <p class="text-muted mb-0">No universities available at the moment</p>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <!-- Manual University Entry -->
+                                    <div class="row mt-4">
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label class="form-label" for="university_manual">
+                                                    <i class="fas fa-edit me-2"></i>Don't see your university?
+                                                    <span class="example-text">(Type it here)</span>
+                                                </label>
+                                                <input type="text" 
+                                                       class="form-control {% if form.university_manual.errors %}is-invalid{% endif %}" 
+                                                       id="university_manual" 
+                                                       name="university_manual"
+                                                       placeholder="Type university name if not in list above"
+                                                       value="{{ form.university_manual.value|default:'' }}">
+                                                <div class="kid-help-text">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    <span>If your university is not in the list, type its name here</span>
+                                                </div>
+                                                {% if form.university_manual.errors %}
+                                                <div class="invalid-feedback">
+                                                    {{ form.university_manual.errors.0 }}
+                                                </div>
+                                                {% endif %}
                                             </div>
-                                            {% if form.gender.errors %}
-                                            <div class="invalid-feedback">
-                                                {{ form.gender.errors.0 }}
-                                            </div>
-                                            {% endif %}
                                         </div>
                                     </div>
                                     
-                                    <!-- Email -->
-                                    <div class="col-12 col-md-6">
-                                        <div class="form-group">
-                                            <label class="form-label" for="email">
-                                                Email Address <span class="required-star">*</span>
-                                                <span class="example-text">(Where can we email you?)</span>
-                                            </label>
-                                            <input type="email" 
-                                                   class="form-control {% if form.email.errors %}is-invalid{% endif %}" 
-                                                   id="email" 
-                                                   name="email" 
-                                                   required
-                                                   placeholder="your.name@example.com"
-                                                   value="{{ form.email.value|default:'' }}">
-                                            <div class="kid-help-text">
-                                                <i class="fas fa-info-circle"></i>
-                                                <span>Universities will send important information to this email</span>
+                                    <!-- Application URL -->
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label class="form-label" for="target_form_url">
+                                                    Application Website Link
+                                                    <span class="example-text">(Optional)</span>
+                                                </label>
+                                                <input type="url" 
+                                                       class="form-control {% if form.target_form_url.errors %}is-invalid{% endif %}" 
+                                                       id="target_form_url" 
+                                                       name="target_form_url"
+                                                       placeholder="https://www.university.ac.za/apply"
+                                                       value="{{ form.target_form_url.value|default:'' }}">
+                                                <div class="kid-help-text">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    <span>If you have a link to the university's application website, paste it here</span>
+                                                </div>
+                                                {% if form.target_form_url.errors %}
+                                                <div class="invalid-feedback">
+                                                    {{ form.target_form_url.errors.0 }}
+                                                </div>
+                                                {% endif %}
                                             </div>
-                                            {% if form.email.errors %}
-                                            <div class="invalid-feedback">
-                                                {{ form.email.errors.0 }}
-                                            </div>
-                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Step 3: Academic Information -->
+                                <div class="form-section">
+                                    <div class="section-title">
+                                        <div class="section-icon">
+                                            <i class="fas fa-graduation-cap"></i>
+                                        </div>
+                                        <div class="section-content">
+                                            <h3>Academic Information</h3>
+                                            <p>Your school details and what you want to study</p>
                                         </div>
                                     </div>
                                     
-                                    <!-- Phone -->
-                                    <div class="col-12 col-md-6">
-                                        <div class="form-group">
-                                            <label class="form-label" for="phone">
-                                                Phone Number
-                                                <span class="example-text">(Your mobile number)</span>
-                                            </label>
-                                            <input type="tel" 
-                                                   class="form-control {% if form.phone.errors %}is-invalid{% endif %}" 
-                                                   id="phone" 
-                                                   name="phone"
-                                                   placeholder="071 234 5678"
-                                                   value="{{ form.phone.value|default:'' }}">
-                                            <div class="kid-help-text">
-                                                <i class="fas fa-info-circle"></i>
-                                                <span>Start with 0 then your 9-digit number</span>
+                                    <div class="row">
+                                        <!-- Course/Faculty -->
+                                        <div class="col-12 col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label" for="course_faculty">
+                                                    What do you want to study?
+                                                    <span class="example-text">(Example: BSc Computer Science)</span>
+                                                </label>
+                                                <input type="text" 
+                                                       class="form-control {% if form.course_faculty.errors %}is-invalid{% endif %}" 
+                                                       id="course_faculty" 
+                                                       name="course_faculty"
+                                                       placeholder="What degree or course do you want?"
+                                                       value="{{ form.course_faculty.value|default:'' }}">
+                                                <div class="kid-help-text">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    <span>Write the name of the degree or course you want to study</span>
+                                                </div>
+                                                {% if form.course_faculty.errors %}
+                                                <div class="invalid-feedback">
+                                                    {{ form.course_faculty.errors.0 }}
+                                                </div>
+                                                {% endif %}
                                             </div>
-                                            {% if form.phone.errors %}
-                                            <div class="invalid-feedback">
-                                                {{ form.phone.errors.0 }}
+                                        </div>
+                                        
+                                        <!-- School Name -->
+                                        <div class="col-12 col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label" for="school_name">
+                                                    High School Name
+                                                    <span class="example-text">(Where do/did you go to school?)</span>
+                                                </label>
+                                                <input type="text" 
+                                                       class="form-control {% if form.school_name.errors %}is-invalid{% endif %}" 
+                                                       id="school_name" 
+                                                       name="school_name"
+                                                       placeholder="Your high school name"
+                                                       value="{{ form.school_name.value|default:'' }}">
+                                                <div class="kid-help-text">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    <span>The name of your current or former high school</span>
+                                                </div>
+                                                {% if form.school_name.errors %}
+                                                <div class="invalid-feedback">
+                                                    {{ form.school_name.errors.0 }}
+                                                </div>
+                                                {% endif %}
                                             </div>
-                                            {% endif %}
+                                        </div>
+                                        
+                                        <!-- Matric Year -->
+                                        <div class="col-12 col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label" for="matric_year">
+                                                    Matric Year
+                                                    <span class="example-text">(When did/will you finish school?)</span>
+                                                </label>
+                                                <input type="number" 
+                                                       class="form-control {% if form.matric_year.errors %}is-invalid{% endif %}" 
+                                                       id="matric_year" 
+                                                       name="matric_year"
+                                                       placeholder="2023"
+                                                       min="2000"
+                                                       max="{% now 'Y'|add:'5' %}"
+                                                       value="{{ form.matric_year.value|default:'' }}">
+                                                <div class="kid-help-text">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    <span>The year you completed or will complete Grade 12</span>
+                                                </div>
+                                                {% if form.matric_year.errors %}
+                                                <div class="invalid-feedback">
+                                                    {{ form.matric_year.errors.0 }}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Disability Information -->
+                                        <div class="col-12 col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label" for="disability">
+                                                    Disability Information <span class="required-star">*</span>
+                                                    <span class="example-text">(Type "No" if none)</span>
+                                                </label>
+                                                <input type="text" 
+                                                       class="form-control {% if form.disability.errors %}is-invalid{% endif %}" 
+                                                       id="disability" 
+                                                       name="disability"
+                                                       required
+                                                       placeholder="No / Describe your disability"
+                                                       value="{{ form.disability.value|default:'' }}">
+                                                <div class="kid-help-text">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    <span>If you have a disability, describe it. If not, just type "No"</span>
+                                                </div>
+                                                {% if form.disability.errors %}
+                                                <div class="invalid-feedback">
+                                                    {{ form.disability.errors.0 }}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Other Details -->
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label class="form-label" for="details">
+                                                    Other Important Details
+                                                    <span class="example-text">(Home Language, Citizenship, etc.)</span>
+                                                </label>
+                                                <textarea class="form-control {% if form.details.errors %}is-invalid{% endif %}" 
+                                                          id="details" 
+                                                          name="details" 
+                                                          rows="3"
+                                                          placeholder="Home Language: English, Citizenship: South African, Race: Black, Marital Status: Single">{{ form.details.value|default:'' }}</textarea>
+                                                <div class="kid-help-text">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    <span>Include your home language, citizenship, race, and marital status</span>
+                                                </div>
+                                                {% if form.details.errors %}
+                                                <div class="invalid-feedback">
+                                                    {{ form.details.errors.0 }}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Step 4: Financial Information -->
+                                <div class="form-section">
+                                    <div class="section-title">
+                                        <div class="section-icon">
+                                            <i class="fas fa-hand-holding-usd"></i>
+                                        </div>
+                                        <div class="section-content">
+                                            <h3>Financial Information</h3>
+                                            <p>Bursaries and funding options for your studies</p>
                                         </div>
                                     </div>
                                     
-                                    <!-- Address -->
-                                    <div class="col-12">
-                                        <div class="form-group">
-                                            <label class="form-label" for="address">
-                                                Full Address <span class="required-star">*</span>
-                                                <span class="example-text">(Where do you live?)</span>
+                                    <div class="kid-help-text mb-3">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                        <div>
+                                            <strong>How to select:</strong> Click on any bursary name to select it. 
+                                            You can click on multiple bursaries. Selected bursaries turn blue.
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Bursary Selection -->
+                                    {% if bursaries %}
+                                    <div class="selection-container">
+                                        <div class="vertical-list" id="bursaryList">
+                                            {% for bursary in bursaries %}
+                                            <label class="selection-item {% if bursary.id in form.selected_bursaries.value or bursary.id|stringformat:'s' in selected_bursaries %}selected{% endif %}"
+                                                   data-bursary-id="{{ bursary.id }}">
+                                                <input type="checkbox" 
+                                                       name="selected_bursaries" 
+                                                       value="{{ bursary.id }}" 
+                                                       id="bursary{{ bursary.id }}"
+                                                       {% if bursary.id in form.selected_bursaries.value or bursary.id|stringformat:'s' in selected_bursaries %}checked{% endif %}>
+                                                <span class="selection-item-text">{{ bursary.title }}</span>
                                             </label>
-                                            <textarea class="form-control {% if form.address.errors %}is-invalid{% endif %}" 
-                                                      id="address" 
-                                                      name="address" 
-                                                      rows="3"
-                                                      required
-                                                      placeholder="123 Main Street, Soweto, Johannesburg, 2001">{{ form.address.value|default:'' }}</textarea>
-                                            <div class="kid-help-text">
-                                                <i class="fas fa-info-circle"></i>
-                                                <span>Include your street, town/city, and postal code</span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="selection-counter">
+                                        <i class="fas fa-check-circle text-primary"></i>
+                                        <span id="selectedBursaryCount">0</span> bursaries selected
+                                    </div>
+                                    {% else %}
+                                    <div class="text-center py-3">
+                                        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; color: white;">
+                                            <i class="fas fa-money-bill-wave"></i>
+                                        </div>
+                                        <p class="text-muted mb-0">No bursaries available at the moment</p>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <!-- Manual Bursary Entry -->
+                                    <div class="row mt-4">
+                                        <div class="col-12 col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label" for="bursary_manual">
+                                                    Other Bursaries
+                                                    <span class="example-text">(Example: NSFAS)</span>
+                                                </label>
+                                                <input type="text" 
+                                                       class="form-control {% if form.bursary_manual.errors %}is-invalid{% endif %}" 
+                                                       id="bursary_manual" 
+                                                       name="bursary_manual"
+                                                       placeholder="NSFAS, Fundza Lushaka, etc."
+                                                       value="{{ form.bursary_manual.value|default:'' }}">
+                                                <div class="kid-help-text">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    <span>If you're applying for other bursaries not in the list, type them here</span>
+                                                </div>
+                                                {% if form.bursary_manual.errors %}
+                                                <div class="invalid-feedback">
+                                                    {{ form.bursary_manual.errors.0 }}
+                                                </div>
+                                                {% endif %}
                                             </div>
-                                            {% if form.address.errors %}
-                                            <div class="invalid-feedback">
-                                                {{ form.address.errors.0 }}
+                                        </div>
+                                        
+                                        <!-- Next of Kin -->
+                                        <div class="col-12 col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label" for="next_of_kin">
+                                                    Next of Kin Details
+                                                    <span class="example-text">(Parent/Guardian information)</span>
+                                                </label>
+                                                <input type="text" 
+                                                       class="form-control {% if form.next_of_kin.errors %}is-invalid{% endif %}" 
+                                                       id="next_of_kin" 
+                                                       name="next_of_kin"
+                                                       placeholder="Name, Relationship, Phone, Address"
+                                                       value="{{ form.next_of_kin.value|default:'' }}">
+                                                <div class="kid-help-text">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    <span>Include your parent or guardian's name, relationship, phone, and address</span>
+                                                </div>
+                                                {% if form.next_of_kin.errors %}
+                                                <div class="invalid-feedback">
+                                                    {{ form.next_of_kin.errors.0 }}
+                                                </div>
+                                                {% endif %}
                                             </div>
-                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             
-                            <!-- Step 2: University Selection - SIMPLIFIED -->
-                            <div class="form-section">
-                                <div class="section-title">
-                                    <div class="section-icon">
-                                        <i class="fas fa-university"></i>
-                                    </div>
-                                    <div class="section-content">
-                                        <h3>University Selection</h3>
-                                        <p>Choose where you want to study - Click to select multiple universities</p>
-                                    </div>
-                                </div>
-                                
+                            <!-- Form Actions -->
+                            <div class="form-actions">
                                 <div class="kid-help-text mb-3">
                                     <i class="fas fa-lightbulb"></i>
                                     <div>
-                                        <strong>How to select:</strong> Click on any university name to select it. 
-                                        You can click on multiple universities. Selected universities turn blue.
+                                        <strong>Almost done!</strong> 
+                                        Save as draft if you want to come back later, or submit if you're ready.
                                     </div>
                                 </div>
                                 
-                                <!-- SIMPLE University Selection - Just like Bursary -->
-                                {% if universities %}
-                                <div class="selection-container">
-                                    <div class="vertical-list" id="universityList">
-                                        {% for uni in universities %}
-                                        <label class="selection-item {% if uni.id in form.selected_universities.value or uni.id|stringformat:'s' in selected_universities %}selected{% endif %}"
-                                               data-university-id="{{ uni.id }}">
-                                            <input type="checkbox" 
-                                                   name="selected_universities" 
-                                                   value="{{ uni.id }}" 
-                                                   id="university{{ uni.id }}"
-                                                   {% if uni.id in form.selected_universities.value or uni.id|stringformat:'s' in selected_universities %}checked{% endif %}>
-                                            <span class="selection-item-text">{{ uni.title }}</span>
-                                        </label>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                
-                                <div class="selection-counter">
-                                    <i class="fas fa-check-circle text-primary"></i>
-                                    <span id="selectedUniversityCount">0</span> universities selected
-                                </div>
-                                {% else %}
-                                <div class="text-center py-3">
-                                    <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; color: white;">
-                                        <i class="fas fa-university"></i>
-                                    </div>
-                                    <p class="text-muted mb-0">No universities available at the moment</p>
-                                </div>
-                                {% endif %}
-                                
-                                <!-- Manual University Entry -->
-                                <div class="row mt-4">
-                                    <div class="col-12">
-                                        <div class="form-group">
-                                            <label class="form-label" for="university_manual">
-                                                <i class="fas fa-edit me-2"></i>Don't see your university?
-                                                <span class="example-text">(Type it here)</span>
-                                            </label>
-                                            <input type="text" 
-                                                   class="form-control {% if form.university_manual.errors %}is-invalid{% endif %}" 
-                                                   id="university_manual" 
-                                                   name="university_manual"
-                                                   placeholder="Type university name if not in list above"
-                                                   value="{{ form.university_manual.value|default:'' }}">
-                                            <div class="kid-help-text">
-                                                <i class="fas fa-info-circle"></i>
-                                                <span>If your university is not in the list, type its name here</span>
-                                            </div>
-                                            {% if form.university_manual.errors %}
-                                            <div class="invalid-feedback">
-                                                {{ form.university_manual.errors.0 }}
-                                            </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Application URL -->
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div class="form-group">
-                                            <label class="form-label" for="target_form_url">
-                                                Application Website Link
-                                                <span class="example-text">(Optional)</span>
-                                            </label>
-                                            <input type="url" 
-                                                   class="form-control {% if form.target_form_url.errors %}is-invalid{% endif %}" 
-                                                   id="target_form_url" 
-                                                   name="target_form_url"
-                                                   placeholder="https://www.university.ac.za/apply"
-                                                   value="{{ form.target_form_url.value|default:'' }}">
-                                            <div class="kid-help-text">
-                                                <i class="fas fa-info-circle"></i>
-                                                <span>If you have a link to the university's application website, paste it here</span>
-                                            </div>
-                                            {% if form.target_form_url.errors %}
-                                            <div class="invalid-feedback">
-                                                {{ form.target_form_url.errors.0 }}
-                                            </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
+                                <div class="action-buttons">
+                                    <button type="button" class="btn btn-outline" id="saveDraftBtn" data-action="draft">
+                                        <i class="fas fa-save"></i> Save Draft
+                                    </button>
+                                    <button type="submit" class="btn btn-primary" id="submitBtn" data-action="submit">
+                                        <i class="fas fa-paper-plane"></i> Submit Application
+                                    </button>
                                 </div>
                             </div>
                             
-                            <!-- Step 3: Academic Information -->
-                            <div class="form-section">
-                                <div class="section-title">
-                                    <div class="section-icon">
-                                        <i class="fas fa-graduation-cap"></i>
-                                    </div>
-                                    <div class="section-content">
-                                        <h3>Academic Information</h3>
-                                        <p>Your school details and what you want to study</p>
-                                    </div>
-                                </div>
-                                
-                                <div class="row">
-                                    <!-- Course/Faculty -->
-                                    <div class="col-12 col-md-6">
-                                        <div class="form-group">
-                                            <label class="form-label" for="course_faculty">
-                                                What do you want to study?
-                                                <span class="example-text">(Example: BSc Computer Science)</span>
-                                            </label>
-                                            <input type="text" 
-                                                   class="form-control {% if form.course_faculty.errors %}is-invalid{% endif %}" 
-                                                   id="course_faculty" 
-                                                   name="course_faculty"
-                                                   placeholder="What degree or course do you want?"
-                                                   value="{{ form.course_faculty.value|default:'' }}">
-                                            <div class="kid-help-text">
-                                                <i class="fas fa-info-circle"></i>
-                                                <span>Write the name of the degree or course you want to study</span>
-                                            </div>
-                                            {% if form.course_faculty.errors %}
-                                            <div class="invalid-feedback">
-                                                {{ form.course_faculty.errors.0 }}
-                                            </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- School Name -->
-                                    <div class="col-12 col-md-6">
-                                        <div class="form-group">
-                                            <label class="form-label" for="school_name">
-                                                High School Name
-                                                <span class="example-text">(Where do/did you go to school?)</span>
-                                            </label>
-                                            <input type="text" 
-                                                   class="form-control {% if form.school_name.errors %}is-invalid{% endif %}" 
-                                                   id="school_name" 
-                                                   name="school_name"
-                                                   placeholder="Your high school name"
-                                                   value="{{ form.school_name.value|default:'' }}">
-                                            <div class="kid-help-text">
-                                                <i class="fas fa-info-circle"></i>
-                                                <span>The name of your current or former high school</span>
-                                            </div>
-                                            {% if form.school_name.errors %}
-                                            <div class="invalid-feedback">
-                                                {{ form.school_name.errors.0 }}
-                                            </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Matric Year -->
-                                    <div class="col-12 col-md-6">
-                                        <div class="form-group">
-                                            <label class="form-label" for="matric_year">
-                                                Matric Year
-                                                <span class="example-text">(When did/will you finish school?)</span>
-                                            </label>
-                                            <input type="number" 
-                                                   class="form-control {% if form.matric_year.errors %}is-invalid{% endif %}" 
-                                                   id="matric_year" 
-                                                   name="matric_year"
-                                                   placeholder="2023"
-                                                   min="2000"
-                                                   max="{% now 'Y'|add:'5' %}"
-                                                   value="{{ form.matric_year.value|default:'' }}">
-                                            <div class="kid-help-text">
-                                                <i class="fas fa-info-circle"></i>
-                                                <span>The year you completed or will complete Grade 12</span>
-                                            </div>
-                                            {% if form.matric_year.errors %}
-                                            <div class="invalid-feedback">
-                                                {{ form.matric_year.errors.0 }}
-                                            </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Disability Information -->
-                                    <div class="col-12 col-md-6">
-                                        <div class="form-group">
-                                            <label class="form-label" for="disability">
-                                                Disability Information <span class="required-star">*</span>
-                                                <span class="example-text">(Type "No" if none)</span>
-                                            </label>
-                                            <input type="text" 
-                                                   class="form-control {% if form.disability.errors %}is-invalid{% endif %}" 
-                                                   id="disability" 
-                                                   name="disability"
-                                                   required
-                                                   placeholder="No / Describe your disability"
-                                                   value="{{ form.disability.value|default:'' }}">
-                                            <div class="kid-help-text">
-                                                <i class="fas fa-info-circle"></i>
-                                                <span>If you have a disability, describe it. If not, just type "No"</span>
-                                            </div>
-                                            {% if form.disability.errors %}
-                                            <div class="invalid-feedback">
-                                                {{ form.disability.errors.0 }}
-                                            </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Other Details -->
-                                    <div class="col-12">
-                                        <div class="form-group">
-                                            <label class="form-label" for="details">
-                                                Other Important Details
-                                                <span class="example-text">(Home Language, Citizenship, etc.)</span>
-                                            </label>
-                                            <textarea class="form-control {% if form.details.errors %}is-invalid{% endif %}" 
-                                                      id="details" 
-                                                      name="details" 
-                                                      rows="3"
-                                                      placeholder="Home Language: English, Citizenship: South African, Race: Black, Marital Status: Single">{{ form.details.value|default:'' }}</textarea>
-                                            <div class="kid-help-text">
-                                                <i class="fas fa-info-circle"></i>
-                                                <span>Include your home language, citizenship, race, and marital status</span>
-                                            </div>
-                                            {% if form.details.errors %}
-                                            <div class="invalid-feedback">
-                                                {{ form.details.errors.0 }}
-                                            </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Step 4: Financial Information -->
-                            <div class="form-section">
-                                <div class="section-title">
-                                    <div class="section-icon">
-                                        <i class="fas fa-hand-holding-usd"></i>
-                                    </div>
-                                    <div class="section-content">
-                                        <h3>Financial Information</h3>
-                                        <p>Bursaries and funding options for your studies</p>
-                                    </div>
-                                </div>
-                                
-                                <div class="kid-help-text mb-3">
-                                    <i class="fas fa-money-bill-wave"></i>
-                                    <div>
-                                        <strong>How to select:</strong> Click on any bursary name to select it. 
-                                        You can click on multiple bursaries. Selected bursaries turn blue.
-                                    </div>
-                                </div>
-                                
-                                <!-- Bursary Selection -->
-                                {% if bursaries %}
-                                <div class="selection-container">
-                                    <div class="vertical-list" id="bursaryList">
-                                        {% for bursary in bursaries %}
-                                        <label class="selection-item {% if bursary.id in form.selected_bursaries.value or bursary.id|stringformat:'s' in selected_bursaries %}selected{% endif %}"
-                                               data-bursary-id="{{ bursary.id }}">
-                                            <input type="checkbox" 
-                                                   name="selected_bursaries" 
-                                                   value="{{ bursary.id }}" 
-                                                   id="bursary{{ bursary.id }}"
-                                                   {% if bursary.id in form.selected_bursaries.value or bursary.id|stringformat:'s' in selected_bursaries %}checked{% endif %}>
-                                            <span class="selection-item-text">{{ bursary.title }}</span>
-                                        </label>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                
-                                <div class="selection-counter">
-                                    <i class="fas fa-check-circle text-primary"></i>
-                                    <span id="selectedBursaryCount">0</span> bursaries selected
-                                </div>
-                                {% else %}
-                                <div class="text-center py-3">
-                                    <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; color: white;">
-                                        <i class="fas fa-money-bill-wave"></i>
-                                    </div>
-                                    <p class="text-muted mb-0">No bursaries available at the moment</p>
-                                </div>
-                                {% endif %}
-                                
-                                <!-- Manual Bursary Entry -->
-                                <div class="row mt-4">
-                                    <div class="col-12 col-md-6">
-                                        <div class="form-group">
-                                            <label class="form-label" for="bursary_manual">
-                                                Other Bursaries
-                                                <span class="example-text">(Example: NSFAS)</span>
-                                            </label>
-                                            <input type="text" 
-                                                   class="form-control {% if form.bursary_manual.errors %}is-invalid{% endif %}" 
-                                                   id="bursary_manual" 
-                                                   name="bursary_manual"
-                                                   placeholder="NSFAS, Fundza Lushaka, etc."
-                                                   value="{{ form.bursary_manual.value|default:'' }}">
-                                            <div class="kid-help-text">
-                                                <i class="fas fa-info-circle"></i>
-                                                <span>If you're applying for other bursaries not in the list, type them here</span>
-                                            </div>
-                                            {% if form.bursary_manual.errors %}
-                                            <div class="invalid-feedback">
-                                                {{ form.bursary_manual.errors.0 }}
-                                            </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Next of Kin -->
-                                    <div class="col-12 col-md-6">
-                                        <div class="form-group">
-                                            <label class="form-label" for="next_of_kin">
-                                                Next of Kin Details
-                                                <span class="example-text">(Parent/Guardian information)</span>
-                                            </label>
-                                            <input type="text" 
-                                                   class="form-control {% if form.next_of_kin.errors %}is-invalid{% endif %}" 
-                                                   id="next_of_kin" 
-                                                   name="next_of_kin"
-                                                   placeholder="Name, Relationship, Phone, Address"
-                                                   value="{{ form.next_of_kin.value|default:'' }}">
-                                            <div class="kid-help-text">
-                                                <i class="fas fa-info-circle"></i>
-                                                <span>Include your parent or guardian's name, relationship, phone, and address</span>
-                                            </div>
-                                            {% if form.next_of_kin.errors %}
-                                            <div class="invalid-feedback">
-                                                {{ form.next_of_kin.errors.0 }}
-                                            </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Form Actions -->
-                        <div class="form-actions">
-                            <div class="kid-help-text mb-3">
-                                <i class="fas fa-lightbulb"></i>
-                                <div>
-                                    <strong>Almost done!</strong> 
-                                    Save as draft if you want to come back later, or submit if you're ready.
-                                </div>
-                            </div>
-                            
-                            <div class="action-buttons">
-                                <button type="button" class="btn btn-outline" id="saveDraftBtn" data-action="draft">
-                                    <i class="fas fa-save"></i> Save Draft
-                                </button>
-                                <button type="submit" class="btn btn-primary" id="submitBtn" data-action="submit">
-                                    <i class="fas fa-paper-plane"></i> Submit Application
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <!-- Hidden fields for draft/save state -->
-                        <input type="hidden" name="is_draft" id="isDraft" value="0">
-                    </form>
+                            <!-- Hidden fields for draft/save state -->
+                            <input type="hidden" name="is_draft" id="isDraft" value="0">
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
+    {% endblock %}
 
-{% block extra_js %}
-<!-- Bootstrap JS Bundle -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM loaded - setting up form...');
-        
-        const form = document.getElementById('applicationForm');
-        const loadingSpinner = document.getElementById('loadingSpinner');
-        const submitBtn = document.getElementById('submitBtn');
-        const saveDraftBtn = document.getElementById('saveDraftBtn');
-        const isDraftField = document.getElementById('isDraft');
-        
-        // FIXED: SIMPLE SELECTION FUNCTION - Works for both universities and bursaries
-        function setupSelection(listId, counterId) {
-            console.log(`Setting up selection for ${listId}`);
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded - setting up form...');
             
-            // Get the container and items
-            const container = document.getElementById(listId);
-            if (!container) {
-                console.log(`Container ${listId} not found`);
-                return;
-            }
+            const form = document.getElementById('applicationForm');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const submitBtn = document.getElementById('submitBtn');
+            const saveDraftBtn = document.getElementById('saveDraftBtn');
+            const isDraftField = document.getElementById('isDraft');
             
-            const items = container.querySelectorAll('.selection-item');
-            console.log(`Found ${items.length} items in ${listId}`);
-            
-            if (items.length === 0) {
-                console.log(`No items found in ${listId}`);
-                return;
-            }
-            
-            items.forEach(item => {
-                const checkbox = item.querySelector('input[type="checkbox"]');
-                if (!checkbox) return;
+            // FIXED: SIMPLE SELECTION FUNCTION - Works for both universities and bursaries
+            function setupSelection(listId, counterId) {
+                console.log(`Setting up selection for ${listId}`);
                 
-                // Click anywhere on item to toggle checkbox
-                item.addEventListener('click', function(e) {
-                    // Don't trigger if clicking on checkbox itself (avoid double toggle)
-                    if (e.target !== checkbox) {
-                        e.preventDefault();
-                        checkbox.checked = !checkbox.checked;
+                // Get the container and items
+                const container = document.getElementById(listId);
+                if (!container) {
+                    console.log(`Container ${listId} not found`);
+                    return;
+                }
+                
+                const items = container.querySelectorAll('.selection-item');
+                console.log(`Found ${items.length} items in ${listId}`);
+                
+                if (items.length === 0) {
+                    console.log(`No items found in ${listId}`);
+                    return;
+                }
+                
+                items.forEach(item => {
+                    const checkbox = item.querySelector('input[type="checkbox"]');
+                    if (!checkbox) return;
+                    
+                    // Click anywhere on item to toggle checkbox
+                    item.addEventListener('click', function(e) {
+                        // Don't trigger if clicking on checkbox itself (avoid double toggle)
+                        if (e.target !== checkbox) {
+                            e.preventDefault();
+                            checkbox.checked = !checkbox.checked;
+                            
+                            // Trigger change event to update class and count
+                            const event = new Event('change', { bubbles: true });
+                            checkbox.dispatchEvent(event);
+                        }
+                    });
+                    
+                    // Update when checkbox changes
+                    checkbox.addEventListener('change', function() {
+                        // Update the parent item's selected class
+                        if (this.checked) {
+                            item.classList.add('selected');
+                        } else {
+                            item.classList.remove('selected');
+                        }
                         
-                        // Trigger change event to update class and count
-                        const event = new Event('change', { bubbles: true });
-                        checkbox.dispatchEvent(event);
-                    }
-                });
-                
-                // Update when checkbox changes
-                checkbox.addEventListener('change', function() {
-                    // Update the parent item's selected class
-                    if (this.checked) {
+                        // Update the counter
+                        updateSelectionCount(counterId);
+                    });
+                    
+                    // Set initial selected state based on checkbox
+                    if (checkbox.checked) {
                         item.classList.add('selected');
-                    } else {
-                        item.classList.remove('selected');
                     }
-                    
-                    // Update the counter
-                    updateSelectionCount(counterId);
                 });
                 
-                // Set initial selected state based on checkbox
-                if (checkbox.checked) {
-                    item.classList.add('selected');
+                // Initial count update
+                setTimeout(() => updateSelectionCount(counterId), 100);
+            }
+            
+            // FIXED: Update selection count
+            function updateSelectionCount(counterId) {
+                const counterElement = document.getElementById(counterId);
+                if (!counterElement) {
+                    console.log(`Counter ${counterId} not found`);
+                    return;
                 }
-            });
-            
-            // Initial count update
-            setTimeout(() => updateSelectionCount(counterId), 100);
-        }
-        
-        // FIXED: Update selection count
-        function updateSelectionCount(counterId) {
-            const counterElement = document.getElementById(counterId);
-            if (!counterElement) {
-                console.log(`Counter ${counterId} not found`);
-                return;
-            }
-            
-            // Determine which container based on counter ID
-            let containerId;
-            if (counterId === 'selectedUniversityCount') {
-                containerId = 'universityList';
-            } else if (counterId === 'selectedBursaryCount') {
-                containerId = 'bursaryList';
-            } else {
-                return;
-            }
-            
-            const container = document.getElementById(containerId);
-            if (!container) {
-                console.log(`Container ${containerId} not found for counter`);
-                return;
-            }
-            
-            const selectedCount = container.querySelectorAll('input[type="checkbox"]:checked').length;
-            counterElement.textContent = selectedCount;
-            console.log(`Updated ${counterId} to ${selectedCount}`);
-        }
-        
-        // Initialize selections with a slight delay to ensure DOM is ready
-        setTimeout(() => {
-            setupSelection('universityList', 'selectedUniversityCount');
-            setupSelection('bursaryList', 'selectedBursaryCount');
-        }, 200);
-        
-        // Show loading spinner
-        function showLoading() {
-            if (loadingSpinner) {
-                loadingSpinner.style.display = 'flex';
-            }
-        }
-        
-        // Hide loading spinner
-        function hideLoading() {
-            if (loadingSpinner) {
-                loadingSpinner.style.display = 'none';
-            }
-        }
-        
-        // AUTO-FILL FROM ID NUMBER - Kid friendly
-        const idNumberInput = document.getElementById('id_number');
-        if (idNumberInput) {
-            idNumberInput.addEventListener('blur', function() {
-                const id = this.value.replace(/\s/g, '');
                 
-                if (id.length === 13 && /^\d+$/.test(id)) {
-                    // Extract DOB from ID
-                    const year = id.substring(0, 2);
-                    const month = id.substring(2, 4);
-                    const day = id.substring(4, 6);
-                    
-                    // Determine century
-                    const currentYear = new Date().getFullYear() % 100;
-                    const century = parseInt(year) <= currentYear ? '20' : '19';
-                    
-                    // Fill date of birth
-                    const dobInput = document.getElementById('date_of_birth');
-                    if (dobInput && !dobInput.value) {
-                        dobInput.value = `${century}${year}-${month}-${day}`;
-                    }
-                    
-                    // Determine gender
-                    const genderDigit = parseInt(id.substring(6, 7));
-                    const genderSelect = document.getElementById('gender');
-                    if (genderSelect && !genderSelect.value) {
-                        genderSelect.value = genderDigit < 5 ? 'female' : 'male';
-                    }
-                    
-                    // Show success message
-                    showKidNotification('We filled in your date of birth and gender from your ID number!', 'success');
+                // Determine which container based on counter ID
+                let containerId;
+                if (counterId === 'selectedUniversityCount') {
+                    containerId = 'universityList';
+                } else if (counterId === 'selectedBursaryCount') {
+                    containerId = 'bursaryList';
+                } else {
+                    return;
                 }
-            });
-        }
-        
-        // SIMPLE FORM VALIDATION - Kid friendly
-        function validateForm() {
-            let isValid = true;
-            let errors = [];
+                
+                const container = document.getElementById(containerId);
+                if (!container) {
+                    console.log(`Container ${containerId} not found for counter`);
+                    return;
+                }
+                
+                const selectedCount = container.querySelectorAll('input[type="checkbox"]:checked').length;
+                counterElement.textContent = selectedCount;
+                console.log(`Updated ${counterId} to ${selectedCount}`);
+            }
             
-            // Check required fields
-            const requiredFields = [
-                { id: 'student', name: 'Full Name' },
-                { id: 'email', name: 'Email Address' },
-                { id: 'address', name: 'Address' },
-                { id: 'disability', name: 'Disability Information' }
-            ];
+            // Initialize selections with a slight delay to ensure DOM is ready
+            setTimeout(() => {
+                setupSelection('universityList', 'selectedUniversityCount');
+                setupSelection('bursaryList', 'selectedBursaryCount');
+            }, 200);
             
-            requiredFields.forEach(field => {
-                const element = document.getElementById(field.id);
-                if (element && !element.value.trim()) {
-                    element.classList.add('is-invalid');
-                    errors.push(`${field.name} is required`);
+            // Show loading spinner
+            function showLoading() {
+                if (loadingSpinner) {
+                    loadingSpinner.style.display = 'flex';
+                }
+            }
+            
+            // Hide loading spinner
+            function hideLoading() {
+                if (loadingSpinner) {
+                    loadingSpinner.style.display = 'none';
+                }
+            }
+            
+            // AUTO-FILL FROM ID NUMBER - Kid friendly
+            const idNumberInput = document.getElementById('id_number');
+            if (idNumberInput) {
+                idNumberInput.addEventListener('blur', function() {
+                    const id = this.value.replace(/\s/g, '');
+                    
+                    if (id.length === 13 && /^\d+$/.test(id)) {
+                        // Extract DOB from ID
+                        const year = id.substring(0, 2);
+                        const month = id.substring(2, 4);
+                        const day = id.substring(4, 6);
+                        
+                        // Determine century
+                        const currentYear = new Date().getFullYear() % 100;
+                        const century = parseInt(year) <= currentYear ? '20' : '19';
+                        
+                        // Fill date of birth
+                        const dobInput = document.getElementById('date_of_birth');
+                        if (dobInput && !dobInput.value) {
+                            dobInput.value = `${century}${year}-${month}-${day}`;
+                        }
+                        
+                        // Determine gender
+                        const genderDigit = parseInt(id.substring(6, 7));
+                        const genderSelect = document.getElementById('gender');
+                        if (genderSelect && !genderSelect.value) {
+                            genderSelect.value = genderDigit < 5 ? 'female' : 'male';
+                        }
+                        
+                        // Show success message
+                        showKidNotification('We filled in your date of birth and gender from your ID number!', 'success');
+                    }
+                });
+            }
+            
+            // SIMPLE FORM VALIDATION - Kid friendly
+            function validateForm() {
+                let isValid = true;
+                let errors = [];
+                
+                // Check required fields
+                const requiredFields = [
+                    { id: 'student', name: 'Full Name' },
+                    { id: 'email', name: 'Email Address' },
+                    { id: 'address', name: 'Address' },
+                    { id: 'disability', name: 'Disability Information' }
+                ];
+                
+                requiredFields.forEach(field => {
+                    const element = document.getElementById(field.id);
+                    if (element && !element.value.trim()) {
+                        element.classList.add('is-invalid');
+                        errors.push(`${field.name} is required`);
+                        isValid = false;
+                    } else if (element) {
+                        element.classList.remove('is-invalid');
+                    }
+                });
+                
+                // Check email format
+                const emailInput = document.getElementById('email');
+                if (emailInput && emailInput.value.trim()) {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(emailInput.value.trim())) {
+                        emailInput.classList.add('is-invalid');
+                        errors.push('Please enter a valid email address (like name@example.com)');
+                        isValid = false;
+                    }
+                }
+                
+                // Check at least one university is selected
+                const universityCheckboxes = document.querySelectorAll('#universityList input[type="checkbox"]:checked');
+                const manualUni = document.getElementById('university_manual');
+                const manualUniValue = manualUni ? manualUni.value.trim() : '';
+                
+                if (universityCheckboxes.length === 0 && !manualUniValue) {
+                    errors.push('Please select at least one university or type one in the box below');
                     isValid = false;
-                } else if (element) {
-                    element.classList.remove('is-invalid');
-                }
-            });
-            
-            // Check email format
-            const emailInput = document.getElementById('email');
-            if (emailInput && emailInput.value.trim()) {
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(emailInput.value.trim())) {
-                    emailInput.classList.add('is-invalid');
-                    errors.push('Please enter a valid email address (like name@example.com)');
-                    isValid = false;
-                }
-            }
-            
-            // Check at least one university is selected
-            const universityCheckboxes = document.querySelectorAll('#universityList input[type="checkbox"]:checked');
-            const manualUni = document.getElementById('university_manual');
-            const manualUniValue = manualUni ? manualUni.value.trim() : '';
-            
-            if (universityCheckboxes.length === 0 && !manualUniValue) {
-                errors.push('Please select at least one university or type one in the box below');
-                isValid = false;
-                
-                // Highlight university section
-                const universityList = document.getElementById('universityList');
-                if (universityList) {
-                    universityList.style.border = '2px solid #ef4444';
-                    universityList.style.borderRadius = '8px';
-                    universityList.style.padding = '10px';
-                }
-            } else {
-                // Remove highlight if valid
-                const universityList = document.getElementById('universityList');
-                if (universityList) {
-                    universityList.style.border = '';
-                    universityList.style.borderRadius = '';
-                    universityList.style.padding = '';
-                }
-            }
-            
-            return { isValid, errors };
-        }
-        
-        // SAVE DRAFT - Kid friendly
-        if (saveDraftBtn) {
-            saveDraftBtn.addEventListener('click', function() {
-                isDraftField.value = '1';
-                
-                // Show loading
-                showLoading();
-                saveDraftBtn.disabled = true;
-                saveDraftBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-                
-                // Submit form as draft
-                setTimeout(() => {
-                    form.submit();
-                }, 800);
-            });
-        }
-        
-        // FORM SUBMISSION - Kid friendly
-        if (form) {
-            form.addEventListener('submit', function(e) {
-                // If saving as draft, skip validation
-                if (isDraftField.value === '1') {
-                    return true;
-                }
-                
-                e.preventDefault();
-                
-                // Validate form
-                const validation = validateForm();
-                
-                if (!validation.isValid) {
-                    // Show errors in kid-friendly way
-                    showKidNotification(validation.errors.join('<br>'), 'error');
                     
-                    // Scroll to first error
-                    const firstError = document.querySelector('.is-invalid');
-                    if (firstError) {
-                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        firstError.focus();
+                    // Highlight university section
+                    const universityList = document.getElementById('universityList');
+                    if (universityList) {
+                        universityList.style.border = '2px solid #ef4444';
+                        universityList.style.borderRadius = '8px';
+                        universityList.style.padding = '10px';
                     }
+                } else {
+                    // Remove highlight if valid
+                    const universityList = document.getElementById('universityList');
+                    if (universityList) {
+                        universityList.style.border = '';
+                        universityList.style.borderRadius = '';
+                        universityList.style.padding = '';
+                    }
+                }
+                
+                return { isValid, errors };
+            }
+            
+            // SAVE DRAFT - Kid friendly
+            if (saveDraftBtn) {
+                saveDraftBtn.addEventListener('click', function() {
+                    isDraftField.value = '1';
+                    
+                    // Show loading
+                    showLoading();
+                    saveDraftBtn.disabled = true;
+                    saveDraftBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                    
+                    // Submit form as draft
+                    setTimeout(() => {
+                        form.submit();
+                    }, 800);
+                });
+            }
+            
+            // FORM SUBMISSION - Kid friendly
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    // If saving as draft, skip validation
+                    if (isDraftField.value === '1') {
+                        return true;
+                    }
+                    
+                    e.preventDefault();
+                    
+                    // Validate form
+                    const validation = validateForm();
+                    
+                    if (!validation.isValid) {
+                        // Show errors in kid-friendly way
+                        showKidNotification(validation.errors.join('<br>'), 'error');
+                        
+                        // Scroll to first error
+                        const firstError = document.querySelector('.is-invalid');
+                        if (firstError) {
+                            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            firstError.focus();
+                        }
+                        
+                        return false;
+                    }
+                    
+                    // Show loading and disable buttons
+                    showLoading();
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+                    }
+                    if (saveDraftBtn) {
+                        saveDraftBtn.disabled = true;
+                    }
+                    
+                    // Submit the form
+                    setTimeout(() => {
+                        form.submit();
+                    }, 1200);
                     
                     return false;
-                }
-                
-                // Show loading and disable buttons
-                showLoading();
-                if (submitBtn) {
-                    submitBtn.disabled = true;
-                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-                }
-                if (saveDraftBtn) {
-                    saveDraftBtn.disabled = true;
-                }
-                
-                // Submit the form
-                setTimeout(() => {
-                    form.submit();
-                }, 1200);
-                
-                return false;
-            });
-        }
-        
-        // KID-FRIENDLY NOTIFICATION
-        function showKidNotification(message, type = 'info') {
-            // Create notification element
-            const notification = document.createElement('div');
-            notification.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show`;
-            notification.style.position = 'fixed';
-            notification.style.top = '20px';
-            notification.style.right = '20px';
-            notification.style.zIndex = '9999';
-            notification.style.minWidth = '300px';
-            notification.style.maxWidth = '500px';
-            notification.style.fontSize = '0.9rem';
-            
-            let icon = 'info-circle';
-            let title = 'Info';
-            
-            if (type === 'error') {
-                icon = 'exclamation-triangle';
-                title = 'Oops!';
-            } else if (type === 'success') {
-                icon = 'check-circle';
-                title = 'Great!';
+                });
             }
             
-            notification.innerHTML = `
-                <div class="d-flex align-items-start">
-                    <i class="fas fa-${icon} me-2 mt-1" style="font-size: 1.2rem;"></i>
-                    <div>
-                        <strong>${title}</strong>
-                        <div>${message}</div>
-                    </div>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            `;
-            
-            document.body.appendChild(notification);
-            
-            // Auto-remove after 6 seconds
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
+            // KID-FRIENDLY NOTIFICATION
+            function showKidNotification(message, type = 'info') {
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show`;
+                notification.style.position = 'fixed';
+                notification.style.top = '20px';
+                notification.style.right = '20px';
+                notification.style.zIndex = '9999';
+                notification.style.minWidth = '300px';
+                notification.style.maxWidth = '500px';
+                notification.style.fontSize = '0.9rem';
+                
+                let icon = 'info-circle';
+                let title = 'Info';
+                
+                if (type === 'error') {
+                    icon = 'exclamation-triangle';
+                    title = 'Oops!';
+                } else if (type === 'success') {
+                    icon = 'check-circle';
+                    title = 'Great!';
                 }
-            }, 6000);
-        }
-        
-        // Clear validation errors when user starts typing
-        if (form) {
-            const inputs = form.querySelectorAll('input, textarea, select');
-            inputs.forEach(input => {
-                input.addEventListener('input', function() {
-                    this.classList.remove('is-invalid');
-                    
-                    // Also clear any border on university list
-                    if (this.id === 'university_manual' || this.id === 'student') {
-                        const universityList = document.getElementById('universityList');
-                        if (universityList) {
-                            universityList.style.border = '';
-                            universityList.style.borderRadius = '';
-                            universityList.style.padding = '';
+                
+                notification.innerHTML = `
+                    <div class="d-flex align-items-start">
+                        <i class="fas fa-${icon} me-2 mt-1" style="font-size: 1.2rem;"></i>
+                        <div>
+                            <strong>${title}</strong>
+                            <div>${message}</div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Auto-remove after 6 seconds
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 6000);
+            }
+            
+            // Clear validation errors when user starts typing
+            if (form) {
+                const inputs = form.querySelectorAll('input, textarea, select');
+                inputs.forEach(input => {
+                    input.addEventListener('input', function() {
+                        this.classList.remove('is-invalid');
+                        
+                        // Also clear any border on university list
+                        if (this.id === 'university_manual' || this.id === 'student') {
+                            const universityList = document.getElementById('universityList');
+                            if (universityList) {
+                                universityList.style.border = '';
+                                universityList.style.borderRadius = '';
+                                universityList.style.padding = '';
+                            }
                         }
+                    });
+                });
+            }
+            
+            // Show success message on page load if form was saved
+            setTimeout(() => {
+                const inputs = document.querySelectorAll('#applicationForm input, #applicationForm textarea, #applicationForm select');
+                let hasValues = false;
+                
+                inputs.forEach(input => {
+                    if (input.value && input.type !== 'hidden' && input.type !== 'checkbox') {
+                        hasValues = true;
                     }
                 });
-            });
-        }
-        
-        // Show success message on page load if form was saved
-        setTimeout(() => {
-            const inputs = document.querySelectorAll('#applicationForm input, #applicationForm textarea, #applicationForm select');
-            let hasValues = false;
-            
-            inputs.forEach(input => {
-                if (input.value && input.type !== 'hidden' && input.type !== 'checkbox') {
-                    hasValues = true;
+                
+                // Check if any checkboxes are checked
+                const checkedBoxes = document.querySelectorAll('#universityList input:checked, #bursaryList input:checked');
+                
+                if (hasValues || checkedBoxes.length > 0) {
+                    showKidNotification('Your previously saved information has been loaded!', 'success');
                 }
-            });
+            }, 500);
             
-            // Check if any checkboxes are checked
-            const checkedBoxes = document.querySelectorAll('#universityList input:checked, #bursaryList input:checked');
-            
-            if (hasValues || checkedBoxes.length > 0) {
-                showKidNotification('Your previously saved information has been loaded!', 'success');
-            }
-        }, 500);
-        
-        console.log('Kid-friendly application form ready!');
-    });
-</script>
-{% endblock %}
+            console.log('Kid-friendly application form ready!');
+        });
+    </script>
+    {% endblock %}
+
+{% else %}
+    <!-- Show login/signup prompt for unauthenticated users -->
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow-lg border-0 rounded-lg">
+                    <div class="card-header bg-primary text-white text-center py-4">
+                        <h3 class="mb-0">
+                            <i class="fas fa-lock me-2"></i>Authentication Required
+                        </h3>
+                    </div>
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <i class="fas fa-graduation-cap fa-4x text-primary mb-3"></i>
+                            <h4>Ready to Apply?</h4>
+                            <p class="text-muted">You need to be logged in to access the application form.</p>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Don't worry! It only takes a minute to create an account.
+                        </div>
+                        
+                        <div class="d-grid gap-3">
+                            <a href="{% url 'login_page' %}?next={{ request.path }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Login to Continue
+                            </a>
+                            
+                            <div class="text-center">
+                                <span class="text-muted">Don't have an account?</span>
+                            </div>
+                            
+                            <a href="{% url 'register_selection' %}" class="btn btn-success btn-lg">
+                                <i class="fas fa-user-plus me-2"></i>Create Free Account
+                            </a>
+                            
+                            <div class="text-center mt-3">
+                                <small class="text-muted">
+                                    By creating an account, you can:
+                                </small>
+                                <ul class="list-unstyled text-start mt-2">
+                                    <li><i class="fas fa-check text-success me-2"></i>Apply to multiple universities</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Track your applications</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Save your information for later</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Get updates on your application status</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <a href="{% url 'index' %}" class="text-decoration-none">
+                                <i class="fas fa-arrow-left me-1"></i>Return to Home
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
