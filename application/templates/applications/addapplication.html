@@ -988,65 +988,120 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM loaded - setting up form...');
+        
         const form = document.getElementById('applicationForm');
         const loadingSpinner = document.getElementById('loadingSpinner');
         const submitBtn = document.getElementById('submitBtn');
         const saveDraftBtn = document.getElementById('saveDraftBtn');
         const isDraftField = document.getElementById('isDraft');
         
-        // SIMPLE SELECTION FUNCTION - Works for both universities and bursaries
+        // FIXED: SIMPLE SELECTION FUNCTION - Works for both universities and bursaries
         function setupSelection(listId, counterId) {
-            const items = document.querySelectorAll(`#${listId} .selection-item`);
+            console.log(`Setting up selection for ${listId}`);
+            
+            // Get the container and items
+            const container = document.getElementById(listId);
+            if (!container) {
+                console.log(`Container ${listId} not found`);
+                return;
+            }
+            
+            const items = container.querySelectorAll('.selection-item');
+            console.log(`Found ${items.length} items in ${listId}`);
+            
+            if (items.length === 0) {
+                console.log(`No items found in ${listId}`);
+                return;
+            }
             
             items.forEach(item => {
                 const checkbox = item.querySelector('input[type="checkbox"]');
+                if (!checkbox) return;
                 
                 // Click anywhere on item to toggle checkbox
                 item.addEventListener('click', function(e) {
+                    // Don't trigger if clicking on checkbox itself (avoid double toggle)
                     if (e.target !== checkbox) {
+                        e.preventDefault();
                         checkbox.checked = !checkbox.checked;
-                        item.classList.toggle('selected', checkbox.checked);
-                        updateSelectionCount(counterId);
+                        
+                        // Trigger change event to update class and count
+                        const event = new Event('change', { bubbles: true });
+                        checkbox.dispatchEvent(event);
                     }
                 });
                 
-                // Also update when checkbox is clicked directly
+                // Update when checkbox changes
                 checkbox.addEventListener('change', function() {
-                    item.classList.toggle('selected', this.checked);
+                    // Update the parent item's selected class
+                    if (this.checked) {
+                        item.classList.add('selected');
+                    } else {
+                        item.classList.remove('selected');
+                    }
+                    
+                    // Update the counter
                     updateSelectionCount(counterId);
                 });
                 
-                // Set initial selected state
-                item.classList.toggle('selected', checkbox.checked);
+                // Set initial selected state based on checkbox
+                if (checkbox.checked) {
+                    item.classList.add('selected');
+                }
             });
+            
+            // Initial count update
+            setTimeout(() => updateSelectionCount(counterId), 100);
         }
         
-        // Update selection count
+        // FIXED: Update selection count
         function updateSelectionCount(counterId) {
-            const containerId = counterId === 'selectedUniversityCount' ? 'universityList' : 'bursaryList';
-            const selectedCount = document.querySelectorAll(`#${containerId} input[type="checkbox"]:checked`).length;
             const counterElement = document.getElementById(counterId);
-            if (counterElement) {
-                counterElement.textContent = selectedCount;
+            if (!counterElement) {
+                console.log(`Counter ${counterId} not found`);
+                return;
             }
+            
+            // Determine which container based on counter ID
+            let containerId;
+            if (counterId === 'selectedUniversityCount') {
+                containerId = 'universityList';
+            } else if (counterId === 'selectedBursaryCount') {
+                containerId = 'bursaryList';
+            } else {
+                return;
+            }
+            
+            const container = document.getElementById(containerId);
+            if (!container) {
+                console.log(`Container ${containerId} not found for counter`);
+                return;
+            }
+            
+            const selectedCount = container.querySelectorAll('input[type="checkbox"]:checked').length;
+            counterElement.textContent = selectedCount;
+            console.log(`Updated ${counterId} to ${selectedCount}`);
         }
         
-        // Initialize selections
-        setupSelection('universityList', 'selectedUniversityCount');
-        setupSelection('bursaryList', 'selectedBursaryCount');
-        
-        // Initialize counts on load
-        updateSelectionCount('selectedUniversityCount');
-        updateSelectionCount('selectedBursaryCount');
+        // Initialize selections with a slight delay to ensure DOM is ready
+        setTimeout(() => {
+            setupSelection('universityList', 'selectedUniversityCount');
+            setupSelection('bursaryList', 'selectedBursaryCount');
+        }, 200);
         
         // Show loading spinner
         function showLoading() {
-            loadingSpinner.style.display = 'flex';
+            if (loadingSpinner) {
+                loadingSpinner.style.display = 'flex';
+            }
         }
         
         // Hide loading spinner
         function hideLoading() {
-            loadingSpinner.style.display = 'none';
+            if (loadingSpinner) {
+                loadingSpinner.style.display = 'none';
+            }
         }
         
         // AUTO-FILL FROM ID NUMBER - Kid friendly
@@ -1121,8 +1176,10 @@
             
             // Check at least one university is selected
             const universityCheckboxes = document.querySelectorAll('#universityList input[type="checkbox"]:checked');
-            const manualUni = document.getElementById('university_manual').value;
-            if (universityCheckboxes.length === 0 && !manualUni.trim()) {
+            const manualUni = document.getElementById('university_manual');
+            const manualUniValue = manualUni ? manualUni.value.trim() : '';
+            
+            if (universityCheckboxes.length === 0 && !manualUniValue) {
                 errors.push('Please select at least one university or type one in the box below');
                 isValid = false;
                 
@@ -1133,64 +1190,81 @@
                     universityList.style.borderRadius = '8px';
                     universityList.style.padding = '10px';
                 }
+            } else {
+                // Remove highlight if valid
+                const universityList = document.getElementById('universityList');
+                if (universityList) {
+                    universityList.style.border = '';
+                    universityList.style.borderRadius = '';
+                    universityList.style.padding = '';
+                }
             }
             
             return { isValid, errors };
         }
         
         // SAVE DRAFT - Kid friendly
-        saveDraftBtn.addEventListener('click', function() {
-            isDraftField.value = '1';
-            
-            // Show loading
-            showLoading();
-            saveDraftBtn.disabled = true;
-            saveDraftBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-            
-            // Submit form as draft
-            setTimeout(() => {
-                form.submit();
-            }, 800);
-        });
+        if (saveDraftBtn) {
+            saveDraftBtn.addEventListener('click', function() {
+                isDraftField.value = '1';
+                
+                // Show loading
+                showLoading();
+                saveDraftBtn.disabled = true;
+                saveDraftBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                
+                // Submit form as draft
+                setTimeout(() => {
+                    form.submit();
+                }, 800);
+            });
+        }
         
         // FORM SUBMISSION - Kid friendly
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // If saving as draft, skip validation
-            if (isDraftField.value === '1') {
-                form.submit();
-                return;
-            }
-            
-            // Validate form
-            const validation = validateForm();
-            
-            if (!validation.isValid) {
-                // Show errors in kid-friendly way
-                showKidNotification(validation.errors.join('<br>'), 'error');
-                
-                // Scroll to first error
-                const firstError = document.querySelector('.is-invalid');
-                if (firstError) {
-                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    firstError.focus();
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                // If saving as draft, skip validation
+                if (isDraftField.value === '1') {
+                    return true;
                 }
                 
-                return;
-            }
-            
-            // Show loading and disable buttons
-            showLoading();
-            submitBtn.disabled = true;
-            saveDraftBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-            
-            // Submit the form
-            setTimeout(() => {
-                form.submit();
-            }, 1200);
-        });
+                e.preventDefault();
+                
+                // Validate form
+                const validation = validateForm();
+                
+                if (!validation.isValid) {
+                    // Show errors in kid-friendly way
+                    showKidNotification(validation.errors.join('<br>'), 'error');
+                    
+                    // Scroll to first error
+                    const firstError = document.querySelector('.is-invalid');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstError.focus();
+                    }
+                    
+                    return false;
+                }
+                
+                // Show loading and disable buttons
+                showLoading();
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+                }
+                if (saveDraftBtn) {
+                    saveDraftBtn.disabled = true;
+                }
+                
+                // Submit the form
+                setTimeout(() => {
+                    form.submit();
+                }, 1200);
+                
+                return false;
+            });
+        }
         
         // KID-FRIENDLY NOTIFICATION
         function showKidNotification(message, type = 'info') {
@@ -1238,37 +1312,43 @@
         }
         
         // Clear validation errors when user starts typing
-        const inputs = form.querySelectorAll('input, textarea, select');
-        inputs.forEach(input => {
-            input.addEventListener('input', function() {
-                this.classList.remove('is-invalid');
-                
-                // Also clear any border on university list
-                if (this.id === 'university_manual' || this.id === 'student') {
-                    const universityList = document.getElementById('universityList');
-                    if (universityList) {
-                        universityList.style.border = '';
-                        universityList.style.borderRadius = '';
-                        universityList.style.padding = '';
+        if (form) {
+            const inputs = form.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    this.classList.remove('is-invalid');
+                    
+                    // Also clear any border on university list
+                    if (this.id === 'university_manual' || this.id === 'student') {
+                        const universityList = document.getElementById('universityList');
+                        if (universityList) {
+                            universityList.style.border = '';
+                            universityList.style.borderRadius = '';
+                            universityList.style.padding = '';
+                        }
                     }
-                }
+                });
             });
-        });
+        }
         
         // Show success message on page load if form was saved
-        window.addEventListener('load', function() {
-            // Check if there are any values in form (meaning it was pre-filled)
+        setTimeout(() => {
+            const inputs = document.querySelectorAll('#applicationForm input, #applicationForm textarea, #applicationForm select');
             let hasValues = false;
+            
             inputs.forEach(input => {
-                if (input.value && input.type !== 'hidden') {
+                if (input.value && input.type !== 'hidden' && input.type !== 'checkbox') {
                     hasValues = true;
                 }
             });
             
-            if (hasValues && document.querySelectorAll('.selection-item.selected').length > 0) {
+            // Check if any checkboxes are checked
+            const checkedBoxes = document.querySelectorAll('#universityList input:checked, #bursaryList input:checked');
+            
+            if (hasValues || checkedBoxes.length > 0) {
                 showKidNotification('Your previously saved information has been loaded!', 'success');
             }
-        });
+        }, 500);
         
         console.log('Kid-friendly application form ready!');
     });
