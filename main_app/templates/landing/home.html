@@ -1200,76 +1200,7 @@
                 <!--/ End Header Inner -->
             </header>
             <!-- End Header Area -->
-            
-            <!-- Slider Area -->
-            <section class="slider">
-                <div class="hero-slider">
-                    <!-- Tolleya Static Intro -->
-                    <!-- Dynamic Photo Slides -->
-                    {% for photo in photos %}
-                    <div class="single-slider" style="background-image: url(''); background-size: cover; background-position: center;">
-                        <div class="container">
-                            <div class="row">
-                                <div class="col-lg-7">
-                                    <div class="text position-relative">
-                                        <!-- Minimal Top-Right Image Badge -->
-                                        <div class="sponsor-badge">
-                                            <a href="{% url 'photo' photo.id %}" class="sponsor-overlay-link">
-                                                <span class="sponsor-overlay-text"><span style="color:rgb(233, 30, 30);">Proudly Sponsor</span></a>
-                                            <a href="https://{{ photo.website_url }}" target="_blank" rel="noopener noreferrer">
-                                                <img src="{{ photo.image.url }}" alt="Sponsor Logo">
-                                            </a>
-                                        </div>
-                                        
-                                        <p class="description"><span>{{ photo.description }}</span></p>
-                
-                                        {% if request.user.is_superuser %}
-                                        <div class="admin-actions mb-3">
-                                            <a href="{% url 'edit_photo' photo.id %}" class="update"><i class="fas fa-pencil-alt"></i> Edit</a>
-                                            <a href="{% url 'delete-photo' photo.id %}" class="delete"><i class="fas fa-trash-alt"></i> Delete</a>
-                                        </div>
-                                        {% endif %}
-                
-                                        <div class="button">
-                                            {% if photo.website_url %}
-                                                <a href="https://{{ photo.website_url }}" class="btn">Visit Us</a>
-                                            {% else %}
-                                                <a href="{% url 'register_selection' %}" class="btn">Register</a>
-                                            {% endif %}
-                
-                                            {% if photo.facebook_url %}
-                                                <a href="https://{{ photo.facebook_url }}" class="btn primary">Facebook</a>
-                                            {% else %}
-                                                <a href="{% url 'school_dashboard' %}" class="btn primary">School Dashboard</a>
-                                            {% endif %}
-                                        </div>
-                
-                                        <ul class="social">
-                                            {% if photo.whatsapp_number %}
-                                                <li><a href="https://wa.me/{{ photo.whatsapp_number }}" target="_blank"><i class="icofont-whatsapp"></i></a></li>
-                                            {% endif %}
-                                            {% if photo.zoom_url %}
-                                                <li><a href="https://{{ photo.zoom_url }}"><i class="icofont-zoom"></i></a></li>
-                                            {% endif %}
-                                            {% if photo.microsoftTeam_url %}
-                                                <li><a href="https://{{ photo.microsoftTeam_url }}"><i class="icofont-microsoft-teams"></i></a></li>
-                                            {% endif %}
-                                            {% if photo.twitter_url %}
-                                                <li><a href="https://{{ photo.twitter_url }}"><i class="icofont-twitter"></i></a></li>
-                                            {% endif %}
-                                            {% if photo.tiktok_url %}
-                                                <li><a href="https://{{ photo.tiktok_url }}"><i class="icofont-tiktok"></i></a></li>
-                                            {% endif %}
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </section>
-
+           
             <script src="https://cdn.botpress.cloud/webchat/v2.5/inject.js"></script>
             <script src="https://files.bpcontent.cloud/2025/05/11/09/20250511095855-CN72ENNA.js"></script>
             
@@ -1312,6 +1243,987 @@
             </script>
             
             <!-- The rest of your content remains exactly the same -->
+            <style>
+            /* ============================================
+            ORIGINAL STYLES WITH COMPACT ALBUM COVER SIZE CARDS
+            Only card dimensions changed - header preserved
+            ============================================ */
+            
+            /* Store Catalog Styles */
+            .photo-gallery-section.store-catalog {
+                background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+                padding: 60px 0;
+                position: relative;
+            }
+
+            /* Catalog Header - UNCHANGED */
+            .catalog-header {
+                margin-bottom: 30px;
+            }
+
+            .catalog-badge {
+                display: inline-block;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                padding: 6px 15px;
+                border-radius: 30px;
+                font-size: 12px;
+                font-weight: 600;
+                margin-bottom: 15px;
+                letter-spacing: 1px;
+            }
+
+            .catalog-title {
+                font-size: 2.5rem;
+                font-weight: 800;
+                color: #1a1a2e;
+                margin-bottom: 15px;
+            }
+
+            .catalog-title .highlight {
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            .catalog-subtitle {
+                color: #666;
+                font-size: 1.1rem;
+                margin-bottom: 20px;
+            }
+
+            /* Catalog Stats Badge - UNCHANGED */
+            .catalog-stats-badge {
+                display: inline-flex;
+                gap: 20px;
+                background: white;
+                padding: 10px 25px;
+                border-radius: 50px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            }
+
+            .stat-item {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 14px;
+                color: #555;
+            }
+
+            .stat-item i {
+                color: #667eea;
+            }
+
+            /* Product Grid - COMPACT ALBUM COVER SIZE */
+            .catalog-product-grid {
+                position: relative;
+                margin-top: 20px;
+            }
+
+            .product-grid-container {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+                gap: 20px;
+            }
+
+            /* Product Card - COMPACT LIKE SPOTIFY ALBUM */
+            .product-card {
+                background: white;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                position: relative;
+                border: 1px solid rgba(102, 126, 234, 0.1);
+            }
+
+            .product-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 12px 24px rgba(102, 126, 234, 0.15);
+                border-color: rgba(102, 126, 234, 0.3);
+            }
+
+            /* Product Badge - COMPACT */
+            .product-badge {
+                position: absolute;
+                top: 8px;
+                left: 8px;
+                z-index: 2;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .badge-new,
+            .badge-featured {
+                padding: 3px 8px;
+                border-radius: 16px;
+                font-size: 9px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+            }
+
+            .badge-new {
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                color: white;
+                box-shadow: 0 1px 4px rgba(245, 87, 108, 0.3);
+            }
+
+            .badge-featured {
+                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                color: white;
+            }
+
+            /* Product Image Container - SQUARE ALBUM COVER */
+            .product-image-container {
+                position: relative;
+                width: 100%;
+                aspect-ratio: 1 / 1;
+                overflow: hidden;
+                background: #f8f9fa;
+                cursor: pointer;
+            }
+
+            .product-image {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.4s ease;
+            }
+
+            .product-card:hover .product-image {
+                transform: scale(1.05);
+            }
+
+            /* Product Actions - COMPACT */
+            .product-actions {
+                position: absolute;
+                bottom: -50px;
+                left: 0;
+                right: 0;
+                display: flex;
+                justify-content: center;
+                gap: 6px;
+                padding: 10px;
+                background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent);
+                transition: bottom 0.25s ease;
+                z-index: 2;
+            }
+
+            .product-card:hover .product-actions {
+                bottom: 0;
+            }
+
+            .action-btn {
+                background: white;
+                border: none;
+                padding: 5px 10px;
+                border-radius: 20px;
+                font-size: 10px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                text-decoration: none;
+            }
+
+            .action-btn i {
+                font-size: 9px;
+            }
+
+            .quick-view {
+                background: white;
+                color: #667eea;
+            }
+
+            .quick-view:hover {
+                background: #667eea;
+                color: white;
+                transform: scale(1.02);
+            }
+
+            .add-to-cart {
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+            }
+
+            .add-to-cart:hover {
+                transform: scale(1.02);
+                box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+            }
+
+            .edit-product {
+                background: #f8f9fa;
+                color: #666;
+            }
+
+            .edit-product:hover {
+                background: #28a745;
+                color: white;
+            }
+
+            /* Product Hover Info - COMPACT */
+            .product-hover-info {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(102, 126, 234, 0.85);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                transition: opacity 0.25s ease;
+                z-index: 1;
+            }
+
+            .product-card:hover .product-hover-info {
+                opacity: 1;
+            }
+
+            .hover-content {
+                text-align: center;
+                color: white;
+            }
+
+            .hover-content i {
+                font-size: 28px;
+                margin-bottom: 6px;
+            }
+
+            .hover-content span {
+                font-size: 11px;
+            }
+
+            /* Product Details - COMPACT */
+            .product-details {
+                padding: 10px 10px 12px;
+            }
+
+            .product-title-section {
+                margin-bottom: 6px;
+            }
+
+            .product-title {
+                font-size: 12px;
+                font-weight: 700;
+                color: #1a1a2e;
+                margin-bottom: 3px;
+                line-height: 1.3;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .product-category {
+                font-size: 9px;
+                color: #667eea;
+                background: rgba(102, 126, 234, 0.1);
+                padding: 2px 6px;
+                border-radius: 12px;
+                display: inline-block;
+            }
+
+            /* Product Meta - COMPACT */
+            .product-meta {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-bottom: 8px;
+                padding-bottom: 8px;
+                border-bottom: 1px solid #f0f0f0;
+            }
+
+            .meta-item {
+                display: inline-flex;
+                align-items: center;
+                gap: 3px;
+                font-size: 9px;
+                color: #888;
+            }
+
+            .meta-item i {
+                font-size: 8px;
+            }
+
+            /* Store Links - COMPACT */
+            .product-store-links {
+                display: flex;
+                gap: 6px;
+                margin-bottom: 8px;
+                flex-wrap: wrap;
+            }
+
+            .store-link {
+                flex: 1;
+                text-align: center;
+                padding: 4px 6px;
+                border-radius: 6px;
+                text-decoration: none;
+                font-size: 9px;
+                font-weight: 600;
+                transition: all 0.2s ease;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 4px;
+                background: #f8f9fa;
+                color: #555;
+                border: 1px solid #e9ecef;
+                cursor: pointer;
+            }
+
+            .store-link i {
+                font-size: 9px;
+            }
+
+            .store-link:hover {
+                background: #667eea;
+                color: white;
+                border-color: #667eea;
+                transform: translateY(-1px);
+            }
+
+            .whatsapp-link:hover {
+                background: #25D366;
+                border-color: #25D366;
+            }
+
+            .share-link:hover {
+                background: #1DA1F2;
+                border-color: #1DA1F2;
+            }
+
+            /* Social Store Badges - COMPACT */
+            .social-store-badges {
+                display: flex;
+                gap: 5px;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+
+            .social-badge {
+                width: 24px;
+                height: 24px;
+                background: #f8f9fa;
+                border-radius: 50%;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                color: #666;
+                text-decoration: none;
+                transition: all 0.2s ease;
+                border: 1px solid #e9ecef;
+                font-size: 11px;
+            }
+
+            .social-badge i {
+                font-size: 11px;
+            }
+
+            .social-badge:hover {
+                background: #667eea;
+                color: white;
+                transform: translateY(-2px);
+            }
+
+            /* Quick View Modal - UNCHANGED */
+            .quickview-modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.85);
+                z-index: 10000;
+                align-items: center;
+                justify-content: center;
+                animation: fadeIn 0.3s ease;
+            }
+
+            .modal-dialog-store {
+                max-width: 900px;
+                width: 90%;
+                max-height: 90vh;
+                overflow: auto;
+            }
+
+            .modal-content-store {
+                background: white;
+                border-radius: 24px;
+                overflow: hidden;
+                position: relative;
+                animation: slideUp 0.3s ease;
+            }
+
+            .modal-close {
+                position: absolute;
+                top: 15px;
+                right: 20px;
+                font-size: 30px;
+                font-weight: bold;
+                color: #333;
+                cursor: pointer;
+                z-index: 10;
+                background: white;
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                border: none;
+                transition: all 0.3s ease;
+            }
+
+            .modal-close:hover {
+                background: #667eea;
+                color: white;
+                transform: rotate(90deg);
+            }
+
+            .modal-body-store {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 25px;
+                padding: 25px;
+            }
+
+            .modal-product-image img {
+                width: 100%;
+                height: auto;
+                border-radius: 16px;
+                object-fit: cover;
+            }
+
+            .modal-product-info {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .product-header h3 {
+                font-size: 22px;
+                font-weight: 800;
+                color: #1a1a2e;
+                margin-bottom: 8px;
+            }
+
+            .product-description p {
+                color: #555;
+                line-height: 1.5;
+                font-size: 14px;
+            }
+
+            .product-meta-info {
+                background: #f8f9fa;
+                padding: 12px;
+                border-radius: 12px;
+            }
+
+            .meta-row {
+                display: flex;
+                justify-content: space-between;
+                padding: 6px 0;
+                border-bottom: 1px solid #e9ecef;
+                font-size: 13px;
+            }
+
+            .meta-row:last-child {
+                border-bottom: none;
+            }
+
+            .meta-label {
+                font-weight: 600;
+                color: #666;
+            }
+
+            .meta-value {
+                color: #333;
+            }
+
+            .social-share-store {
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+
+            .social-share-store a {
+                width: 36px;
+                height: 36px;
+                background: #f8f9fa;
+                border-radius: 50%;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                color: #666;
+                text-decoration: none;
+                transition: all 0.3s ease;
+                border: 1px solid #e9ecef;
+            }
+
+            .social-share-store a:hover {
+                background: #667eea;
+                color: white;
+                transform: scale(1.05);
+            }
+
+            /* Toast Notification */
+            .toast-notification {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                background: #28a745;
+                color: white;
+                padding: 10px 20px;
+                border-radius: 40px;
+                transform: translateX(400px);
+                transition: transform 0.3s ease;
+                z-index: 10001;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+                font-size: 13px;
+            }
+
+            .toast-notification.show {
+                transform: translateX(0);
+            }
+
+            .toast-content {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            /* Empty Catalog */
+            .empty-catalog {
+                grid-column: 1 / -1;
+                text-align: center;
+                padding: 60px 20px;
+                background: white;
+                border-radius: 24px;
+            }
+
+            .empty-catalog-content i {
+                color: #667eea;
+                opacity: 0.5;
+            }
+
+            .empty-catalog-content h3 {
+                color: #333;
+                margin-bottom: 8px;
+                font-size: 18px;
+            }
+
+            .empty-catalog-content p {
+                color: #666;
+                margin-bottom: 15px;
+                font-size: 14px;
+            }
+
+            .btn-add-product {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                padding: 10px 20px;
+                border-radius: 30px;
+                text-decoration: none;
+                font-weight: 600;
+                font-size: 13px;
+                transition: all 0.3s ease;
+            }
+
+            .btn-add-product:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+                color: white;
+            }
+
+            /* Animations */
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+
+            @keyframes slideUp {
+                from {
+                    transform: translateY(30px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+
+            /* Responsive - Maintain compact on mobile */
+            @media (max-width: 640px) {
+                .product-grid-container {
+                    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                    gap: 14px;
+                }
+                
+                .catalog-title {
+                    font-size: 1.8rem;
+                }
+                
+                .catalog-stats-badge {
+                    flex-direction: column;
+                    gap: 6px;
+                    padding: 10px 18px;
+                }
+                
+                .modal-body-store {
+                    grid-template-columns: 1fr;
+                    padding: 20px;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .product-grid-container {
+                    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                    gap: 12px;
+                }
+                
+                .product-details {
+                    padding: 8px;
+                }
+                
+                .product-title {
+                    font-size: 11px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <!-- YOUR ORIGINAL HTML STRUCTURE - FULLY PRESERVED -->
+        <section class="photo-gallery-section store-catalog">
+            <div class="container">
+                <!-- Catalog Header with Shopping Vibes - UNCHANGED -->
+                <div class="col-lg-12 text-center">
+                    <div class="catalog-header">
+                        <span class="catalog-badge">A Madenet Company</span>
+                        <h2 class="catalog-title">Our Products & <span class="highlight">Services</span></h2>
+                        <p class="catalog-subtitle">Browse our premium collection of approved visuals and brand assets</p>
+                        
+                        <!-- Catalog Stats Badge - DYNAMIC from photos count -->
+                        <div class="catalog-stats-badge">
+                            <span class="stat-item">
+                                <i class="fas fa-images"></i> {{ photos|length }} Products
+                            </span>
+                            <span class="stat-item">
+                                <i class="fas fa-star"></i> Premium Quality
+                            </span>
+                            <span class="stat-item">
+                                <i class="fas fa-tag"></i> Ready to Use
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Grid - COMPACT ALBUM COVER SIZE -->
+                <div class="catalog-product-grid">
+                    <div class="product-grid-container">
+                        {% for photo in photos %}
+                        <div class="product-card" data-id="{{ photo.id }}">
+                            <!-- Product Badge - DYNAMIC based on upload date -->
+                            <div class="product-badge">
+                                {% if photo.upload_date|timesince <= "7 days" %}
+                                <span class="badge-new">NEW</span>
+                                {% endif %}
+                                {% if photo.approval_status == 'approved' %}
+                                <span class="badge-featured">✓ APPROVED</span>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Product Image with Quick View -->
+                            <div class="product-image-container">
+                                <img src="{{ photo.image.url }}" alt="{{ photo.description }}" class="product-image">
+                                
+                                <!-- Quick Action Buttons -->
+                                <div class="product-actions">
+                                    <button class="action-btn quick-view" onclick="quickViewProduct('{{ photo.image.url }}', '{{ photo.description|escapejs }}', '{{ photo.website_url|default:"" }}', '{{ photo.facebook_url|default:"" }}', '{{ photo.whatsapp_number|default:"" }}', '{{ photo.instagram_url|default:"" }}', '{{ photo.youtube_url|default:"" }}', '{{ photo.upload_date|date:"F d, Y" }}')">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                    {% if photo.website_url %}
+                                    <a href="https://{{ photo.website_url }}" target="_blank" class="action-btn add-to-cart">
+                                        <i class="fas fa-external-link-alt"></i> Visit
+                                    </a>
+                                    {% endif %}
+                                    {% if request.user.is_superuser %}
+                                    <a href="{% url 'edit_photo' photo.id %}" class="action-btn edit-product">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Hover Info Overlay -->
+                                <div class="product-hover-info">
+                                    <div class="hover-content">
+                                        <i class="fas fa-search-plus"></i>
+                                        <span>Quick Preview</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Product Details - DYNAMIC from photo fields -->
+                            <div class="product-details">
+                                <div class="product-title-section">
+                                    <h3 class="product-title">{{ photo.description|truncatechars:50 }}</h3>
+                                    {% if photo.category %}
+                                    <span class="product-category">{{ photo.category.name }}</span>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Product Meta Info - DYNAMIC -->
+                                <div class="product-meta">
+                                    <div class="meta-item">
+                                        <i class="far fa-calendar-alt"></i>
+                                        <span>{{ photo.upload_date|date:"M d, Y" }}</span>
+                                    </div>
+                                    {% if photo.location %}
+                                    <div class="meta-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span>{{ photo.location|truncatechars:15 }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Social/Contact Links - DYNAMIC from photo model fields -->
+                                <div class="product-store-links">
+                                    {% if photo.website_url %}
+                                    <a href="https://{{ photo.website_url }}" target="_blank" class="store-link" title="Visit Website">
+                                        <i class="fas fa-globe"></i> Web
+                                    </a>
+                                    {% endif %}
+                                    {% if photo.whatsapp_number %}
+                                    <a href="https://wa.me/{{ photo.whatsapp_number }}" target="_blank" class="store-link whatsapp-link">
+                                        <i class="fab fa-whatsapp"></i> WA
+                                    </a>
+                                    {% endif %}
+                                    <button class="store-link share-link" onclick="shareProduct('{{ photo.description|escapejs }}', '{{ photo.image.url }}')">
+                                        <i class="fas fa-share-alt"></i> Share
+                                    </button>
+                                </div>
+                                
+                                <!-- Social Media Icons - DYNAMIC from photo model -->
+                                <div class="social-store-badges">
+                                    {% if photo.facebook_url %}
+                                    <a href="https://{{ photo.facebook_url }}" target="_blank" class="social-badge" title="Facebook">
+                                        <i class="fab fa-facebook-f"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% if photo.instagram_url %}
+                                    <a href="https://{{ photo.instagram_url }}" target="_blank" class="social-badge" title="Instagram">
+                                        <i class="fab fa-instagram"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% if photo.youtube_url %}
+                                    <a href="https://{{ photo.youtube_url }}" target="_blank" class="social-badge" title="YouTube">
+                                        <i class="fab fa-youtube"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% if photo.twitter_url %}
+                                    <a href="https://{{ photo.twitter_url }}" target="_blank" class="social-badge" title="Twitter">
+                                        <i class="fab fa-twitter"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% if photo.tiktok_url %}
+                                    <a href="https://{{ photo.tiktok_url }}" target="_blank" class="social-badge" title="TikTok">
+                                        <i class="fab fa-tiktok"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% if photo.linkedin_url %}
+                                    <a href="https://{{ photo.linkedin_url }}" target="_blank" class="social-badge" title="LinkedIn">
+                                        <i class="fab fa-linkedin-in"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% if photo.pinterest_url %}
+                                    <a href="https://{{ photo.pinterest_url }}" target="_blank" class="social-badge" title="Pinterest">
+                                        <i class="fab fa-pinterest-p"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="empty-catalog">
+                            <div class="empty-catalog-content">
+                                <i class="fas fa-images fa-3x mb-3"></i>
+                                <h3>No Photos Available</h3>
+                                <p>Check back later for new visual content</p>
+                                {% if request.user.is_authenticated %}
+                                <a href="{% url 'addPhoto' %}" class="btn-add-product">
+                                    <i class="fas fa-plus-circle"></i> Upload First Photo
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick View Modal - Store Style -->
+        <div class="quickview-modal" id="quickviewModal">
+            <div class="modal-dialog-store">
+                <div class="modal-content-store">
+                    <button class="modal-close" onclick="closeQuickView()">&times;</button>
+                    <div class="modal-body-store">
+                        <div class="modal-product-image">
+                            <img id="quickviewImage" src="" alt="Product Image">
+                        </div>
+                        <div class="modal-product-info">
+                            <div class="product-header">
+                                <h3 id="quickviewTitle"></h3>
+                                <div id="quickviewRating" class="product-rating"></div>
+                            </div>
+                            <div class="product-description">
+                                <p id="quickviewDescription"></p>
+                            </div>
+                            <div class="product-meta-info">
+                                <div class="meta-row">
+                                    <span class="meta-label">Upload Date:</span>
+                                    <span id="quickviewDate" class="meta-value"></span>
+                                </div>
+                                <div class="meta-row">
+                                    <span class="meta-label">License:</span>
+                                    <span class="meta-value">Free Download</span>
+                                </div>
+                            </div>
+                            <div class="product-actions-store">
+                                <div class="social-share-store" id="quickviewSocialLinks"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toastNotification" class="toast-notification">
+            <div class="toast-content">
+                <i class="fas fa-check-circle"></i>
+                <span>Link copied to clipboard!</span>
+            </div>
+        </div>
+
+        <script>
+        // Quick View Product Function
+        let currentProductUrl = '';
+
+        function quickViewProduct(imageUrl, description, websiteUrl, facebookUrl, whatsappNumber, instagramUrl, youtubeUrl, uploadDate) {
+            const modal = document.getElementById('quickviewModal');
+            const modalImage = document.getElementById('quickviewImage');
+            const modalTitle = document.getElementById('quickviewTitle');
+            const modalDescription = document.getElementById('quickviewDescription');
+            const modalDate = document.getElementById('quickviewDate');
+            const modalSocialLinks = document.getElementById('quickviewSocialLinks');
+            
+            modalImage.src = imageUrl;
+            modalTitle.textContent = description.length > 100 ? description.substring(0, 100) + '...' : description;
+            modalDescription.textContent = description;
+            modalDate.textContent = uploadDate;
+            currentProductUrl = websiteUrl ? `https://${websiteUrl}` : '#';
+            
+            // Build social links dynamically
+            let socialHtml = '';
+            
+            if (websiteUrl) {
+                socialHtml += `<a href="https://${websiteUrl}" target="_blank" title="Website"><i class="fas fa-globe"></i></a>`;
+            }
+            if (facebookUrl) {
+                socialHtml += `<a href="https://${facebookUrl}" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>`;
+            }
+            if (instagramUrl) {
+                socialHtml += `<a href="https://${instagramUrl}" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>`;
+            }
+            if (whatsappNumber) {
+                socialHtml += `<a href="https://wa.me/${whatsappNumber}" target="_blank" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>`;
+            }
+            if (youtubeUrl) {
+                socialHtml += `<a href="https://${youtubeUrl}" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>`;
+            }
+            
+            modalSocialLinks.innerHTML = socialHtml || '<span>No social links available</span>';
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeQuickView() {
+            const modal = document.getElementById('quickviewModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Share Product Function
+        function shareProduct(description, imageUrl) {
+            const shareText = `Check out this item: ${description}`;
+            const fullUrl = window.location.href;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Check this out!',
+                    text: shareText,
+                    url: fullUrl
+                }).catch(err => console.log('Share failed:', err));
+            } else {
+                navigator.clipboard.writeText(`${shareText} - ${fullUrl}`).then(() => {
+                    showToast('Link copied to clipboard!');
+                }).catch(() => {
+                    showToast('Press Ctrl+C to copy link');
+                });
+            }
+        }
+
+        // Show Toast Notification
+        function showToast(message) {
+            const toast = document.getElementById('toastNotification');
+            const toastText = toast.querySelector('span');
+            toastText.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('quickviewModal');
+            if (event.target === modal) {
+                closeQuickView();
+            }
+        }
+
+        // Add animation for product cards on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const productCards = document.querySelectorAll('.product-card');
+            productCards.forEach((card, index) => {
+                card.style.animation = `slideUp 0.4s ease ${index * 0.03}s forwards`;
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(15px)';
+            });
+            
+            setTimeout(() => {
+                productCards.forEach(card => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                });
+            }, 100);
+        });
+        </script>        
             <!-- Shortcuts Section -->
             <section class="Features section shortcuts-section">
                 <div class="container">
